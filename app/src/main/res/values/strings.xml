@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">HEALTHE</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="def_body_location_s">Select Body Location</string>
+    <string name="def_geo_location_s">Select Geo-location</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

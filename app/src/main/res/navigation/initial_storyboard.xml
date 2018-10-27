@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/initial_storyboard"
+    app:startDestination="@id/physicianMain">
+
+    <fragment
+        android:id="@+id/patientMain"
+        android:name="team27.healthe.PatientMain_fragment"
+        android:label="fragment_patient_main"
+        tools:layout="@layout/fragment_patient_main" >
+        <action
+            android:id="@+id/action_patientMain_to_profile"
+            app:destination="@id/profile" />
+    </fragment>
+    <fragment
+        android:id="@+id/physicianMain"
+        android:name="team27.healthe.PhysicianMain_fragment"
+        android:label="fragment_physician_main"
+        tools:layout="@layout/fragment_physician_main" >
+        <action
+            android:id="@+id/action_physicianMain_to_profile"
+            app:destination="@id/profile" />
+        <action
+            android:id="@+id/action_physicianMain_to_patientList"
+            app:destination="@id/patientList" />
+    </fragment>
+    <fragment
+        android:id="@+id/profile"
+        android:name="team27.healthe.Profile_fragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profile_to_problemList"
+            app:destination="@id/problemList" />
+    </fragment>
+    <fragment
+        android:id="@+id/patientList"
+        android:name="team27.healthe.PatientList_fragment"
+        android:label="PatientList"
+        tools:layout="@layout/fragment_patient_list">
+        <action
+            android:id="@+id/action_patientList_to_profile"
+            app:destination="@id/profile" />
+        <action
+            android:id="@+id/action_patientList_to_addPatient"
+            app:destination="@id/addPatient" />
+    </fragment>
+    <fragment
+        android:id="@+id/problemList"
+        android:name="team27.healthe.ProblemList_fragment"
+        android:label="fragment_problem_list"
+        tools:layout="@layout/fragment_problem_list" >
+        <action
+            android:id="@+id/action_problemList_to_problem"
+            app:destination="@id/problem" />
+    </fragment>
+    <fragment
+        android:id="@+id/recordList"
+        android:name="team27.healthe.RecordList_fragment"
+        android:label="RecordList"
+        tools:layout="@layout/fragment_record_list" >
+        <action
+            android:id="@+id/action_recordList_to_record"
+            app:destination="@id/record" />
+    </fragment>
+    <fragment
+        android:id="@+id/record"
+        android:name="team27.healthe.Record_fragment"
+        android:label="Record"
+        tools:layout="@layout/fragment_record" >
+        <action
+            android:id="@+id/action_record_to_comments"
+            app:destination="@id/comments" />
+        <action
+            android:id="@+id/action_record_to_camera"
+            app:destination="@id/camera" />
+        <action
+            android:id="@+id/action_record_to_bodyLocation"
+            app:destination="@id/bodyLocation" />
+    </fragment>
+    <fragment
+        android:id="@+id/comments"
+        android:name="team27.healthe.Comments_fragment"
+        android:label="fragment_comments"
+        tools:layout="@layout/fragment_comments" />
+    <fragment
+        android:id="@+id/camera"
+        android:name="team27.healthe.Camera_fragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/problem"
+        android:name="team27.healthe.Problem_fragment"
+        android:label="fragment_problem"
+        tools:layout="@layout/fragment_problem" >
+        <action
+            android:id="@+id/action_problem_to_recordList"
+            app:destination="@id/recordList" />
+    </fragment>
+    <fragment
+        android:id="@+id/bodyLocation"
+        android:name="team27.healthe.BodyLocation_fragment"
+        android:label="fragment_body_location"
+        tools:layout="@layout/fragment_body_location" />
+    <fragment
+        android:id="@+id/addPatient"
+        android:name="team27.healthe.AddPatient_fragment"
+        android:label="fragment_add_patient"
+        tools:layout="@layout/fragment_add_patient" />
+</navigation>
