@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link AddPatient.OnFragmentInteractionListener} interface
+ * {@link Slideshow_fragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link AddPatient#newInstance} factory method to
+ * Use the {@link Slideshow_fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddPatient extends Fragment {
+public class Slideshow_fragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -29,7 +29,7 @@ public class AddPatient extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public AddPatient() {
+    public Slideshow_fragment() {
         // Required empty public constructor
     }
 
@@ -39,11 +39,11 @@ public class AddPatient extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment AddPatient.
+     * @return A new instance of fragment Slideshow_fragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static AddPatient newInstance(String param1, String param2) {
-        AddPatient fragment = new AddPatient();
+    public static Slideshow_fragment newInstance(String param1, String param2) {
+        Slideshow_fragment fragment = new Slideshow_fragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -64,7 +64,7 @@ public class AddPatient extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_patient, container, false);
+        return inflater.inflate(R.layout.fragment_slideshow, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

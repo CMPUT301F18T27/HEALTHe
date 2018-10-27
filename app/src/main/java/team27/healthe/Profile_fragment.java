@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Profile.OnFragmentInteractionListener} interface
+ * {@link Profile_fragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Profile#newInstance} factory method to
+ * Use the {@link Profile_fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Profile extends Fragment {
+public class Profile_fragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -29,7 +29,7 @@ public class Profile extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public Profile() {
+    public Profile_fragment() {
         // Required empty public constructor
     }
 
@@ -39,11 +39,11 @@ public class Profile extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Profile.
+     * @return A new instance of fragment Profile_fragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Profile newInstance(String param1, String param2) {
-        Profile fragment = new Profile();
+    public static Profile_fragment newInstance(String param1, String param2) {
+        Profile_fragment fragment = new Profile_fragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link PatientList.OnFragmentInteractionListener} interface
+ * {@link PatientMain_fragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link PatientList#newInstance} factory method to
+ * Use the {@link PatientMain_fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PatientList extends Fragment {
+public class PatientMain_fragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -29,7 +29,7 @@ public class PatientList extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public PatientList() {
+    public PatientMain_fragment() {
         // Required empty public constructor
     }
 
@@ -39,11 +39,11 @@ public class PatientList extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PatientList.
+     * @return A new instance of fragment PatientMain_fragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PatientList newInstance(String param1, String param2) {
-        PatientList fragment = new PatientList();
+    public static PatientMain_fragment newInstance(String param1, String param2) {
+        PatientMain_fragment fragment = new PatientMain_fragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -64,7 +64,7 @@ public class PatientList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_patient_list, container, false);
+        return inflater.inflate(R.layout.fragment_patient_main, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

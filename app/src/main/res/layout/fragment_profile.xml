@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Profile">
+    tools:context=".Profile_fragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -35,7 +35,7 @@
         android:layout_marginTop="30dp"
         android:ems="10"
         android:inputType="textMultiLine"
-        android:text="Address: 543 21 st NW Edmonton, AB, Canada D3S-7G4"
+        android:text="Phone: 403-393-9339"
         android:textSize="14sp" />
 
     <Button
