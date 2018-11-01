@@ -7,7 +7,7 @@ public class Record {
     private BodyLocation body_location;
     private String  geo_location_s;
     private GeoLocation geo_location;
-    private CommentList comment_list;
+//    private CommentList comment_list;
     private ImageList image_list;
 
     public Record(Context c) {
