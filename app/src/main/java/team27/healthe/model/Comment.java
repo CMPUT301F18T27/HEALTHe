@@ -9,15 +9,19 @@ public class Comment {
         this.commenter = commenter;
     }
 
-    public void setText(String text) {}
-
-    public String getText() {
-        return null;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public void setCommenter(User commenter) {}
+    public String getText() {
+        return this.text;
+    }
 
-    public String getCommenter() {
-        return null;
+    public void setCommenter(User commenter) {
+        this.commenter = commenter;
+    }
+
+    public User getCommenter() {
+        return this.commenter;
     }
 }

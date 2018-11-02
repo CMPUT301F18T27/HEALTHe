@@ -9,13 +9,15 @@ public class CareProvider extends User {
         super(userID, email, phone);
     }
 
+    public Collection<Patient> getPatients() {
+        return this.patients;
+    }
+
     public void addPatient(Patient p) {}
 
-    public Patient getPatient() {
+    public Patient getPatient(String patientID) {
         return null;
     }
 
-    public Collection<Patient> getPatientList() {
-        return null;
-    }
+    public void removePatient(Patient p) {}
 }

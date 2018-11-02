@@ -9,6 +9,8 @@ public class Problem implements Comparable<Problem> {
     private String description;
     private RecordList records;
 
+    // private Collection<Record> records;
+
     public Problem(String ttl, Date date, String desc, RecordList recs){
         title = ttl;
         pdate = date;

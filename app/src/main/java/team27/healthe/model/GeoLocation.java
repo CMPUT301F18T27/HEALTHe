@@ -1,19 +1,14 @@
 package team27.healthe.model;
 
 public class GeoLocation {
-    private String name;
     private double latitude;
     private double longitude;
+
+    private String name;
 
     public GeoLocation(double lat, double lon) {
         latitude = lat;
         longitude = lon;
-    }
-
-    public void setName(String name) {}
-
-    public String getName() {
-        return null;
     }
 
     public double getLatitude() {
@@ -31,4 +26,13 @@ public class GeoLocation {
     public void setLongitude(double lon) {
         this.longitude = lon;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
 }

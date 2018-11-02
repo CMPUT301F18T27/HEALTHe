@@ -9,13 +9,17 @@ public class Patient extends User {
         super(userID, email, phone);
     }
 
+    public Collection<Problem> getProblemList() {
+        return this.problems;
+    }
+
     public void addProblem(Problem p) {}
 
-    public Problem getProblem() {
+    // @TODO: problem title is not unique. finalize collection class to determine addressing
+    public Problem getProblem(String problemTitle) {
         return null;
     }
 
-    public Collection<Problem> getProblemList() {
-        return null;
-    }
+    public void removeProblem(Problem p) {}
+
 }
