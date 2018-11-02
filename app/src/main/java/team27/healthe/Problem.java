@@ -1,5 +1,6 @@
 package team27.healthe;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -13,10 +14,13 @@ public class Problem {
         title = ttl;
         pdate = date;
         description = desc;
+
     }
 
-    public Problem(){
-        pdate = new Date();
+    public Problem(String ttl, String desc) {
+        title = ttl;
+        pdate = Calendar.getInstance().getTime();
+        description = desc;
     }
 
     public String getTitle() {
