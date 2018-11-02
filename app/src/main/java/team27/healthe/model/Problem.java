@@ -1,5 +1,6 @@
 package team27.healthe.model;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class Problem implements Comparable<Problem> {
@@ -8,15 +9,44 @@ public class Problem implements Comparable<Problem> {
     private String description;
     private RecordList records;
 
+    // private Collection<Record> records;
+
+    public Problem() {
+        this.title = "New Problem";
+        this.pdate = new Date();
+        this.description = "";
+        this.records = new RecordList();
+    }
+
     public Problem(String ttl, Date date, String desc){
         title = ttl;
         pdate = date;
         description = desc;
+        records = new RecordList();
     }
 
-    public Problem(){
-        pdate = new Date();
-        records = new RecordList();
+    public Problem(String ttl, Date date, String desc, RecordList recs){
+        title = ttl;
+        pdate = date;
+        description = desc;
+        records = recs;
+
+        // must have at least 1 record
+        if (recs.empty()) {
+            throw new IllegalStateException();
+        }
+    }
+
+    public Problem(String ttl, String desc, RecordList recs) {
+        title = ttl;
+        pdate = Calendar.getInstance().getTime();
+        description = desc;
+        records = recs;
+
+        // must have at least 1 record
+        if (recs.empty()) {
+            throw new IllegalStateException();
+        }
     }
 
     public String getTitle() {
@@ -47,11 +77,15 @@ public class Problem implements Comparable<Problem> {
         return records;
     }
 
-    protected void setRecords(RecordList r){
-        records = r;
+    public void setRecords(RecordList records) {
+        this.records = records;
     }
 
     public int compareTo(Problem compare_problem){
         return this.getPdate().compareTo(compare_problem.getPdate());
+    }
+
+    public int getNumberOfRecords() {
+        return records.size();
     }
 }

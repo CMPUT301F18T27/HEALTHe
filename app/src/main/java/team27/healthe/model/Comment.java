@@ -1,19 +1,27 @@
 package team27.healthe.model;
 
 public class Comment {
-    String uid;
-    String content;
+    private String text;
+    private String commenter;
 
-    public Comment(String c, String u){
-        content = c;
-        uid = u;
+    public Comment(String text, String commenter){
+        this.text = text;
+        this.commenter = commenter;
     }
 
-    public String getUserid(){
-        return uid;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public String getContent(){
-        return content;
+    public String getText() {
+        return this.text;
+    }
+
+    public void setCommenter(String commenter) {
+        this.commenter = commenter;
+    }
+
+    public String getCommenter() {
+        return this.commenter;
     }
 }
