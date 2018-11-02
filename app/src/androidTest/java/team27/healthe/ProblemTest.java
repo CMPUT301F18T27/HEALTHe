@@ -12,6 +12,7 @@ import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 import team27.healthe.model.RecordList;
 
+import static android.os.SystemClock.sleep;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
@@ -134,5 +135,25 @@ public class ProblemTest {
         assertEquals(p.getNumberOfRecords(), 2);
     }
 
+    @Test
+    public void testCompareProblems() {
+        String title1 = "Hand Burn";
+        Date pdate1 = Calendar.getInstance().getTime();
+        String description1 = "I have a burn on the palm of my hand.";
+        RecordList records1 = new RecordList();
+        records1.add(new Record("Initial burn mark"));
+        Problem p1 = new Problem(title1, pdate1, description1, records1);
+
+        sleep(3000);
+
+        String title2 = "Hand Burn";
+        Date pdate2 = Calendar.getInstance().getTime();
+        String description2 = "I have a burn on the palm of my hand.";
+        RecordList records2 = new RecordList();
+        records2.add(new Record("Initial burn mark"));
+        Problem p2 = new Problem(title2, pdate2, description2, records2);
+
+        assertTrue(p1.compareTo(p2) < 0);
+    }
 
 }

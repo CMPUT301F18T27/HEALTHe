@@ -22,10 +22,6 @@ public class Record {
     private GeoLocation geoLocation;
     private ImageList imageList;
 
-    // @TODO: consider these implementations
-    private Collection<Comment> comments;
-    private Collection<Image> images;
-
     public Record(String ttl, Date date, String desc, CommentList comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ImageList images) {
 
