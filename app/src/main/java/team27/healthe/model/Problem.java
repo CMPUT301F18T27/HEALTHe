@@ -11,6 +11,13 @@ public class Problem implements Comparable<Problem> {
 
     // private Collection<Record> records;
 
+    public Problem(String ttl, Date date, String desc){
+        title = ttl;
+        pdate = date;
+        description = desc;
+        records = new RecordList();
+    }
+
     public Problem(String ttl, Date date, String desc, RecordList recs){
         title = ttl;
         pdate = date;

@@ -13,7 +13,7 @@ import team27.healthe.model.Patient;
 @RunWith(AndroidJUnit4.class)
 public class CommentTest {
     @Test
-    public void newComment() {
+    public void newCommentTest() {
         String text = "this is a new comment";
         Patient p = new Patient("imauser", "imauser@gmail.com", "1112223333");
 
@@ -24,7 +24,7 @@ public class CommentTest {
     }
 
     @Test
-    public void editText() {
+    public void editTextTest() {
         String text = "this is a new comment";
         CareProvider cp = new CareProvider("imaphysician", "imaphysician@gmail.com", "0000000000");
         Comment c = new Comment(text, cp);

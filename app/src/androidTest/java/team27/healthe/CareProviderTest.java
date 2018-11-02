@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public class CareProviderTest {
     @Test
-    public void newCareProvider() {
+    public void newCareProviderTest() {
         String userId = "robinwilliams";
         String email = "rwilliams@ualberta.ca";
         String phone = "4445556666";
@@ -26,7 +26,7 @@ public class CareProviderTest {
     }
 
     @Test
-    public void addPatient() {
+    public void addPatientTest() {
         String userId = "robinwilliams";
         String email = "rwilliams@ualberta.ca";
         String phone = "4445556666";
