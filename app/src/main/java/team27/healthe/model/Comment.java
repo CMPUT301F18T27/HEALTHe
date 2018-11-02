@@ -2,9 +2,9 @@ package team27.healthe.model;
 
 public class Comment {
     private String text;
-    private User commenter;
+    private String commenter;
 
-    public Comment(String text, User commenter){
+    public Comment(String text, String commenter){
         this.text = text;
         this.commenter = commenter;
     }
@@ -17,11 +17,11 @@ public class Comment {
         return this.text;
     }
 
-    public void setCommenter(User commenter) {
+    public void setCommenter(String commenter) {
         this.commenter = commenter;
     }
 
-    public User getCommenter() {
+    public String getCommenter() {
         return this.commenter;
     }
 }

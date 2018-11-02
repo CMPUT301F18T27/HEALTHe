@@ -30,9 +30,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+<<<<<<< HEAD
     // https://developer.android.com/training/testing/unit-testing/local-unit-tests
     testOptions {
         unitTests.returnDefaultValues = true
+=======
+    compileOptions {
+        sourceCompatibility = '1.7'
+        targetCompatibility = '1.7'
+>>>>>>> origin/Junit
     }
 }
 

@@ -29,15 +29,20 @@ public class PatientTest {
     @Test
     public void addProblemTest() {
         Patient patient = new Patient("fromfuture", "ff@google.com", "7539521462");
+        Problem problem = new Problem("i am a problem", new Date(), "I just got created");
 
-        String title = "i am a problem";
-        Date date = new Date();
-        String description = "I just got created";
+        patient.addProblem(problem);
+        assertTrue(patient.hasProblem(problem));
+    }
 
-        Problem problem = new Problem(title, date, description);
+    @Test
+    public void getProblemTest() {
+        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
+        String problemTitle = "im am green";
+        Problem problem = new Problem(problemTitle, new Date(), "should I be red?");
         patient.addProblem(problem);
 
-        assertEquals(problem, patient.getProblem(title));
+        assertEquals(problem, patient.getProblem(problemTitle));
     }
 
     @Test
@@ -47,7 +52,6 @@ public class PatientTest {
         patient.addProblem(problem);
 
         patient.removeProblem(problem);
-
         assertTrue(patient.getProblemList().isEmpty());
     }
 }
