@@ -8,17 +8,23 @@ import org.junit.runner.RunWith;
 import java.util.Calendar;
 import java.util.Date;
 
+import team27.healthe.model.CommentList;
+import team27.healthe.model.BodyLocation;
+import team27.healthe.model.GeoLocation;
+import team27.healthe.model.ImageList;
+import team27.healthe.model.Record;
+
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class RecordTest {
     @Test
-    public void testNewRecordContructor() {
+    public void testNewRecordConstructor() {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -47,7 +53,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -66,7 +72,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -85,7 +91,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -104,7 +110,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -123,7 +129,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -131,7 +137,7 @@ public class RecordTest {
 
         // TESTING SETTERS AND GETTERS FOR DESCRIPTION
         assertEquals(r.getBodyLocation(), bodyLoc);
-        BodyLocation newBodyLoc = new BodyLocation("head");
+        BodyLocation newBodyLoc = new BodyLocation(1,1);
         r.setBodyLocation(newBodyLoc);
         assertEquals(newBodyLoc, r.getBodyLocation());
     }
@@ -142,7 +148,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 
@@ -161,7 +167,7 @@ public class RecordTest {
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
         CommentList comments = new CommentList();
-        BodyLocation bodyLoc = new BodyLocation("head");
+        BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
         ImageList images = new ImageList();
 

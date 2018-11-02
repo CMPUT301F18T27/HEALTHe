@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public class GeoLocationTest {
     @Test
-    public void testNewGeoLocContructor() {
+    public void testNewGeoLocConstructor() {
         double lon = 63.6786;
         double lat = 38.1235;
 

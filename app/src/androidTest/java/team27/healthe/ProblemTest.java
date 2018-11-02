@@ -7,6 +7,11 @@ import org.junit.runner.RunWith;
 
 import java.util.Calendar;
 import java.util.Date;
+
+import team27.healthe.model.Problem;
+import team27.healthe.model.Record;
+import team27.healthe.model.RecordList;
+
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
