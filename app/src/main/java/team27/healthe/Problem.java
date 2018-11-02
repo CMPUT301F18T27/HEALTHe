@@ -9,19 +9,30 @@ public class Problem {
     private Date pdate;
     private String description;
 
-    private List<Record> records;
+    private RecordList records;
 
-    public Problem(String ttl, Date date, String desc){
+    public Problem(String ttl, Date date, String desc, RecordList recs){
         title = ttl;
         pdate = date;
         description = desc;
+        records = recs;
 
+        // must have at least 1 record
+        if (recs.isEmpty()) {
+            throw new IllegalStateException();
+        }
     }
 
-    public Problem(String ttl, String desc) {
+    public Problem(String ttl, String desc, RecordList recs) {
         title = ttl;
         pdate = Calendar.getInstance().getTime();
         description = desc;
+        records = recs;
+
+        // must have at least 1 record
+        if (recs.isEmpty()) {
+            throw new IllegalStateException();
+        }
     }
 
     public String getTitle() {
@@ -48,11 +59,15 @@ public class Problem {
         this.description = description;
     }
 
-    public List<Record> getRecords() {
+    public RecordList getRecords() {
         return records;
     }
 
-    public void setRecords(List<Record> records) {
+    public void setRecords(RecordList records) {
         this.records = records;
+    }
+
+    public int getNumberOfRecords() {
+        return records.size();
     }
 }
