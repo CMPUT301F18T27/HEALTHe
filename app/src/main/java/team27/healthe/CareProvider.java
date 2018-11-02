@@ -1,8 +1,21 @@
 package team27.healthe;
 
-public class CareProvider extends User {
+import java.util.Collection;
 
-    CareProvider(String uid, String e, String p){
-        super(uid, e, p);
+public class CareProvider extends User {
+    private Collection<Patient> patients;
+
+    CareProvider(String userID, String email, String phone){
+        super(userID, email, phone);
+    }
+
+    public void addPatient(Patient p) {}
+
+    public Patient getPatient() {
+        return null;
+    }
+
+    public Collection<Patient> getPatientList() {
+        return null;
     }
 }

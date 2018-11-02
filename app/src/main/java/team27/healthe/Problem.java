@@ -8,6 +8,7 @@ public class Problem {
     private String title;
     private Date pdate;
     private String description;
+
     private List<Record> records;
 
     public Problem(String ttl, Date date, String desc){

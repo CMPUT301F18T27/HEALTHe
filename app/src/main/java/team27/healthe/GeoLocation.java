@@ -1,12 +1,19 @@
 package team27.healthe;
 
 public class GeoLocation {
+    private String name;
     private double latitude;
     private double longitude;
 
     public GeoLocation(double lat, double lon) {
         latitude = lat;
         longitude = lon;
+    }
+
+    public void setName(String name) {}
+
+    public String getName() {
+        return null;
     }
 
     public double getLatitude() {

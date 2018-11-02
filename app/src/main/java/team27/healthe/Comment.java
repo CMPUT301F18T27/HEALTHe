@@ -1,19 +1,23 @@
 package team27.healthe;
 
 public class Comment {
-    String uid;
-    String content;
+    private String text;
+    private User commenter;
 
-    public Comment(String c, String u){
-        content = c;
-        uid = u;
+    public Comment(String text, User commenter){
+        this.text = text;
+        this.commenter = commenter;
     }
 
-    public String getUserid(){
-        return uid;
+    public void setText(String text) {}
+
+    public String getText() {
+        return null;
     }
 
-    public String getContent(){
-        return content;
+    public void setCommenter(User commenter) {}
+
+    public String getCommenter() {
+        return null;
     }
 }

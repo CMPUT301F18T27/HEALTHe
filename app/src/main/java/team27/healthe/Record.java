@@ -1,8 +1,10 @@
 package team27.healthe;
 
 import android.content.Context;
+import android.media.Image;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -10,12 +12,17 @@ public class Record {
     private String title;
     private Date rdate;
     private String description;
+
     private CommentList commentList;
-    private String body_location_s;
+    private String body_location_s; // @TODO: is this necessary?
     private BodyLocation bodyLocation;
-    private String geo_location_s;
+    private String geo_location_s; // @TODO: is this necessary?
     private GeoLocation geoLocation;
     private ImageList imageList;
+
+    // @TODO: consider these implementations
+    private Collection<Comment> comments;
+    private Collection<Image> images;
 
     public Record(String ttl, Date date, String desc, CommentList comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ImageList images) {
@@ -98,6 +105,5 @@ public class Record {
     public void setImageList(ImageList images) {
         this.imageList = images;
     }
-
 
 }
