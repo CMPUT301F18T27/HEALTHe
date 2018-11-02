@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/patientMain"
-        android:name="team27.healthe.PatientMain_fragment"
+        android:name="team27.healthe.prototype_ui.PatientMain_fragment"
         android:label="fragment_patient_main"
         tools:layout="@layout/fragment_patient_main" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/physicianMain"
-        android:name="team27.healthe.PhysicianMain_fragment"
+        android:name="team27.healthe.prototype_ui.PhysicianMain_fragment"
         android:label="fragment_physician_main"
         tools:layout="@layout/fragment_physician_main" >
         <action
@@ -28,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/profile"
-        android:name="team27.healthe.Profile_fragment"
+        android:name="team27.healthe.prototype_ui.Profile_fragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" >
         <action
@@ -37,7 +37,7 @@
     </fragment>
     <fragment
         android:id="@+id/patientList"
-        android:name="team27.healthe.PatientList_fragment"
+        android:name="team27.healthe.prototype_ui.PatientList_fragment"
         android:label="PatientList"
         tools:layout="@layout/fragment_patient_list">
         <action
@@ -49,7 +49,7 @@
     </fragment>
     <fragment
         android:id="@+id/problemList"
-        android:name="team27.healthe.ProblemList_fragment"
+        android:name="team27.healthe.prototype_ui.ProblemList_fragment"
         android:label="fragment_problem_list"
         tools:layout="@layout/fragment_problem_list" >
         <action
@@ -58,7 +58,7 @@
     </fragment>
     <fragment
         android:id="@+id/recordList"
-        android:name="team27.healthe.RecordList_fragment"
+        android:name="team27.healthe.prototype_ui.RecordList_fragment"
         android:label="RecordList"
         tools:layout="@layout/fragment_record_list" >
         <action
@@ -67,7 +67,7 @@
     </fragment>
     <fragment
         android:id="@+id/record"
-        android:name="team27.healthe.Record_fragment"
+        android:name="team27.healthe.prototype_ui.Record_fragment"
         android:label="Record"
         tools:layout="@layout/fragment_record" >
         <action
@@ -82,17 +82,17 @@
     </fragment>
     <fragment
         android:id="@+id/comments"
-        android:name="team27.healthe.Comments_fragment"
+        android:name="team27.healthe.prototype_ui.Comments_fragment"
         android:label="fragment_comments"
         tools:layout="@layout/fragment_comments" />
     <fragment
         android:id="@+id/camera"
-        android:name="team27.healthe.Camera_fragment"
+        android:name="team27.healthe.prototype_ui.Camera_fragment"
         android:label="fragment_camera"
         tools:layout="@layout/fragment_camera" />
     <fragment
         android:id="@+id/problem"
-        android:name="team27.healthe.Problem_fragment"
+        android:name="team27.healthe.prototype_ui.Problem_fragment"
         android:label="fragment_problem"
         tools:layout="@layout/fragment_problem" >
         <action
@@ -101,12 +101,12 @@
     </fragment>
     <fragment
         android:id="@+id/bodyLocation"
-        android:name="team27.healthe.BodyLocation_fragment"
+        android:name="team27.healthe.prototype_ui.BodyLocation_fragment"
         android:label="fragment_body_location"
         tools:layout="@layout/fragment_body_location" />
     <fragment
         android:id="@+id/addPatient"
-        android:name="team27.healthe.AddPatient_fragment"
+        android:name="team27.healthe.prototype_ui.AddPatient_fragment"
         android:label="fragment_add_patient"
         tools:layout="@layout/fragment_add_patient" />
 </navigation>
