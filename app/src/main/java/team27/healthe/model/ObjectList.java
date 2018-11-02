@@ -12,7 +12,7 @@ public class ObjectList<T extends Comparable<T>> implements Parcelable {
     private List<T> item_list;
 
     public ObjectList(){
-        item_list = new ArrayList<>();
+        item_list = new ArrayList<T>();
     }
 
     public ObjectList(Parcel p){
@@ -39,6 +39,8 @@ public class ObjectList<T extends Comparable<T>> implements Parcelable {
         return item_list.size();
     }
 
+    public boolean empty() { return item_list.isEmpty(); }
+
     public void set(int i, T item){
         item_list.set(i, item);
     }
@@ -60,20 +62,16 @@ public class ObjectList<T extends Comparable<T>> implements Parcelable {
     }
 
     //Implementation for parcelable
-    @Override
     public int describeContents(){
         return 0;
     }
-    @Override
     public void writeToParcel(Parcel dest, int flags){
         dest.writeList(item_list);
     }
     public static Creator<ObjectList> CREATOR = new Creator<ObjectList>(){
-        @Override
         public ObjectList createFromParcel(Parcel source){
             return new ObjectList(source);
         }
-        @Override
         public ObjectList[] newArray(int size){
             return new ObjectList[size];
         }
