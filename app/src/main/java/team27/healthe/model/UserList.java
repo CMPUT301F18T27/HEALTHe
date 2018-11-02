@@ -7,7 +7,11 @@ public class UserList {
     private Collection<User> users;
 
     public UserList() {
-        this.users = new ArrayList<User>();
+        this.users = new ArrayList<>();
+    }
+
+    public Collection<User> getUsers() {
+        return null;
     }
 
     public void addUser(User u) {}
