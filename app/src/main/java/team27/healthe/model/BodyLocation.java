@@ -11,16 +11,20 @@ public class BodyLocation {
         body_string = getLocationName();
     }
 
+    public BodyLocation(){
+        location = new Point(0,0);
+        body_string = "default-nochoice";//replace hardcoded value
+    }
+
     public void setPoint(int x, int y){
-        location.x = x;
-        location.y = y;
+        location.set(x, y);
     }
 
     public Point getPoint(){
         return location;
     }
 
-    private String getLocationName(){
+    public String getLocationName(){
 
         return null;
     }

@@ -30,6 +30,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    // https://developer.android.com/training/testing/unit-testing/local-unit-tests
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
