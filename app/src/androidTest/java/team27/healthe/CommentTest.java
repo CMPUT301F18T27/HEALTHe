@@ -17,7 +17,7 @@ public class CommentTest {
         String text = "this is a new comment";
         Patient p = new Patient("imauser", "imauser@gmail.com", "1112223333");
 
-        Comment c = new Comment(text, p);
+        Comment c = new Comment(text, p.getUserid());
 
         assertEquals(text, c.getText());
         assertEquals(p, c.getCommenter());
@@ -27,11 +27,14 @@ public class CommentTest {
     public void editTextTest() {
         String text = "this is a new comment";
         CareProvider cp = new CareProvider("imaphysician", "imaphysician@gmail.com", "0000000000");
-        Comment c = new Comment(text, cp);
+        Comment c = new Comment(text, cp.getUserid());
 
         String newText = "This replaces the comment text";
+        String newCommenter = "commentThief";
         c.setText(newText);
+        c.setCommenter(newCommenter);
 
         assertEquals(newText, c.getText());
+        assertEquals(newCommenter, c.getCommenter());
     }
 }

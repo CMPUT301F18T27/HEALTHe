@@ -22,21 +22,34 @@ public class CareProviderTest {
         assertEquals(userId, c.getUserid());
         assertEquals(email, c.getEmail());
         assertEquals(phone, c.getPhone_number());
-
     }
 
     @Test
     public void addPatientTest() {
-        String userId = "robinwilliams";
-        String email = "rwilliams@ualberta.ca";
-        String phone = "4445556666";
-        CareProvider c = new CareProvider(userId, email, phone);
+        CareProvider c = new CareProvider("robinwilliams", "rwilliams@ualberta.ca", "4445556666");
+        Patient p = new Patient("johntitor", "jtitor@ualberta.ca", "7778889999");
 
-        String patientId = "johntitor";
-        String patientEmail = "jtitor@ualberta.ca";
-        String patientPhone = "7778889999";
-        Patient p = new Patient(patientId, patientEmail, patientPhone);
+        c.addPatient(p);
+        assertTrue(c.hasPatient(p));
+    }
 
+    @Test
+    public void getPatientTest() {
+        CareProvider c = new CareProvider("robinwilliams", "rwilliams@ualberta.ca", "4445556666");
+        String patientID = "johntitor";
+        Patient p = new Patient(patientID, "jtitor@ualberta.ca", "7778889999");
+        c.addPatient(p);
 
+        assertEquals(p, c.getPatient(patientID));
+    }
+
+    @Test
+    public void removePatientTest() {
+        CareProvider c = new CareProvider("robinwilliams", "rwilliams@ualberta.ca", "4445556666");
+        Patient p = new Patient("johntitor", "jtitor@ualberta.ca", "7778889999");
+        c.addPatient(p);
+
+        c.removePatient(p);
+        assertTrue(c.getPatients().isEmpty());
     }
 }
