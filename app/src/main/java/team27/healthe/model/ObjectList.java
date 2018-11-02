@@ -28,6 +28,7 @@ public class ObjectList<T extends Comparable<T>> implements Parcelable {
         }
 
     }
+
     //List implementations
     // Note: chose not to subclass list to prevent some operations
     public void add(T item){
@@ -54,11 +55,9 @@ public class ObjectList<T extends Comparable<T>> implements Parcelable {
         Collections.sort(item_list);
     }
 
-    public List<T> getFeelings(){
+    public List<T> getObjects(){
         return item_list;
     }
-
-
 
     //Implementation for parcelable
     @Override
