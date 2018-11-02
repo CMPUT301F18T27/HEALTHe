@@ -5,7 +5,7 @@ import java.util.Collection;
 public class CareProvider extends User {
     private Collection<Patient> patients;
 
-    CareProvider(String userID, String email, String phone){
+    public CareProvider(String userID, String email, String phone){
         super(userID, email, phone);
     }
 
