@@ -21,4 +21,19 @@ public class CareProviderTest {
         assertEquals(phone, c.getPhone_number());
 
     }
+
+    @Test
+    public void addPatient() {
+        String userId = "robinwilliams";
+        String email = "rwilliams@ualberta.ca";
+        String phone = "4445556666";
+        CareProvider c = new CareProvider(userId, email, phone);
+
+        String patientId = "johntitor";
+        String patientEmail = "jtitor@ualberta.ca";
+        String patientPhone = "7778889999";
+        Patient p = new Patient(patientId, patientEmail, patientPhone);
+
+
+    }
 }

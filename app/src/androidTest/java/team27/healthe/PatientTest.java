@@ -20,4 +20,13 @@ public class PatientTest {
         assertEquals(email, p.getEmail());
         assertEquals(phone, p.getPhone_number());
     }
+
+    @Test
+    public void addProblem() {
+        String userId = "johntitor";
+        String email = "jtitor@ualberta.ca";
+        String phone = "7778889999";
+        Patient p = new Patient(userId, email, phone);
+
+    }
 }
