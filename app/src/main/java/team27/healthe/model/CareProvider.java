@@ -1,8 +1,29 @@
 package team27.healthe.model;
 
-public class CareProvider extends User {
+import java.util.ArrayList;
+import java.util.Collection;
 
-    CareProvider(String uid, String e, String p){
-        super(uid, e, p);
+public class CareProvider extends User {
+    private Collection<Patient> patients;
+
+    public CareProvider(String userID, String email, String phone){
+        super(userID, email, phone);
+        this.patients = new ArrayList<>();
     }
+
+    public Collection<Patient> getPatients() {
+        return this.patients;
+    }
+
+    public void addPatient(Patient p) {}
+
+    public Boolean hasPatient(Patient p) {
+        return false;
+    }
+
+    public Patient getPatient(String patientID) {
+        return null;
+    }
+
+    public void removePatient(Patient p) {}
 }
