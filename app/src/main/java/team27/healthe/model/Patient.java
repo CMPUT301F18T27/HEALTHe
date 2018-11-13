@@ -8,24 +8,22 @@ public class Patient extends User {
 
     public Patient(String userID, String email, String phone){
         super(userID, email, phone);
-        this.problems = new ArrayList<>();
+        this.problems = new ArrayList();
     }
 
     public Collection<Problem> getProblemList() {
         return this.problems;
     }
 
-    public void addProblem(Problem p) {}
+    public void addProblem(Problem p) {problems.add(p);}
 
-    public Boolean hasProblem(Problem p) {
-        return false;
-    }
+    public Boolean hasProblem(Problem p) { return problems.contains(p); }
 
     // @TODO: problem title is not unique. finalize collection class to determine addressing
     public Problem getProblem(String problemTitle) {
         return null;
     }
 
-    public void removeProblem(Problem p) {}
+    public void removeProblem(Problem p) {problems.remove(p);}
 
 }

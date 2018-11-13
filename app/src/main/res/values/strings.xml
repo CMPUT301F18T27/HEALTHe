@@ -15,4 +15,12 @@
     <string name="title_activity_record_list">RecordListActivity</string>
     <string name="title_activity_record">RecordActivity</string>
     <string name="title_activity_search">SearchActivity</string>
+    <string name="login_button">Login</string>
+    <string name="login_text_box">User ID</string>
+    <string name="login_have_account">Create an account</string>
+    <string name="signup_name">Name</string>
+    <string name="signup_email">Email address</string>
+    <string name="signup_phone">Phone number</string>
+    <string name="signup_care_taker">Create Care Taker Account</string>
+    <string name="signup_patient">Create patient account</string>
 </resources>

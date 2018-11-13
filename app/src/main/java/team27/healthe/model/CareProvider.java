@@ -8,22 +8,23 @@ public class CareProvider extends User {
 
     public CareProvider(String userID, String email, String phone){
         super(userID, email, phone);
-        this.patients = new ArrayList<>();
+        this.patients = new ArrayList();
     }
 
     public Collection<Patient> getPatients() {
         return this.patients;
     }
 
-    public void addPatient(Patient p) {}
+    public void addPatient(Patient p) { this.patients.add(p); }
 
-    public Boolean hasPatient(Patient p) {
-        return false;
-    }
+    public Boolean hasPatient(Patient p) { return patients.contains(p); }
 
     public Patient getPatient(String patientID) {
-        return null;
+        for (Patient patient:patients) {
+            if (patient.userid == patientID) { return patient;}
+        }
+        return null; // If patient not found
     }
 
-    public void removePatient(Patient p) {}
+    public void removePatient(Patient p) {patients.remove(p);}
 }
