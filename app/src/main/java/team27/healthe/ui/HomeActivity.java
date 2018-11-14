@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+import android.content.Intent;
+import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,15 +13,24 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.TabHost;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import team27.healthe.R;
+import team27.healthe.model.CareProvider;
+import team27.healthe.model.Patient;
+import team27.healthe.model.User;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -37,6 +48,7 @@ public class HomeActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    private User current_user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +66,9 @@ public class HomeActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        getUserFromIntent();
+        updateTabName(tabLayout);
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
@@ -149,5 +164,24 @@ public class HomeActivity extends AppCompatActivity {
             // Show 3 total pages.
             return 2;
         }
+    }
+
+    private void getUserFromIntent() {
+        Intent intent = getIntent();
+        Gson gson = new Gson();
+
+        String user_type = intent.getStringExtra(LoginActivity.USER_TYPE_MESSAGE);
+        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        if (user_type.equals("patient")) {
+            this.current_user = gson.fromJson(user_json, Patient.class);
+        } else {
+            this.current_user = gson.fromJson(user_json, CareProvider.class);
+        }
+
+    }
+
+    private void updateTabName(TabLayout tab_layout){
+        if (this.current_user instanceof Patient) { tab_layout.getTabAt(1).setText("Problems");}
+        else {tab_layout.getTabAt(1).setText("Patients");}
     }
 }

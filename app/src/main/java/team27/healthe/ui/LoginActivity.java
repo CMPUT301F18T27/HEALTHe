@@ -17,10 +17,12 @@ import java.util.concurrent.FutureTask;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {
-    public final String LOGIN_MESSAGE = "team27.healthe.LoginMessage";
+    public static final String USER_MESSAGE = "team27.healthe.User";
+    public static final String USER_TYPE_MESSAGE = "team27.healthe.UserType";
 
 
     @Override
@@ -48,7 +50,11 @@ public class LoginActivity extends AppCompatActivity {
             Gson gson = new Gson();
 
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-            intent.putExtra(LOGIN_MESSAGE, gson.toJson(user));
+            intent.putExtra(USER_MESSAGE, gson.toJson(user));
+
+            if (user instanceof Patient) { intent.putExtra(USER_TYPE_MESSAGE, "patient"); }
+            else { intent.putExtra(USER_TYPE_MESSAGE, "care-provider"); }
+
             startActivity(intent);
         }
         else {
