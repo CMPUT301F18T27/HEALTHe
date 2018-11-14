@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         if (user != null) {
             Gson gson = new Gson();
 
-            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
             intent.putExtra(LOGIN_MESSAGE, gson.toJson(user));
             startActivity(intent);
         }
