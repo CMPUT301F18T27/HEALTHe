@@ -5,7 +5,7 @@
     <string name="def_body_location_s">Select Body Location</string>
     <string name="def_geo_location_s">Select Geo-location</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login">HEALTHe</string>
     <string name="title_activity_physician">PhysicianActivity</string>
     <string name="title_activity_patient_list">PatientListActivity</string>
     <string name="title_activity_patient">PatientActivity</string>
@@ -18,7 +18,7 @@
     <string name="login_button">Login</string>
     <string name="login_text_box">User ID</string>
     <string name="login_have_account">Create an account</string>
-    <string name="signup_name">Name</string>
+    <string name="signup_name">UserID</string>
     <string name="signup_email">Email address</string>
     <string name="signup_phone">Phone number</string>
     <string name="signup_care_taker">Create Care Taker Account</string>

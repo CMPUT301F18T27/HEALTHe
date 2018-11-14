@@ -1,52 +1,73 @@
 package team27.healthe.model;
 
-import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.searchly.jestdroid.DroidClientConfig;
 import com.searchly.jestdroid.JestClientFactory;
 import com.searchly.jestdroid.JestDroidClient;
 
+import io.searchbox.client.JestResult;
+import io.searchbox.core.Get;
 import io.searchbox.core.Index;
+import io.searchbox.core.Search;
+import io.searchbox.core.SearchResult;
 
 public class ElasticSearchController {
     private static JestDroidClient client;
-    private static String node = "http://cmput301.softwareprocess.es:8080/cmput301f18t27";
-    private static String test_node = "http://cmput301.softwareprocess.es:8080/cmput301f18t27test";
+    private static String node = "http://cmput301.softwareprocess.es:8080";
+    private static String index = "cmput301f18t27";
+    private static String test_index = "cmput301f18t27test";
+    private static String user_type = "user";
 
-    public ElasticSearchController(){
+    public ElasticSearchController() {
         verifyClient();
     }
 
+    // Add user to elastic search database using userid as the id in elastic search
+    public static void addUser(User user) {
+        verifyClient();
 
-    public static class addUser extends AsyncTask<User, Void, Void> {
+        Gson gson = new Gson();
+        String user_json = gson.toJson(user);
 
-        @Override
-        protected Void doInBackground(User... users) {
-            verifyClient();
+        Index index = new Index.Builder(user_json).index(test_index).type(user_type).id(user.getUserid()).build();
 
-            for (User user : users) {
-                Gson gson = new Gson();
-                String user_json = gson.toJson(user);
-                Index index = new Index.Builder(user_json).index("users").type("tweet").build();
-
-                try {
-                    client.execute(index);
-                }
-                catch (Exception e) {
-                    //Log.i("Error", "The application failed to build and send the tweets");
-                }
-
-            }
-            return null;
+        try {
+            client.execute(index);
+        }
+        catch (Exception e) {
+            Log.i("Error", e.toString());
         }
     }
 
+    // Get the user associated with a user_id
+    public static User getUser(String user_id) {
+        verifyClient();
+        Get get = new Get.Builder(test_index,user_id).type(user_type).build();
 
+        try {
+            JestResult result = client.execute(get);
+
+            User user;
+            if (result.getValue("type") == "patient") {
+                user = result.getSourceAsObject(Patient.class);
+            } else {
+                user = result.getSourceAsObject(CareProvider.class);
+            }
+
+            return user;
+        }
+        catch (Exception e) {
+        }
+        return null;
+    }
+
+    // Create connection to elastic search server
     public static void verifyClient() {
     // Code from LonelyTwitter
         if (client == null) {
-            DroidClientConfig.Builder builder = new DroidClientConfig.Builder(test_node);
+            DroidClientConfig.Builder builder = new DroidClientConfig.Builder(node);
             DroidClientConfig config = builder.build();
 
             JestClientFactory factory = new JestClientFactory();

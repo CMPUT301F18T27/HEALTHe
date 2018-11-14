@@ -1,5 +1,7 @@
 package team27.healthe.model;
 
+import java.io.Serializable;
+
 public abstract class User {
     protected String userid;
     protected String email;
