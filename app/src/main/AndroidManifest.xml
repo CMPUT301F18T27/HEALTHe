@@ -57,7 +57,11 @@
             android:name=".ui.SearchActivity"
             android:label="@string/title_activity_search"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.SignupActivity"></activity>
+        <activity android:name=".ui.SignupActivity" />
+        <activity
+            android:name=".ui.HomeActivity"
+            android:label="@string/title_activity_home"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
