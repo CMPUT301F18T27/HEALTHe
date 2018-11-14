@@ -7,6 +7,10 @@ import com.searchly.jestdroid.DroidClientConfig;
 import com.searchly.jestdroid.JestClientFactory;
 import com.searchly.jestdroid.JestDroidClient;
 
+import java.lang.reflect.Array;
+import java.util.Map;
+import java.util.Set;
+
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
@@ -44,13 +48,20 @@ public class ElasticSearchController {
     // Get the user associated with a user_id
     public static User getUser(String user_id) {
         verifyClient();
+        Gson gson = new Gson();
         Get get = new Get.Builder(test_index,user_id).type(user_type).build();
 
         try {
             JestResult result = client.execute(get);
 
             User user;
-            if (result.getValue("type") == "patient") {
+
+            // Get user type from json
+            String json = result.getSourceAsString();
+            Map source_map = gson.fromJson(json, Map.class);
+            String user_type = source_map.get("user_type").toString();
+
+            if (user_type.equals("patient")) {
                 user = result.getSourceAsObject(Patient.class);
             } else {
                 user = result.getSourceAsObject(CareProvider.class);
