@@ -1,54 +1,54 @@
-package team27.healthe.prototype_ui;
+package team27.healthe.ui;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 import team27.healthe.R;
-
+import team27.healthe.model.CareProvider;
+import team27.healthe.model.Patient;
+import team27.healthe.model.User;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Profile_fragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Profile_fragment#newInstance} factory method to
+ * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Profile_fragment extends Fragment {
+public class ProfileFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_CURRENT_USER = "param1";
+    private static final String ARG_PROFILE_USER_ID = "param2";
+    private static final String ARG_USER_TYPE = "param3";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private User current_user;
+    private String userid;
 
-    private OnFragmentInteractionListener mListener;
+    //private OnFragmentInteractionListener mListener;
 
-    public Profile_fragment() {
+    public ProfileFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Profile_fragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Profile_fragment newInstance(String param1, String param2) {
-        Profile_fragment fragment = new Profile_fragment();
+    public static ProfileFragment newInstance(User current_user, String profile_user_id, String user_type) {
+        Gson gson = new Gson();
+
+        ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_CURRENT_USER, gson.toJson(current_user));
+        args.putString(ARG_PROFILE_USER_ID, profile_user_id);
+        args.putString(ARG_USER_TYPE, user_type);
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,9 +56,17 @@ public class Profile_fragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Gson gson = new Gson();
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            String user_json = getArguments().getString(ARG_CURRENT_USER);
+            String user_type = getArguments().getString(ARG_USER_TYPE);
+            this.userid = getArguments().getString(ARG_PROFILE_USER_ID);
+
+            if (user_type.equals("patient")) {
+                this.current_user = gson.fromJson(user_json, Patient.class);
+            } else {
+                this.current_user = gson.fromJson(user_json, CareProvider.class);
+            }
         }
     }
 
@@ -66,9 +74,11 @@ public class Profile_fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        setTextViews(view);
+        return view;
     }
-
+/*
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -87,11 +97,13 @@ public class Profile_fragment extends Fragment {
         }
     }
 
+
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
+    */
 
     /**
      * This interface must be implemented by activities that contain this
@@ -103,8 +115,27 @@ public class Profile_fragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
+    /*
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+*/
+    private void setTextViews(View view) {
+        TextView userid_textview = (TextView) view.findViewById(R.id.profileIdText);
+        TextView email_textview = (TextView) view.findViewById(R.id.profileEmailText);
+        TextView number_textview = (TextView) view.findViewById(R.id.profilePhoneText);
+
+        userid_textview.setText(this.current_user.getUserid());
+        email_textview.setText(this.current_user.getEmail());
+        number_textview.setText(this.current_user.getPhone_number());
+    }
+
+    public void updateText(User user){
+        this.current_user = user;
+        setTextViews(getView());
+    }
+
+
 }
