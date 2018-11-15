@@ -1,6 +1,10 @@
 package team27.healthe.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +25,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -27,8 +34,11 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.util.List;
+
 import team27.healthe.R;
 import team27.healthe.model.CareProvider;
+import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -100,8 +110,12 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_logout) {
+            logout();
+        }
+
+        if (id == R.id.action_edit) {
+            editProfile();
         }
 
         return super.onOptionsItemSelected(item);
@@ -156,7 +170,13 @@ public class HomeActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            if (position == 0) {
+                String user_type;
+                if (current_user instanceof Patient) { user_type = "patient";}
+                else {user_type = "care-provider";}
+                return ProfileFragment.newInstance(current_user, current_user.getUserid(), user_type);
+            }
+                return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
@@ -184,4 +204,68 @@ public class HomeActivity extends AppCompatActivity {
         if (this.current_user instanceof Patient) { tab_layout.getTabAt(1).setText("Problems");}
         else {tab_layout.getTabAt(1).setText("Patients");}
     }
+
+    private void logout() {
+
+    }
+
+    private void editProfile() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Edit Profile");
+        //dialog.setMessage("");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        // Add a TextView for email
+        final EditText email_text = new EditText(this);
+        email_text.setText(current_user.getEmail());
+        layout.addView(email_text); // Notice this is an add method
+
+        // Add another TextView for phone number
+        final EditText phone_text = new EditText(this);
+        phone_text.setText(current_user.getPhone_number());
+        phone_text.setInputType(InputType.TYPE_CLASS_PHONE);
+        layout.addView(phone_text); // Another add method
+
+        dialog.setView(layout); // Again this is a set method, not add
+
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                current_user.setEmail(email_text.getText().toString());
+                current_user.setPhone_number(phone_text.getText().toString());
+                updateElasticSearch();
+
+                List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+                Fragment fragment  = (ProfileFragment)allFragments.get(0);
+                ((ProfileFragment) fragment).updateText(current_user);
+
+
+            }
+        })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                });
+        dialog.show();
+
+    }
+
+    private void updateElasticSearch(){
+        new UpdateUser().execute(current_user);
+    }
+
+    private class UpdateUser extends AsyncTask<User, Void, Void> {
+
+        @Override
+        protected Void doInBackground(User... users) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for(User user:users) {
+                es_controller.addUser(user);
+            }
+            return null;
+        }
+    }
+
 }
