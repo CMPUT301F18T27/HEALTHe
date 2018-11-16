@@ -28,9 +28,13 @@ public class SignupActivity extends AppCompatActivity {
         String email = ((TextView) findViewById(R.id.textEmail)).getText().toString();
         String number = ((TextView) findViewById(R.id.textNumber)).getText().toString();
 
-        Patient patient = new Patient(user_id, email, number);
-        new createAccountAsync().execute(patient);
-
+        if (userIdIsValid(user_id)) {
+            Patient patient = new Patient(user_id, email, number);
+            new createAccountAsync().execute(patient);
+        }
+        else {
+            Toast.makeText(this, "User ID must be at least 8 characters", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // onClick for create care provider account
@@ -40,9 +44,18 @@ public class SignupActivity extends AppCompatActivity {
         String email = ((TextView) findViewById(R.id.textEmail)).getText().toString();
         String number = ((TextView) findViewById(R.id.textNumber)).getText().toString();
 
-        CareProvider care_provider = new CareProvider(user_id, email, number);
-        new createAccountAsync().execute(care_provider);
+        if (userIdIsValid(user_id)) {
+            CareProvider care_provider = new CareProvider(user_id, email, number);
+            new createAccountAsync().execute(care_provider);
+        }
+        else {
+            Toast.makeText(this, "User ID must be at least 8 characters", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    private boolean userIdIsValid(String user_id) {
+        if (user_id.length() > 7) {return true;}
+        else {return false;}
     }
 
     // Displays message to user based on success of account creation
