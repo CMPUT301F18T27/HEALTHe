@@ -1,7 +1,6 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -30,14 +29,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
+import org.w3c.dom.Text;
 
-
-import java.io.FileOutputStream;
 import java.util.List;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -83,6 +81,7 @@ public class HomeActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        */
 
     }
 
@@ -126,7 +126,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            clearFile();
+            LocalFileController file_controller = new LocalFileController();
+            file_controller.clearUserFile(this);
             super.onBackPressed();
             return;
         }
@@ -219,7 +220,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        clearFile();
+        LocalFileController file_controller = new LocalFileController();
+        file_controller.clearUserFile(this);
         finish();
     }
 
@@ -228,15 +230,29 @@ public class HomeActivity extends AppCompatActivity {
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Profile");
-        //dialog.setMessage("");
+        dialog.setMessage("");
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
+        //Add title for email input
+        final TextView email_title = new TextView(this);
+        email_title.setText("Email");
+        layout.addView(email_title);
+
         // Add a TextView for email
         final EditText email_text = new EditText(this);
         email_text.setText(current_user.getEmail());
+        email_text.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
+        email_text.setLayoutParams(params);
         layout.addView(email_text); // Notice this is an add method
+
+        //Add title for phone number input
+        final TextView phone_title = new TextView(this);
+        phone_title.setText("Phone number");
+        layout.addView(phone_title);
 
         // Add another TextView for phone number
         final EditText phone_text = new EditText(this);
@@ -249,10 +265,14 @@ public class HomeActivity extends AppCompatActivity {
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Updating profile...", Toast.LENGTH_SHORT).show();
+
                 current_user.setEmail(email_text.getText().toString());
                 current_user.setPhone_number(phone_text.getText().toString());
+
                 updateElasticSearch();
-                saveInFile(current_user);
+
+                LocalFileController file_controller = new LocalFileController();
+                file_controller.saveUserInFile(current_user, getApplicationContext());
 
             }
         })
@@ -286,29 +306,6 @@ public class HomeActivity extends AppCompatActivity {
             List<Fragment> allFragments = getSupportFragmentManager().getFragments();
             Fragment fragment  = (ProfileFragment)allFragments.get(0);
             ((ProfileFragment) fragment).updateUser(current_user);
-        }
-    }
-
-    private void clearFile() {
-        // TODO: Create class with file functions save, load, clear
-        try {
-            FileOutputStream fos = openFileOutput(LoginActivity.FILENAME, Context.MODE_PRIVATE);
-            fos.write("".getBytes());
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveInFile(User user) {
-        try {
-            Gson gson = new Gson();
-
-            FileOutputStream fos = openFileOutput(LoginActivity.FILENAME, Context.MODE_PRIVATE);
-            fos.write(gson.toJson(user).getBytes());
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
