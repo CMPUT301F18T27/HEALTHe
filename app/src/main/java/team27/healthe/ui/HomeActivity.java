@@ -1,11 +1,12 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.design.widget.TabItem;
+
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,7 +19,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,17 +27,16 @@ import android.view.ViewGroup;
 
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
 
+import java.io.FileOutputStream;
 import java.util.List;
 
 import team27.healthe.R;
-import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
@@ -59,6 +58,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
     private User current_user;
+    private boolean doubleBackToExitPressedOnce = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +121,28 @@ public class HomeActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Double press back button to logout
+    // Code from: https://stackoverflow.com/questions/8430805/clicking-the-back-button-twice-to-exit-an-activity
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            clearFile();
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Press BACK again to logout", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -171,10 +193,7 @@ public class HomeActivity extends AppCompatActivity {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
-                String user_type;
-                if (current_user instanceof Patient) { user_type = "patient";}
-                else {user_type = "care-provider";}
-                return ProfileFragment.newInstance(current_user, current_user.getUserid(), user_type);
+                return ProfileFragment.newInstance(current_user);
             }
                 return PlaceholderFragment.newInstance(position + 1);
         }
@@ -188,15 +207,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private void getUserFromIntent() {
         Intent intent = getIntent();
-        Gson gson = new Gson();
-
-        String user_type = intent.getStringExtra(LoginActivity.USER_TYPE_MESSAGE);
+        ElasticSearchController es_controller = new ElasticSearchController();
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
-        if (user_type.equals("patient")) {
-            this.current_user = gson.fromJson(user_json, Patient.class);
-        } else {
-            this.current_user = gson.fromJson(user_json, CareProvider.class);
-        }
+        this.current_user = es_controller.jsonToUser(user_json);
 
     }
 
@@ -206,10 +219,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-
+        clearFile();
+        finish();
     }
 
     private void editProfile() {
+        // TODO: Do not allow editing of profile while offline
+
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Profile");
         //dialog.setMessage("");
@@ -232,14 +248,11 @@ public class HomeActivity extends AppCompatActivity {
 
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Updating profile...", Toast.LENGTH_SHORT).show();
                 current_user.setEmail(email_text.getText().toString());
                 current_user.setPhone_number(phone_text.getText().toString());
                 updateElasticSearch();
-
-                List<Fragment> allFragments = getSupportFragmentManager().getFragments();
-                Fragment fragment  = (ProfileFragment)allFragments.get(0);
-                ((ProfileFragment) fragment).updateText(current_user);
-
+                saveInFile(current_user);
 
             }
         })
@@ -265,6 +278,37 @@ public class HomeActivity extends AppCompatActivity {
                 es_controller.addUser(user);
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+            Fragment fragment  = (ProfileFragment)allFragments.get(0);
+            ((ProfileFragment) fragment).updateUser(current_user);
+        }
+    }
+
+    private void clearFile() {
+        // TODO: Create class with file functions save, load, clear
+        try {
+            FileOutputStream fos = openFileOutput(LoginActivity.FILENAME, Context.MODE_PRIVATE);
+            fos.write("".getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveInFile(User user) {
+        try {
+            Gson gson = new Gson();
+
+            FileOutputStream fos = openFileOutput(LoginActivity.FILENAME, Context.MODE_PRIVATE);
+            fos.write(gson.toJson(user).getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

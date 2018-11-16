@@ -2,18 +2,21 @@ package team27.healthe.ui;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
 import team27.healthe.R;
 import team27.healthe.model.CareProvider;
+import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -27,114 +30,112 @@ import team27.healthe.model.User;
 public class ProfileFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_CURRENT_USER = "param1";
-    private static final String ARG_PROFILE_USER_ID = "param2";
+    private static final String ARG_USER_ID = "param1";
+    private static final String ARG_USER = "param2";
     private static final String ARG_USER_TYPE = "param3";
 
     // TODO: Rename and change types of parameters
-    private User current_user;
+    private User user;
     private String userid;
-
-    //private OnFragmentInteractionListener mListener;
 
     public ProfileFragment() {
         // Required empty public constructor
     }
 
-    public static ProfileFragment newInstance(User current_user, String profile_user_id, String user_type) {
-        Gson gson = new Gson();
 
+    public static ProfileFragment newInstance(String profile_user_id) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CURRENT_USER, gson.toJson(current_user));
-        args.putString(ARG_PROFILE_USER_ID, profile_user_id);
-        args.putString(ARG_USER_TYPE, user_type);
+        args.putString(ARG_USER_ID, profile_user_id);
         fragment.setArguments(args);
         return fragment;
     }
 
+
+    public static ProfileFragment newInstance(User user) {
+        Gson gson = new Gson();
+
+        ProfileFragment fragment = new ProfileFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_USER, gson.toJson(user));
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Gson gson = new Gson();
-        if (getArguments() != null) {
-            String user_json = getArguments().getString(ARG_CURRENT_USER);
-            String user_type = getArguments().getString(ARG_USER_TYPE);
-            this.userid = getArguments().getString(ARG_PROFILE_USER_ID);
+        ElasticSearchController es_controller = new ElasticSearchController();
 
-            if (user_type.equals("patient")) {
-                this.current_user = gson.fromJson(user_json, Patient.class);
-            } else {
-                this.current_user = gson.fromJson(user_json, CareProvider.class);
-            }
+        if (getArguments().containsKey(ARG_USER_ID)) {
+            this.userid = getArguments().getString(ARG_USER_ID);
+        }
+        else if (getArguments().containsKey(ARG_USER)) {
+            this.user = es_controller.jsonToUser(getArguments().getString(ARG_USER));
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        setTextViews(view);
+
+        if (this.user == null) {
+            new getUserAsync().execute(this.userid);
+        }
+        else {
+            updateText(view);
+        }
+
         return view;
     }
-/*
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
 
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-    */
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    /*
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-*/
-    private void setTextViews(View view) {
+    public void updateText(View view){
         TextView userid_textview = (TextView) view.findViewById(R.id.profileIdText);
         TextView email_textview = (TextView) view.findViewById(R.id.profileEmailText);
         TextView number_textview = (TextView) view.findViewById(R.id.profilePhoneText);
 
-        userid_textview.setText(this.current_user.getUserid());
-        email_textview.setText(this.current_user.getEmail());
-        number_textview.setText(this.current_user.getPhone_number());
+        userid_textview.setText(this.user.getUserid());
+        email_textview.setText(this.user.getEmail());
+        number_textview.setText(this.user.getPhone_number());
+
+        ImageView image_email = (ImageView) view.findViewById(R.id.imageView6);
+        ImageView image_phone = (ImageView) view.findViewById(R.id.imageView5);
+
+        image_email.setVisibility(View.VISIBLE);
+        image_phone.setVisibility(View.VISIBLE);
     }
 
-    public void updateText(User user){
-        this.current_user = user;
-        setTextViews(getView());
+
+    public void updateUser(User user) {
+        this.user = user;
+        updateText(getView());
+    }
+
+
+    private class getUserAsync extends AsyncTask<String, Void, User> {
+
+        @Override
+        protected User doInBackground(String... user_ids) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (String user_id: user_ids) {
+                User user = es_controller.getUser(user_id);
+                return user;
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            updateUser(user);
+        }
     }
 
 
