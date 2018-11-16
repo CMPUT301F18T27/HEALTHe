@@ -27,4 +27,6 @@ public class Patient extends User {
 
     public void removeProblem(Problem p) {problems.remove(p);}
 
+    public Integer getProblemCount() {return problems.size();}
+
 }

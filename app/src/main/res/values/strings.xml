@@ -31,4 +31,5 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="home_phone">Phone number:</string>
     <string name="profile_loading">Loading...</string>
+    <string name="appname">HEALTHe</string>
 </resources>

@@ -9,7 +9,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,12 +31,12 @@ import java.util.concurrent.FutureTask;
 import team27.healthe.R;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {
     public static final String USER_MESSAGE = "team27.healthe.User";
-    public static final String FILENAME = "user.sav";
 
 
     @Override
@@ -40,13 +44,27 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         loadFromFile();
+
+        EditText login_text = (EditText) findViewById(R.id.loginIdText);
+        login_text.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    Button login = findViewById(R.id.loginButton);
+                    login.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     // onClick for the login button
     public void login(View view){
         if (isNetworkConnected()) {
             String user_id = ((TextView) findViewById(R.id.loginIdText)).getText().toString();
-            Toast.makeText(this, "Logging in...", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
             new getUserAsync().execute(user_id);
         }
         else {
@@ -67,7 +85,10 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
             intent.putExtra(USER_MESSAGE, gson.toJson(user));
 
-            if (save_in_file) { saveInFile(user); }
+            if (save_in_file) {
+                LocalFileController file_controller = new LocalFileController();
+                file_controller.saveUserInFile(user, this);
+            }
 
             startActivity(intent);
         }
@@ -103,33 +124,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadFromFile() {
-        try {
-            FileInputStream fis = openFileInput(FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-            String user_json = in.readLine();
-
-            if (user_json != null) {
-                ElasticSearchController es_controller = new ElasticSearchController();
-                User user = es_controller.jsonToUser(user_json);
-                handleLogin(user, false);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Save an inputted emotion to file
-    private void saveInFile(User user) {
-        try {
-            Gson gson = new Gson();
-
-            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
-            fos.write(gson.toJson(user).getBytes());
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        LocalFileController file_controller = new LocalFileController();
+        User user = file_controller.loadUserFromFile(this);
+        if (user != null) {
+            handleLogin(user, false);
         }
     }
 

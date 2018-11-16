@@ -20,6 +20,8 @@ public class CareProvider extends User {
 
     public Boolean hasPatient(Patient p) { return patients.contains(p); }
 
+    public Integer getPatientCount() {return patients.size();}
+
     public Patient getPatient(String patientID) {
         for (Patient patient:patients) {
             if (patient.userid == patientID) { return patient;}

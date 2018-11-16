@@ -11,7 +11,7 @@ public class UserList {
     }
 
     public Collection<User> getUsers() {
-        return null;
+        return users;
     }
 
     public void addUser(User u) {users.add(u);}
@@ -20,7 +20,7 @@ public class UserList {
 
     public User getUser(String userID) {
         for (User user: users) {
-            if (user.userid == userID) {return user;}
+            if (user.getUserid() == userID) {return user;}
         }
         return null;
     }
