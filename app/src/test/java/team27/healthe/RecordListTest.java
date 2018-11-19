@@ -7,7 +7,7 @@ import team27.healthe.model.*;
 public class RecordListTest {
     RecordList test_list;
     String tag1 = "tag1";
-    Record p1, p2;
+    Record r1, r2;
     @Before
     public void testSetup(){
         test_list = new RecordList();
@@ -24,7 +24,7 @@ public class RecordListTest {
     @Test
     public void searchRecordsTest(){
         RecordList results = test_list.searchRecords(tag1);
-        assert(results.getObjects().contains(p1));
+        assert(results.getObjects().contains(r1));
     }
 
 }

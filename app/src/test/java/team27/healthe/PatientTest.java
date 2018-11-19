@@ -1,7 +1,5 @@
 package team27.healthe;
 
-import android.support.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,7 +10,6 @@ import static org.junit.Assert.*;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 
-@RunWith(AndroidJUnit4.class)
 public class PatientTest {
     @Test
     public void newPatient() {
