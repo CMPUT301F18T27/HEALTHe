@@ -1,5 +1,6 @@
 package team27.healthe.model;
 
+
 public abstract class User {
     protected String userid;
     protected String email;
