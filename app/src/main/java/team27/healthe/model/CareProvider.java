@@ -16,6 +16,10 @@ public class CareProvider extends User {
         return this.patients;
     }
 
+    public ArrayList<Patient> getPatientsArray() {
+        return new ArrayList<Patient>(this.patients);
+    }
+
     public void addPatient(Patient p) { this.patients.add(p); }
 
     public Boolean hasPatient(Patient p) { return patients.contains(p); }

@@ -34,6 +34,7 @@ import org.w3c.dom.Text;
 import java.util.List;
 
 import team27.healthe.R;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
@@ -195,6 +196,9 @@ public class HomeActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             if (position == 0) {
                 return ProfileFragment.newInstance(current_user);
+            }
+            else if (position == 1 && current_user instanceof CareProvider) {
+                return PatientListFragment.newInstance(current_user);
             }
                 return PlaceholderFragment.newInstance(position + 1);
         }
