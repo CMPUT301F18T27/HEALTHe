@@ -49,9 +49,9 @@ public class ProblemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_problem);
 
-        //getUserFromIntent();
+        getUserFromIntent();
+        getProblems();
 
-        new getProblemAsync().execute();
         listView = (ListView) findViewById(R.id.problem_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -120,7 +120,9 @@ public class ProblemActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final EditText date_text = new EditText(this);
+        Date temp_date = new Date();
         date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
+        date_text.setText(temp_date.toString());
         layout.addView(date_text); // Another add method
 
         //Add title for problem description
@@ -319,15 +321,15 @@ public class ProblemActivity extends AppCompatActivity {
     }
 
     // Async class for getting problems from elastic search server
-    private class getProblemAsync extends AsyncTask<String, Void, ArrayList<Problem>> {
+    private class getProblemAsync extends AsyncTask<Integer, Void, ArrayList<Problem>> {
 
         @Override
-        protected ArrayList<Problem> doInBackground(String... problem_ids) {
+        protected ArrayList<Problem> doInBackground(Integer... problem_ids) {
             ElasticSearchController es_controller = new ElasticSearchController();
 
-            for (String problem_id: problem_ids) {
-                int prob_id = Integer.parseInt(problem_id);
-                Problem problem = es_controller.getProblem(prob_id, current_user.getUserid());
+            for (Integer problem_id: problem_ids) {
+                //int prob_id = Integer.parseInt(problem_id);
+                Problem problem = es_controller.getProblem(problem_id, current_user.getUserid());
                 problems.add(problem);
             }
             return null;
@@ -347,6 +349,24 @@ public class ProblemActivity extends AppCompatActivity {
 
         for (Integer problem_id : problems) {
             Problem problem = file_controller.loadProblemFromFile(problem_id, current_user.getUserid(), getApplicationContext());
+        }
+    }
+
+    private void getUserFromIntent() {
+        Intent intent = getIntent();
+        ElasticSearchController es_controller = new ElasticSearchController();
+
+        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        this.current_user = (Patient) es_controller.jsonToUser(user_json);
+    }
+
+    private void getProblems() {
+        if (current_user.getProblemCount() != 0) {
+            for (Integer problem_id : current_user.getProblemList()) {
+                new getProblemAsync().execute(problem_id);
+            }
+        } else {
+            problems = new ArrayList<Problem>();
         }
     }
 

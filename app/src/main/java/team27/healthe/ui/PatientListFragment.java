@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import team27.healthe.R;
 import team27.healthe.model.CareProvider;
@@ -166,15 +167,12 @@ public class PatientListFragment extends Fragment {
             if (user instanceof Patient) {
                 ((CareProvider) this.user).addPatient((Patient) user);
 
-                LocalFileController fs_controller = new LocalFileController();
-                fs_controller.saveUserInFile(this.user, getContext());
-
-                ElasticSearchController es_controller = new ElasticSearchController();
-                es_controller.addUser(this.user);
-
                 adapter.refresh(((CareProvider) this.user).getPatientsArray());
 
+                LocalFileController fs_controller = new LocalFileController("user.sav");
+                fs_controller.saveUserInFile(this.user, getContext());
 
+                new UpdateUser().execute(this.user);
             }
             else {
                 Toast.makeText(getContext(), "Error: Given user a Care Provider", Toast.LENGTH_SHORT).show();
@@ -183,6 +181,19 @@ public class PatientListFragment extends Fragment {
         else {
             Toast.makeText(getContext(), "A user does not exist for given ID", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private class UpdateUser extends AsyncTask<User, Void, Void> {
+
+        @Override
+        protected Void doInBackground(User... users) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for(User user:users) {
+                es_controller.addUser(user);
+            }
+            return null;
+        }
+
     }
 
 }
