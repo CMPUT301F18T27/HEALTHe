@@ -19,6 +19,10 @@ public class CareProvider extends User {
         return this.patients;
     }
 
+    public ArrayList<Patient> getPatientsArray() {
+        return new ArrayList<Patient>(this.patients);
+    }
+  
     /**
      * Adds patient p to the care-provider's list of patients
      * @param p (Patient class)
