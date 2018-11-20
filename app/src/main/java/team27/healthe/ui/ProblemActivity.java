@@ -185,6 +185,7 @@ public class ProblemActivity extends AppCompatActivity {
                 new DeleteProblem().execute(problem);
 
                 file_controller.removeProblemFromFile();
+                adapter.refresh(problems);
 
             }
         })
