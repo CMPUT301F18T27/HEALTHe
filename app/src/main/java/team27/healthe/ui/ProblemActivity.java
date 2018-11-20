@@ -23,12 +23,14 @@ import android.widget.Toast;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
+import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.ProblemsAdapter;
 import team27.healthe.model.User;
@@ -39,7 +41,7 @@ public class ProblemActivity extends AppCompatActivity {
     public static ArrayList<Problem> problems;
     public static String FILENAME = "problems.sav";
     public static LocalFileController file_controller = new LocalFileController(FILENAME);
-    private User current_user;
+    private Patient current_user;
 
 
     @Override
@@ -47,7 +49,7 @@ public class ProblemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_problem);
 
-        getUserFromIntent();
+        //getUserFromIntent();
 
         new getProblemAsync().execute();
         listView = (ListView) findViewById(R.id.problem_list);
@@ -88,14 +90,6 @@ public class ProblemActivity extends AppCompatActivity {
 
         adapter = new ProblemsAdapter(this, problems);
         listView.setAdapter(adapter);
-    }
-
-    private void getUserFromIntent() {
-        Intent intent = getIntent();
-        ElasticSearchController es_controller = new ElasticSearchController();
-        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
-        this.current_user = es_controller.jsonToUser(user_json);
-
     }
 
     public void addProblem() {
@@ -349,11 +343,10 @@ public class ProblemActivity extends AppCompatActivity {
     }
 
     private void loadFromFile() {
+        Collection<Integer> problems = current_user.getProblemList();
 
-
-
-        Problem problem = file_controller.loadProblemFromFile(this);
-        if (problem != null) {
+        for (Integer problem_id : problems) {
+            Problem problem = file_controller.loadProblemFromFile(problem_id, current_user.getUserid(), getApplicationContext());
         }
     }
 
