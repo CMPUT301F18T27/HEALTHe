@@ -2,6 +2,7 @@ package team27.healthe.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -30,12 +31,15 @@ import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.ProblemsAdapter;
+import team27.healthe.model.User;
 
 public class ProblemActivity extends AppCompatActivity {
     public static ListView listView;
     private ProblemsAdapter adapter;
     public static ArrayList<Problem> problems;
     public static String FILENAME = "problems.sav";
+    public static LocalFileController file_controller = new LocalFileController(FILENAME);
+    private User current_user;
 
 
     @Override
@@ -43,6 +47,9 @@ public class ProblemActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_problem);
 
+        getUserFromIntent();
+
+        new getProblemAsync().execute();
         listView = (ListView) findViewById(R.id.problem_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -53,8 +60,6 @@ public class ProblemActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addProblem();
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
 
@@ -83,6 +88,14 @@ public class ProblemActivity extends AppCompatActivity {
 
         adapter = new ProblemsAdapter(this, problems);
         listView.setAdapter(adapter);
+    }
+
+    private void getUserFromIntent() {
+        Intent intent = getIntent();
+        ElasticSearchController es_controller = new ElasticSearchController();
+        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        this.current_user = es_controller.jsonToUser(user_json);
+
     }
 
     public void addProblem() {
@@ -147,7 +160,7 @@ public class ProblemActivity extends AppCompatActivity {
 
                 new AddProblemES().execute(problem);
 
-                LocalFileController file_controller = new LocalFileController(FILENAME);
+
                 file_controller.saveProblemInFile(problem, getApplicationContext());
 
             }
@@ -172,8 +185,7 @@ public class ProblemActivity extends AppCompatActivity {
 
                 new DeleteProblem().execute(problem);
 
-                LocalFileController file_controller = new LocalFileController(FILENAME);
-                file_controller.saveProblemInFile(problem, getApplicationContext());
+                file_controller.deleteProblemFromFile(problem, getApplicationContext());
 
             }
         })
@@ -243,7 +255,6 @@ public class ProblemActivity extends AppCompatActivity {
 
                 new UpdateProblem().execute(problem);
 
-                LocalFileController file_controller = new LocalFileController(FILENAME);
                 file_controller.saveProblemInFile(problem, getApplicationContext());
 
             }
@@ -263,10 +274,10 @@ public class ProblemActivity extends AppCompatActivity {
             ElasticSearchController es_controller = new ElasticSearchController();
 
             for (Problem problem : problems) {
-                if (es_controller.getProblem(problem.getProblemID()) != null) { // If account already exists
+                if (es_controller.getProblem(problem.getProblemID(), current_user.getUserid()) != null) { // If account already exists
                     return null;
                 } else {
-                    es_controller.addProblem(problem);
+                    es_controller.addProblem(problem, current_user.getUserid());
                     return problem;
                 }
             }
@@ -285,7 +296,7 @@ public class ProblemActivity extends AppCompatActivity {
         protected Problem doInBackground(Problem... problems) {
             ElasticSearchController es_controller = new ElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.deleteProblem(problem);
+                es_controller.removeProblem(problem.getProblemID(), current_user.getUserid());
             }
             return null;
         }
@@ -293,9 +304,6 @@ public class ProblemActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
-            List<Fragment> allFragments = getSupportFragmentManager().getFragments();
-            Fragment fragment  = (ProfileFragment)allFragments.get(0);
-            ((ProfileFragment) fragment).deleteProblem(problem);
         }
     }
 
@@ -305,7 +313,7 @@ public class ProblemActivity extends AppCompatActivity {
         protected Problem doInBackground(Problem... problems) {
             ElasticSearchController es_controller = new ElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.addProblem(problem);
+                es_controller.addProblem(problem, current_user.getUserid());
             }
             return null;
         }
@@ -313,21 +321,19 @@ public class ProblemActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
-            List<Fragment> allFragments = getSupportFragmentManager().getFragments();
-            Fragment fragment  = (ProfileFragment)allFragments.get(0);
-            ((ProfileFragment) fragment).updateProblem(problem);
         }
     }
 
-    // Async class for getting problem from elastic search server
+    // Async class for getting problems from elastic search server
     private class getProblemAsync extends AsyncTask<String, Void, ArrayList<Problem>> {
 
         @Override
-        protected Problem doInBackground(String... problem_ids) {
+        protected ArrayList<Problem> doInBackground(String... problem_ids) {
             ElasticSearchController es_controller = new ElasticSearchController();
 
             for (String problem_id: problem_ids) {
-                Problem problem = es_controller.getProblem(problem_id);
+                int prob_id = Integer.parseInt(problem_id);
+                Problem problem = es_controller.getProblem(prob_id, current_user.getUserid());
                 problems.add(problem);
             }
             return null;
@@ -336,15 +342,18 @@ public class ProblemActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(ArrayList<Problem> problems) {
             super.onPostExecute(problems);
-            handleLogin(problems, true);
+            for (Problem problem: problems) {
+                file_controller.saveProblemInFile(problem, getApplicationContext());
+            }
         }
     }
 
     private void loadFromFile() {
-        LocalFileController file_controller = new LocalFileController(FILENAME);
+
+        
+
         Problem problem = file_controller.loadProblemFromFile(this);
         if (problem != null) {
-            handleLogin(problem, false);
         }
     }
 
