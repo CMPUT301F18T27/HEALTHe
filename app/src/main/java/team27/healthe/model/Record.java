@@ -22,6 +22,7 @@ public class Record {
     private String geo_location_s; // @TODO: is this necessary?
     private GeoLocation geoLocation;
     private ArrayList<Integer> imageList;
+    private Integer record_id;
 
     public Record(String ttl, Date date, String desc, ArrayList<Integer> comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Integer> images) {
@@ -37,6 +38,7 @@ public class Record {
         bodyLocation = bodyLoc;
         geoLocation = geoLoc;
         imageList = images;
+        record_id = null; // TODO: fix with auto id
     }
 
     public Record(String ttl) {
@@ -47,6 +49,7 @@ public class Record {
         bodyLocation = null;
         geoLocation = null;
         imageList = null;
+        record_id = null; // TODO: fix with auto id
     }
 
     public String getTitle() {
@@ -103,6 +106,14 @@ public class Record {
 
     public void setImageList(ArrayList<Integer> images) {
         this.imageList = images;
+    }
+
+    public Integer getRecordID(){
+        return record_id;
+    }
+
+    public void setRecordID(Integer rid){
+        record_id = rid;
     }
 
 }

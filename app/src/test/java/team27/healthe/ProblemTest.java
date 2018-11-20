@@ -3,12 +3,16 @@ package team27.healthe;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
+import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
-import team27.healthe.model.RecordList;
 
 import static android.os.SystemClock.sleep;
 import static org.junit.Assert.*;
@@ -19,8 +23,8 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-        records.add(new Record("Initial burn mark"));
+        Collection<Integer> records = new ArrayList<Integer>();
+        records.add(new Record("Initial burn mark").getRecordID());
         Problem p1 = new Problem(title, pdate, description, records);
 
         assertEquals(title, p1.getTitle());
@@ -37,8 +41,8 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-        records.add(new Record("Initial burn mark"));
+        Collection<Integer> records = new ArrayList<Integer>();
+        records.add(new Record("Initial burn mark").getRecordID());
         Problem p = new Problem(title, pdate, description, records);
 
         // TESTING SETTERS AND GETTERS FOR TITLE
@@ -53,8 +57,8 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-        records.add(new Record("Initial burn mark"));
+        Collection<Integer> records = new ArrayList<Integer>();
+        records.add(new Record("Initial burn mark").getRecordID());
         Problem p = new Problem(title, pdate, description, records);
 
         // TESTING SETTERS AND GETTERS FOR DATE
@@ -69,8 +73,8 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-        records.add(new Record("Initial burn mark"));
+        Collection<Integer> records = new ArrayList<Integer>();
+        records.add(new Record("Initial burn mark").getRecordID());
         Problem p = new Problem(title, pdate, description, records);
 
         // TESTING SETTERS AND GETTERS FOR DESCRIPTION
@@ -86,14 +90,14 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
+        Collection records = new ArrayList<Record>();
         records.add(new Record("Initial burn mark"));
         Problem p = new Problem(title, pdate, description, records);
 
         // TESTING SETTERS AND GETTERS FOR RECORDS
         assertEquals(p.getRecords(), records);
-        RecordList newRecords= new RecordList();
-        newRecords.add(new Record("Healed burn mark"));
+        Collection<Integer> newRecords = new ArrayList<Integer>();
+        newRecords.add((new Record("Healed burn mark")).getRecordID());
         p.setRecords(newRecords);
         assertEquals(newRecords, p.getRecords());
     }
@@ -104,7 +108,7 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
+        Collection<Integer> records = new ArrayList<Integer>();
 
         // Testing to make sure there is at least 1 record in a problem
         boolean thrown = false;
@@ -122,13 +126,13 @@ public class ProblemTest {
         String title = "Hand Burn";
         Date pdate = Calendar.getInstance().getTime();
         String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-        records.add(new Record("Initial burn mark"));
+        Collection<Integer> records = new ArrayList<Integer>();
+        records.add(new Record("Initial burn mark").getRecordID());
         Problem p = new Problem(title, pdate, description, records);
 
         // TESTING GETTING NUMBER OF RECORDS
         assertEquals(p.getNumberOfRecords(), 1);
-        records.add(new Record("Healed burn mark"));
+        records.add(new Record("Healed burn mark").getRecordID());
         assertEquals(p.getNumberOfRecords(), 2);
     }
 
@@ -137,8 +141,8 @@ public class ProblemTest {
         String title1 = "Hand Burn";
         Date pdate1 = Calendar.getInstance().getTime();
         String description1 = "I have a burn on the palm of my hand.";
-        RecordList records1 = new RecordList();
-        records1.add(new Record("Initial burn mark"));
+        Collection<Integer> records1 = new ArrayList<Integer>();
+        records1.add(new Record("Initial burn mark").getRecordID());
         Problem p1 = new Problem(title1, pdate1, description1, records1);
 
         sleep(3000);
@@ -146,11 +150,12 @@ public class ProblemTest {
         String title2 = "Hand Burn";
         Date pdate2 = Calendar.getInstance().getTime();
         String description2 = "I have a burn on the palm of my hand.";
-        RecordList records2 = new RecordList();
-        records2.add(new Record("Initial burn mark"));
+        Collection<Integer> records2 = new ArrayList<Integer>();
+        records2.add(new Record("Initial burn mark").getRecordID());
         Problem p2 = new Problem(title2, pdate2, description2, records2);
 
         assertTrue(p1.compareTo(p2) < 0);
     }
+
 
 }
