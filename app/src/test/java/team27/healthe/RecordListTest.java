@@ -11,11 +11,9 @@ public class RecordListTest {
     @Before
     public void testSetup(){
         test_list = new RecordList();
-        r1 = new Record();
-        r1.setTitle("tag1 tag2");
+        r1 = new Record("tag1 tag2");
 
-        r2 = new Record();
-        r2.setTitle("tag2 tag 3");
+        r2 = new Record("tag2 tag 3");
 
         test_list.add(r1);
         test_list.add(r2);

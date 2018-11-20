@@ -3,6 +3,7 @@ package team27.healthe;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -20,10 +21,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r1 = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -49,10 +50,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -68,10 +69,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -87,10 +88,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -106,16 +107,16 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
         // TESTING SETTERS AND GETTERS FOR DESCRIPTION
         assertEquals(r.getCommentList(), comments);
-        CommentList newComments = new CommentList();
+        ArrayList<Integer> newComments = new CommentList();
         r.setCommentList(newComments);
         assertEquals(newComments, r.getCommentList());
     }
@@ -125,10 +126,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -144,10 +145,10 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
@@ -163,16 +164,16 @@ public class RecordTest {
         String title = "Initial Burn Mark";
         Date rdate = Calendar.getInstance().getTime();
         String descr = "This is a severe initial burn I got my touching the stove.";
-        CommentList comments = new CommentList();
+        ArrayList<Integer> comments = new CommentList();
         BodyLocation bodyLoc = new BodyLocation(1,1);
         GeoLocation geoLoc = new GeoLocation(23.1313, 75.1235);
-        ImageList images = new ImageList();
+        ArrayList<Integer> images = new ImageList();
 
         Record r = new Record(title, rdate, descr, comments, bodyLoc, geoLoc, images);
 
         // TESTING SETTERS AND GETTERS FOR DESCRIPTION
         assertEquals(r.getImageList(), images);
-        ImageList newImages = new ImageList();
+        ArrayList<Integer> newImages = new ImageList();
         r.setImageList(newImages);
         assertEquals(newImages, r.getImageList());
     }
