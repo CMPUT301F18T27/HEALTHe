@@ -8,6 +8,8 @@ import com.searchly.jestdroid.JestClientFactory;
 import com.searchly.jestdroid.JestDroidClient;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 import io.searchbox.client.JestResult;
@@ -76,14 +78,28 @@ public class ElasticSearchController {
     }
 
     // Add problem to elastic search database using problem id as the id in elastic search
-    public static void addProblem(Problem p) {
+    public static void addProblem(Problem p, String user_id) {
         verifyClient();
 
         Gson gson = new Gson();
         String problem_json = gson.toJson(p);
+        Patient patient = (Patient)getUser(user_id);
+        Collection<Integer> plist = patient.getProblemList();
+        Integer problem_id_index;
+        System.out.println("plist size" + plist.size());
+        if (plist.size() > 0){
+            problem_id_index = Collections.max(patient.getProblemList()) + 1;
+        } else {
+            problem_id_index = 0;
+        }
+        System.out.println("problem_id_index" + problem_id_index);
+        p.setProblemID(problem_id_index);
+        patient.addProblem(problem_id_index);
+        addUser(patient);
+        String ins_problem_id = user_id + "-" + problem_id_index.toString();
 
         Index index = new Index.Builder(problem_json)
-                .index(test_index).type(problem_type).build();//--.id(p.getProblemID().toString())
+                .index(test_index).type(problem_type).id(ins_problem_id).build();//--.id(p.getProblemID().toString())
 
         try {
             client.execute(index);
@@ -94,10 +110,10 @@ public class ElasticSearchController {
     }
 
     // Get the problem from a given problem id
-    public static Problem getProblem(Integer problem_id) {
+    public static Problem getProblem(Integer problem_id, String user_id) {
         verifyClient();
-        Gson gson = new Gson();
-        Get get = new Get.Builder(test_index, problem_id.toString()).type(problem_type).build();
+        String es_problem_id = user_id + "-" + problem_id.toString();
+        Get get = new Get.Builder(test_index, es_problem_id).type(problem_type).build();
 
 //        Get get2 = new Get.Builder()
 
@@ -105,11 +121,6 @@ public class ElasticSearchController {
             JestResult result = client.execute(get);
 
             Problem p;
-
-            // Get user type from json
-            String json = result.getSourceAsString();
-            Map source_map = gson.fromJson(json, Map.class);
-            String user_type = source_map.get("problem_type").toString();
 
             p = result.getSourceAsObject(Problem.class);
 

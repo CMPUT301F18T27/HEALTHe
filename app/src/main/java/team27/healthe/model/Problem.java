@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public class Problem implements Comparable<Problem> {
     private String title;
@@ -14,7 +13,7 @@ public class Problem implements Comparable<Problem> {
     private String description;
     private Collection<Integer> records;
     private Integer problem_id;
-    private Integer patient_id;
+    private String patient_id;
     // private Collection<Record> records;
 
     public Problem() {
@@ -30,6 +29,14 @@ public class Problem implements Comparable<Problem> {
         description = desc;
         records = new ArrayList<>();
         patient_id = null;
+    }
+
+    public Problem(String ttl, Date date, String desc, String p_id) {
+        title = ttl;
+        pdate = date;
+        description = desc;
+        records = new ArrayList<>();
+        patient_id = p_id;
     }
 
     public Problem(String ttl, Date date, String desc, Collection<Integer> recs) {

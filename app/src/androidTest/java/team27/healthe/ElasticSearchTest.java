@@ -23,15 +23,16 @@ import team27.healthe.model.Record;
 public class ElasticSearchTest {
     @Test
     public void addProblemESTest(){
-        String title1 = "Hand Burn";
+        String title1 = "Hand Cold";
         Date pdate1 = Calendar.getInstance().getTime();
-        String description1 = "I have a burn on the palm of my hand.";
+        String description1 = "I have a cold on the palm of my hand.";
         Collection<Integer> records1 = new ArrayList<Integer>();
-        records1.add(new Record("Initial burn mark").getRecordID());
+        records1.add(new Record("Initial cold mark").getRecordID());
         Problem p1 = new Problem(title1, pdate1, description1, records1);
 
-        ElasticSearchController.addProblem(p1);
-//        Problem p2 = ElasticSearchController.getProblem()
-        assertTrue(true);
+        ElasticSearchController.addProblem(p1, "12345678");
+        Problem p2 = ElasticSearchController.getProblem(p1.getProblemID(), "12345678");
+        assertTrue(p2 != null);
+        assertTrue(p1.getTitle().equals(p2.getTitle())); //not comprehensive -- need comparable to be implemented
     }
 }
