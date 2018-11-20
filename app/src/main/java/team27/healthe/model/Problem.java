@@ -121,6 +121,14 @@ public class Problem implements Comparable<Problem> {
         return problem_id;
     }
 
+    public String getPatientID(){
+        return patient_id;
+    }
+
+    public void setPatientID(String pat_id){
+        patient_id = pat_id;
+    }
+
     public int compareTo(Problem compare_problem) {
         return this.getPdate().compareTo(compare_problem.getPdate());
     }

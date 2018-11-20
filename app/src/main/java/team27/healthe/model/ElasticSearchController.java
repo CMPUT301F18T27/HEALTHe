@@ -162,6 +162,14 @@ public class ElasticSearchController {
         return gson.toJson(user);
     }
 
+    public Problem jsonToProblem(String problem_json) {
+        Gson gson = new Gson();
+
+        Map source_map = gson.fromJson(problem_json, Map.class);
+        String problem_type = source_map.get("problem_type").toString();
+        return gson.fromJson(problem_json, Problem.class);
+    }
+
     public User jsonToUser(String user_json) {
         Gson gson = new Gson();
 

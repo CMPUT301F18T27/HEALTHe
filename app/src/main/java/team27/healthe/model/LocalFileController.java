@@ -56,4 +56,37 @@ public class LocalFileController {
         }
         return null;
     }
+
+    // Add problem to elastic search database using problem id as the id in elastic search
+    public static void saveProblemInFile(Problem p, Context context) {
+        try {
+            Gson gson = new Gson();
+
+            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fos.write(gson.toJson(p).getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Get the problem from a given problem id
+    public static Problem getProblem(Integer problem_id, String user_id, Context context) {
+        try {
+            FileInputStream fis = context.openFileInput(FILENAME);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+
+            String problem_json = in.readLine();
+
+            if (problem_json != null) {
+                ElasticSearchController es_controller = new ElasticSearchController();
+                fis.close();
+                return es_controller.jsonToProblem(problem_json);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
