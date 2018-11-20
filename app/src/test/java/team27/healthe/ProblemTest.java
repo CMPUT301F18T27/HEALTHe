@@ -98,23 +98,24 @@ public class ProblemTest {
         assertEquals(newRecords, p.getRecords());
     }
 
-    @Test
-    public void testHasMinimumRecord() {
-        /* Problem must contain at least 1 record. */
-        String title = "Hand Burn";
-        Date pdate = Calendar.getInstance().getTime();
-        String description = "I have a burn on the palm of my hand.";
-        RecordList records = new RecordList();
-
-        // Testing to make sure there is at least 1 record in a problem
-        boolean thrown = false;
-        try {
-            Problem p = new Problem(title, pdate, description, records);
-        } catch (IllegalStateException e) {
-            thrown = true;
-        }
-        assertTrue(thrown);
-    }
+    // Technically not needed as a problem can exist without a record
+//    @Test
+//    public void testHasMinimumRecord() {
+//        /* Problem must contain at least 1 record. */
+//        String title = "Hand Burn";
+//        Date pdate = Calendar.getInstance().getTime();
+//        String description = "I have a burn on the palm of my hand.";
+//        RecordList records = new RecordList();
+//
+//        // Testing to make sure there is at least 1 record in a problem
+//        boolean thrown = false;
+//        try {
+//            Problem p = new Problem(title, pdate, description, records);
+//        } catch (IllegalStateException e) {
+//            thrown = true;
+//        }
+//        assertTrue(thrown);
+//    }
 
     @Test
     public void testNumberOfRecords() {
