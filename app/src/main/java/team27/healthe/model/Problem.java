@@ -1,6 +1,7 @@
 package team27.healthe.model;
 
 import java.text.Format;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -61,7 +62,7 @@ public class Problem implements Comparable<Problem> {
         return pdate;
     }
 
-    public String getDateAsString() {
+    public String getPdateAsString() {
         Format formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         String s = formatter.format(pdate);
         return s;
@@ -69,6 +70,16 @@ public class Problem implements Comparable<Problem> {
 
     public void setPdate(Date pdate) {
         this.pdate = pdate;
+    }
+
+    public void setPdateAsDateObj(String strdate) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            Date date = formatter.parse(strdate);
+            this.pdate = date;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDescription() {
