@@ -8,6 +8,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
+/**
+ * Represents a Patient's problem and provides controls (accessing and editing info)
+ * @author [fill in]
+ */
 public class Problem implements Comparable<Problem> {
     private String title;
     private Date pdate;
@@ -69,6 +73,10 @@ public class Problem implements Comparable<Problem> {
         return pdate;
     }
 
+    /**
+     * Converts a Date object to String
+     * @return s (date - String)
+     */
     public String getPdateAsString() {
         Format formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         String s = formatter.format(pdate);
@@ -79,6 +87,11 @@ public class Problem implements Comparable<Problem> {
         this.pdate = pdate;
     }
 
+    /**
+     * Converts a string date to Date object
+     * and sets the date to that converted object
+     * @param strdate (String)
+     */
     public void setPdateAsDateObj(String strdate) {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
@@ -129,10 +142,19 @@ public class Problem implements Comparable<Problem> {
         patient_id = pat_id;
     }
 
+    /**
+     * Comparable implementation (compares by date)
+     * @param compare_problem (Problem class)
+     * @return see Date.compareTo()
+     */
     public int compareTo(Problem compare_problem) {
         return this.getPdate().compareTo(compare_problem.getPdate());
     }
 
+    /**
+     * Returns the size of the records list
+     * @return size (int)
+     */
     public int getNumberOfRecords() {
         return records.size();
     }

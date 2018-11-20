@@ -9,6 +9,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
+/**
+ * Local File access for handling operations involving storing/retrieving from local file
+ * using JSON
+ * @author Chase
+ */
 public class LocalFileController {
     private static String FILENAME;
 
@@ -16,6 +21,10 @@ public class LocalFileController {
         this.FILENAME = filename;
     }
 
+    /**
+     * Empties the contents of the local file
+     * @param context (Context)
+     */
     public static void clearUserFile(Context context) {
         try {
             FileOutputStream fos = context.openFileOutput(FILENAME, context.MODE_PRIVATE);
@@ -26,6 +35,11 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Stores a user object to local file
+     * @param user (User class)
+     * @param context (Context class)
+     */
     public static void saveUserInFile(User user, Context context) {
         try {
             Gson gson = new Gson();
@@ -38,6 +52,11 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Collects a user from local file from the given context
+     * @param context (Context class)
+     * @return Patient or CareProvider (User class)
+     */
     public User loadUserFromFile(Context context) {
         try {
             FileInputStream fis = context.openFileInput(FILENAME);
@@ -57,7 +76,11 @@ public class LocalFileController {
         return null;
     }
 
-    // Add problem to elastic search database using problem id as the id in elastic search
+    /**
+     * Add problem to elastic search database using problem id as the id in elastic search
+     * @param p (Problem class)
+     * @param context (Context class)
+     */
     public static void saveProblemInFile(Problem p, Context context) {
         try {
             Gson gson = new Gson();
@@ -70,7 +93,13 @@ public class LocalFileController {
         }
     }
 
-    // Get the problem from a given problem id
+    /**
+     * Get the problem from a given problem id
+     * @param problem_id (Integer)
+     * @param user_id (String)
+     * @param context (Context class)
+     * @return Problem (class)
+     */
     public static Problem loadProblemFromFile(Integer problem_id, String user_id, Context context) {
         try {
             FileInputStream fis = context.openFileInput(FILENAME);
@@ -89,4 +118,6 @@ public class LocalFileController {
         }
         return null;
     }
+
+    public static void removeProblemFromFile(){}
 }
