@@ -350,7 +350,7 @@ public class ProblemActivity extends AppCompatActivity {
 
     private void loadFromFile() {
 
-        
+
 
         Problem problem = file_controller.loadProblemFromFile(this);
         if (problem != null) {
