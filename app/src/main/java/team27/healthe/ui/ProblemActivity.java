@@ -256,7 +256,7 @@ public class ProblemActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private class createAccountAsync extends AsyncTask<Problem, Void, Problem> {
+    private class AddProblemES extends AsyncTask<Problem, Void, Problem> {
 
         @Override
         protected Problem doInBackground(Problem... problems) {
