@@ -71,7 +71,7 @@ public class LocalFileController {
     }
 
     // Get the problem from a given problem id
-    public static Problem getProblem(Integer problem_id, String user_id, Context context) {
+    public static Problem loadProblemFromFile(Integer problem_id, String user_id, Context context) {
         try {
             FileInputStream fis = context.openFileInput(FILENAME);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
