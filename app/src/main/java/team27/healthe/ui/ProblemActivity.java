@@ -179,7 +179,7 @@ public class ProblemActivity extends AppCompatActivity {
 
                 new DeleteProblem().execute(problem);
 
-                file_controller.deleteProblemFromFile(problem, getApplicationContext());
+                file_controller.removeProblemFromFile();
 
             }
         })
