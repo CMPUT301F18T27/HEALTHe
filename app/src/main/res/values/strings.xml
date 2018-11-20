@@ -32,4 +32,5 @@
     <string name="home_phone">Phone number:</string>
     <string name="profile_loading">Loading...</string>
     <string name="appname">HEALTHe</string>
+    <string name="problem_list">Problem List</string>
 </resources>

@@ -44,6 +44,7 @@ public class LocalFileController {
 
             if (user_json != null) {
                 ElasticSearchController es_controller = new ElasticSearchController();
+                fis.close();
                 return es_controller.jsonToUser(user_json);
             }
 
