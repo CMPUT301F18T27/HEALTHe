@@ -1,52 +1,64 @@
 package team27.healthe.model;
 
+import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
+/**
+ * Represents a Patient's problem and provides controls (accessing and editing info)
+ * @author [fill in]
+ */
 public class Problem implements Comparable<Problem> {
     private String title;
     private Date pdate;
     private String description;
-    private RecordList records;
-
+    private Collection<Integer> records;
+    private Integer problem_id;
+    private String patient_id;
     // private Collection<Record> records;
 
     public Problem() {
         this.title = "New Problem";
         this.pdate = new Date();
         this.description = "";
-        this.records = new RecordList();
+        this.records = new ArrayList<>();
     }
 
-    public Problem(String ttl, Date date, String desc){
+    public Problem(String ttl, Date date, String desc) {
         title = ttl;
         pdate = date;
         description = desc;
-        records = new RecordList();
+        records = new ArrayList<>();
+        patient_id = null;
     }
 
-    public Problem(String ttl, Date date, String desc, RecordList recs){
+    public Problem(String ttl, Date date, String desc, String p_id) {
+        title = ttl;
+        pdate = date;
+        description = desc;
+        records = new ArrayList<>();
+        patient_id = p_id;
+    }
+
+    public Problem(String ttl, Date date, String desc, Collection<Integer> recs) {
         title = ttl;
         pdate = date;
         description = desc;
         records = recs;
 
-        // must have at least 1 record
-        if (recs.empty()) {
-            throw new IllegalStateException();
-        }
     }
 
-    public Problem(String ttl, String desc, RecordList recs) {
+    public Problem(String ttl, String desc, Collection<Integer> recs) {
         title = ttl;
         pdate = Calendar.getInstance().getTime();
         description = desc;
         records = recs;
 
-        // must have at least 1 record
-        if (recs.empty()) {
-            throw new IllegalStateException();
-        }
+
     }
 
     public String getTitle() {
@@ -61,8 +73,33 @@ public class Problem implements Comparable<Problem> {
         return pdate;
     }
 
+    /**
+     * Converts a Date object to String
+     * @return s (date - String)
+     */
+    public String getPdateAsString() {
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        String s = formatter.format(pdate);
+        return s;
+    }
+
     public void setPdate(Date pdate) {
         this.pdate = pdate;
+    }
+
+    /**
+     * Converts a string date to Date object
+     * and sets the date to that converted object
+     * @param strdate (String)
+     */
+    public void setPdateAsDateObj(String strdate) {
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+            Date date = formatter.parse(strdate);
+            this.pdate = date;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDescription() {
@@ -73,18 +110,51 @@ public class Problem implements Comparable<Problem> {
         this.description = description;
     }
 
-    public RecordList getRecords() {
+    public Collection<Integer> getRecords() {
         return records;
     }
 
-    public void setRecords(RecordList records) {
+    public void setRecords(Collection<Integer> records) {
         this.records = records;
     }
 
-    public int compareTo(Problem compare_problem){
+    public void addRecord(Integer record_id) {
+        records.add(record_id);
+    }
+
+    public void removeRecord(Integer record_id) {
+        records.remove(record_id);
+    }
+
+    public void setProblemID(Integer pid) {
+        problem_id = pid;
+    }
+
+    public Integer getProblemID() {
+        return problem_id;
+    }
+
+    public String getPatientID(){
+        return patient_id;
+    }
+
+    public void setPatientID(String pat_id){
+        patient_id = pat_id;
+    }
+
+    /**
+     * Comparable implementation (compares by date)
+     * @param compare_problem (Problem class)
+     * @return see Date.compareTo()
+     */
+    public int compareTo(Problem compare_problem) {
         return this.getPdate().compareTo(compare_problem.getPdate());
     }
 
+    /**
+     * Returns the size of the records list
+     * @return size (int)
+     */
     public int getNumberOfRecords() {
         return records.size();
     }

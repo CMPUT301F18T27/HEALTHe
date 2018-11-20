@@ -28,8 +28,8 @@ public class PatientTest {
         Patient patient = new Patient("fromfuture", "ff@google.com", "7539521462");
         Problem problem = new Problem("i am a problem", new Date(), "I just got created");
 
-        patient.addProblem(problem);
-        assertTrue(patient.hasProblem(problem));
+        patient.addProblem(problem.getProblemID());
+        assertTrue(patient.hasProblem(problem.getProblemID()));
     }
 
     @Test
@@ -37,18 +37,18 @@ public class PatientTest {
         Patient patient = new Patient("apple", "apple@google.com", "1515151515");
         String problemTitle = "im am green";
         Problem problem = new Problem(problemTitle, new Date(), "should I be red?");
-        patient.addProblem(problem);
+        patient.addProblem(problem.getProblemID());
 
-        assertEquals(problem, patient.getProblem(problemTitle));
+        assertTrue(problem.equals(patient.getProblem(problemTitle)));
     }
 
     @Test
     public void removeProblemTest() {
         Patient patient = new Patient("apple", "apple@google.com", "1515151515");
         Problem problem = new Problem("im am green", new Date(), "should I be red?");
-        patient.addProblem(problem);
+        patient.addProblem(problem.getProblemID());
 
-        patient.removeProblem(problem);
+        patient.removeProblem(problem.getProblemID());
         assertTrue(patient.getProblemList().isEmpty());
     }
 }

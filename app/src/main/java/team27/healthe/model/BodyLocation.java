@@ -2,6 +2,10 @@ package team27.healthe.model;
 
 import android.graphics.Point;
 
+/** Represents body location screen
+ * @author Chris
+ *
+ */
 public class BodyLocation {
     Point location;
     String body_string;
@@ -24,6 +28,10 @@ public class BodyLocation {
         return location;
     }
 
+    /**
+     *
+     * @return location name string (for display purposes) based on location
+     */
     public String getLocationName(){
 
         return null;
