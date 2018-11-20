@@ -3,6 +3,7 @@ package team27.healthe.model;
 import android.content.Context;
 import android.media.Image;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -15,15 +16,16 @@ public class Record {
     private Date rdate;
     private String description;
 
-    private CommentList commentList;
+    private ArrayList<Integer> commentList;
     private String body_location_s; // @TODO: is this necessary?
     private BodyLocation bodyLocation;
     private String geo_location_s; // @TODO: is this necessary?
     private GeoLocation geoLocation;
-    private ImageList imageList;
+    private ArrayList<Integer> imageList;
+    private Integer record_id;
 
-    public Record(String ttl, Date date, String desc, CommentList comments,
-                  BodyLocation bodyLoc, GeoLocation geoLoc, ImageList images) {
+    public Record(String ttl, Date date, String desc, ArrayList<Integer> comments,
+                  BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Integer> images) {
 
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
@@ -36,6 +38,7 @@ public class Record {
         bodyLocation = bodyLoc;
         geoLocation = geoLoc;
         imageList = images;
+        record_id = null; // TODO: fix with auto id
     }
 
     public Record(String ttl) {
@@ -46,6 +49,7 @@ public class Record {
         bodyLocation = null;
         geoLocation = null;
         imageList = null;
+        record_id = null; // TODO: fix with auto id
     }
 
     public String getTitle() {
@@ -72,11 +76,11 @@ public class Record {
         this.description = description;
     }
 
-    public CommentList getCommentList() {
+    public ArrayList<Integer> getCommentList() {
         return commentList;
     }
 
-    public void setCommentList(CommentList comments) {
+    public void setCommentList(ArrayList<Integer> comments) {
         this.commentList = comments;
     }
 
@@ -96,12 +100,20 @@ public class Record {
         this.geoLocation = geoLoc;
     }
 
-    public ImageList getImageList() {
+    public ArrayList<Integer> getImageList() {
         return imageList;
     }
 
-    public void setImageList(ImageList images) {
+    public void setImageList(ArrayList<Integer> images) {
         this.imageList = images;
+    }
+
+    public Integer getRecordID(){
+        return record_id;
+    }
+
+    public void setRecordID(Integer rid){
+        record_id = rid;
     }
 
 }

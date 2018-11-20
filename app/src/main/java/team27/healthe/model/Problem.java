@@ -38,10 +38,6 @@ public class Problem implements Comparable<Problem> {
         description = desc;
         records = recs;
 
-        // must have at least 1 record
-        if (recs.isEmpty()) {
-            throw new IllegalStateException();
-        }
     }
 
     public Problem(String ttl, String desc, Collection<Integer> recs) {
@@ -50,10 +46,7 @@ public class Problem implements Comparable<Problem> {
         description = desc;
         records = recs;
 
-        // must have at least 1 record
-        if (recs.isEmpty()) {
-            throw new IllegalStateException();
-        }
+
     }
 
     public String getTitle() {
@@ -68,7 +61,7 @@ public class Problem implements Comparable<Problem> {
         return pdate;
     }
 
-    public String getPdateAsString() {
+    public String getDateAsString() {
         Format formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         String s = formatter.format(pdate);
         return s;

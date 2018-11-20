@@ -7,6 +7,7 @@ import com.searchly.jestdroid.DroidClientConfig;
 import com.searchly.jestdroid.JestClientFactory;
 import com.searchly.jestdroid.JestDroidClient;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import io.searchbox.client.JestResult;
@@ -22,6 +23,7 @@ public class ElasticSearchController {
     private static String index = "cmput301f18t27";
     private static String test_index = "cmput301f18t27test";
     private static String user_type = "user";
+    private static String problem_type = "problem";
 
     public ElasticSearchController() {
         verifyClient();
@@ -67,6 +69,51 @@ public class ElasticSearchController {
             }
 
             return user;
+        }
+        catch (Exception e) {
+        }
+        return null;
+    }
+
+    // Add problem to elastic search database using problem id as the id in elastic search
+    public static void addProblem(Problem p) {
+        verifyClient();
+
+        Gson gson = new Gson();
+        String problem_json = gson.toJson(p);
+
+        Index index = new Index.Builder(problem_json)
+                .index(test_index).type(problem_type).build();//--.id(p.getProblemID().toString())
+
+        try {
+            client.execute(index);
+        }
+        catch (Exception e) {
+            Log.i("Error", e.toString());
+        }
+    }
+
+    // Get the problem from a given problem id
+    public static Problem getProblem(Integer problem_id) {
+        verifyClient();
+        Gson gson = new Gson();
+        Get get = new Get.Builder(test_index, problem_id.toString()).type(problem_type).build();
+
+//        Get get2 = new Get.Builder()
+
+        try {
+            JestResult result = client.execute(get);
+
+            Problem p;
+
+            // Get user type from json
+            String json = result.getSourceAsString();
+            Map source_map = gson.fromJson(json, Map.class);
+            String user_type = source_map.get("problem_type").toString();
+
+            p = result.getSourceAsObject(Problem.class);
+
+            return p;
         }
         catch (Exception e) {
         }
