@@ -17,7 +17,7 @@ public class CommentTest {
         Comment c = new Comment(text, p.getUserid());
 
         assertEquals(text, c.getText());
-        assertEquals(p, c.getCommenter());
+        assertEquals(p.getUserid(), c.getCommenter());
     }
 
     @Test

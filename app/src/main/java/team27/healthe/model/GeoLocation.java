@@ -1,5 +1,9 @@
 package team27.healthe.model;
 
+/**
+ * Represents a geolocation
+ * @author Tamara
+ */
 public class GeoLocation {
     private double latitude;
     private double longitude;

@@ -1,6 +1,9 @@
 package team27.healthe.model;
 
-
+/**
+ * Abstract representation of a system user
+ * @author Chris
+ */
 public abstract class User {
     protected String userid;
     protected String email;

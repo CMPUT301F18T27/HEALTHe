@@ -1,5 +1,9 @@
 package team27.healthe.model;
 
+/**
+ * Represents a comment (made on a record)
+ * @author [fill in]
+ */
 public class Comment {
     private String text;
     private String commenter;
