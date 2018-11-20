@@ -156,6 +156,9 @@ public class Problem implements Comparable<Problem> {
      * @return size (int)
      */
     public int getNumberOfRecords() {
+        if (records.isEmpty()) {
+            return 0;
+        }
         return records.size();
     }
 }

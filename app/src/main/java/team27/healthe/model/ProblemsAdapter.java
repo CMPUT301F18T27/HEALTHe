@@ -37,8 +37,8 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
         TextView date = (TextView) listItem.findViewById(R.id.Date);
         date.setText(current_problem.getPdateAsString());
 
-        TextView recordNum = (TextView) listItem.findViewById(R.id.RecordNumber);
-        recordNum.setText(current_problem.getNumberOfRecords());
+        //TextView recordNum = (TextView) listItem.findViewById(R.id.RecordNumber);
+        //recordNum.setText(current_problem.getNumberOfRecords());
 
         return listItem;
     }
