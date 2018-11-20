@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import io.searchbox.client.JestResult;
+import io.searchbox.core.Delete;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
@@ -115,20 +116,32 @@ public class ElasticSearchController {
         String es_problem_id = user_id + "-" + problem_id.toString();
         Get get = new Get.Builder(test_index, es_problem_id).type(problem_type).build();
 
-//        Get get2 = new Get.Builder()
+
 
         try {
             JestResult result = client.execute(get);
-
             Problem p;
-
             p = result.getSourceAsObject(Problem.class);
-
             return p;
         }
         catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
+    }
+
+    public static void removeProblem(Integer problem_id, String user_id){
+        verifyClient();
+        String es_problem_id = user_id + "-" + problem_id.toString();
+        try{
+            client.execute(new Delete.Builder(es_problem_id)
+                    .index("problem")
+                    .type("problem")
+                    .build());
+        } catch (Exception e){
+
+        }
+
     }
 
     // Create connection to elastic search server

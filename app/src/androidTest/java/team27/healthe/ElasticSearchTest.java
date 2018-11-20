@@ -31,7 +31,9 @@ public class ElasticSearchTest {
         Problem p1 = new Problem(title1, pdate1, description1, records1);
 
         ElasticSearchController.addProblem(p1, "12345678");
-        Problem p2 = ElasticSearchController.getProblem(p1.getProblemID(), "12345678");
+        Integer p1_id = p1.getProblemID();
+        System.out.println("Int prob id: "+p1_id);
+        Problem p2 = ElasticSearchController.getProblem(p1_id, "12345678");
         assertTrue(p2 != null);
         assertTrue(p1.getTitle().equals(p2.getTitle())); //not comprehensive -- need comparable to be implemented
     }
