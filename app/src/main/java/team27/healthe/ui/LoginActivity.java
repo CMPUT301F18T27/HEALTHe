@@ -37,6 +37,7 @@ import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {
     public static final String USER_MESSAGE = "team27.healthe.User";
+    private static String FILENAME = "user.sav";
 
 
     @Override
@@ -86,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
             intent.putExtra(USER_MESSAGE, gson.toJson(user));
 
             if (save_in_file) {
-                LocalFileController file_controller = new LocalFileController();
+                LocalFileController file_controller = new LocalFileController(FILENAME);
                 file_controller.saveUserInFile(user, this);
             }
 
@@ -124,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadFromFile() {
-        LocalFileController file_controller = new LocalFileController();
+        LocalFileController file_controller = new LocalFileController(FILENAME);
         User user = file_controller.loadUserFromFile(this);
         if (user != null) {
             handleLogin(user, false);

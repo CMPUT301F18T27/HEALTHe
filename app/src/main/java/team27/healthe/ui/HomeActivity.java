@@ -57,6 +57,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private User current_user;
     private boolean doubleBackToExitPressedOnce = false;
+    private static String FILENAME = "user.sav";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            LocalFileController file_controller = new LocalFileController();
+            LocalFileController file_controller = new LocalFileController(FILENAME);
             file_controller.clearUserFile(this);
             super.onBackPressed();
             return;
@@ -220,7 +221,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        LocalFileController file_controller = new LocalFileController();
+        LocalFileController file_controller = new LocalFileController(FILENAME);
         file_controller.clearUserFile(this);
         finish();
     }
@@ -271,7 +272,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 updateElasticSearch();
 
-                LocalFileController file_controller = new LocalFileController();
+                LocalFileController file_controller = new LocalFileController(FILENAME);
                 file_controller.saveUserInFile(current_user, getApplicationContext());
 
             }
