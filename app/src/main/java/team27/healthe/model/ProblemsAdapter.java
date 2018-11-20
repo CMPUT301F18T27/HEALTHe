@@ -42,4 +42,10 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
 
         return listItem;
     }
+
+    public void refresh(ArrayList<Problem> probems) {
+        this.clear();
+        this.addAll(probems);
+        notifyDataSetChanged();
+    }
 }

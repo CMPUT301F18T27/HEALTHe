@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
@@ -120,9 +121,9 @@ public class ProblemActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final EditText date_text = new EditText(this);
-        Date temp_date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
-        date_text.setText(temp_date.toString());
+        date_text.setText(formatter.format(new Date()));
         layout.addView(date_text); // Another add method
 
         //Add title for problem description
@@ -142,7 +143,7 @@ public class ProblemActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
 
                 String title = title_text.getText().toString();
-                Date date = new Date();
+                Date date;
                 String desc = description_text.getText().toString();
 
                 try {
@@ -150,11 +151,13 @@ public class ProblemActivity extends AppCompatActivity {
                     date = formatter.parse(date_text.getText().toString());
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    date = new Date();
                 }
-
                 Problem problem = new Problem(title, date, desc);
+                problems.add(problem);
+                refreshList();
 
-                new AddProblemES().execute(problem);
+                //new AddProblemES().execute(problem);
 
 
                 file_controller.saveProblemInFile(problem, getApplicationContext());
@@ -270,11 +273,12 @@ public class ProblemActivity extends AppCompatActivity {
             ElasticSearchController es_controller = new ElasticSearchController();
 
             for (Problem problem : problems) {
-                if (es_controller.getProblem(problem.getProblemID(), current_user.getUserid()) != null) { // If account already exists
-                    return null;
-                } else {
+
+                if (problem.getProblemID() == null) { // If account already exists
                     es_controller.addProblem(problem, current_user.getUserid());
                     return problem;
+                } else {
+                    return null;
                 }
             }
             return null;
@@ -368,6 +372,10 @@ public class ProblemActivity extends AppCompatActivity {
         } else {
             problems = new ArrayList<Problem>();
         }
+    }
+
+    private void refreshList() {
+        adapter.refresh(problems);
     }
 
 }
