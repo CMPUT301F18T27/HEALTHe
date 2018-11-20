@@ -31,6 +31,7 @@ import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Problem;
 import team27.healthe.model.User;
 
 public class PatientListFragment extends Fragment {
@@ -73,18 +74,26 @@ public class PatientListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_patient_list, container, false);
 
         this.adapter = new PatientListAdapter(getActivity(), ((CareProvider) user).getPatientsArray());
-        ListView list_view = (ListView) view.findViewById(R.id.patientListView);
+        final ListView list_view = (ListView) view.findViewById(R.id.patientListView);
         list_view.setAdapter(adapter);
 
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                /*
-                Intent intent = new Intent(view.getContext(), EditEmotionActivity.class);
-                intent.putExtra(MainActivity.EMOTION_MESSAGE, HistoryActivity.this.emotions);
-                intent.putExtra(HistoryActivity.INDEX_EMOTION_MESSAGE, position);
-                startActivityForResult(intent, EditEmotionActivity.REQUEST_CODE);
-                */
+                User user = (User) list_view.getItemAtPosition(position);
+
+                Gson gson = new Gson();
+                Intent intent = new Intent(getContext(), ProblemActivity.class);
+                intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(user));
+                startActivity(intent);
+            }
+        });
+        list_view.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                User user = (User) list_view.getItemAtPosition(position);
+                //
+                return true;
             }
         });
 

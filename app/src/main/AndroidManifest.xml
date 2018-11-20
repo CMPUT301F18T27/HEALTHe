@@ -13,7 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <activity
             android:name=".ui.LoginActivity"
             android:label="@string/title_activity_login"
@@ -31,10 +34,6 @@
         <activity
             android:name=".ui.PatientActivity"
             android:label="@string/title_activity_patient"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ui.ProfileActivity"
-            android:label="@string/title_activity_profile"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ProblemListActivity"
@@ -60,7 +59,7 @@
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

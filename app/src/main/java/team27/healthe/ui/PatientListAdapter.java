@@ -36,7 +36,7 @@ public class PatientListAdapter extends ArrayAdapter<Patient> {
 
         // Set the two text items in the row to the emotion type and emotion date
         upperText.setText(patient.getUserid());
-        lowerText.setText("Problem count: " + patient.getProblemCount());
+        lowerText.setText(patient.getEmail());
 
         return list_row; // return the view(row)
     }
