@@ -11,6 +11,10 @@ import java.util.List;
 
 import team27.healthe.R;
 
+/**
+ * Represents a record (associated with a problem)
+ * @author [fill in]
+ */
 public class Record {
     private String title;
     private Date rdate;

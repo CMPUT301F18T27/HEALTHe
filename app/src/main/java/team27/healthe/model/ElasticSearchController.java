@@ -20,6 +20,11 @@ import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.Update;
 
+/**
+ * ElasticSearch wrapper for handling operations involving storing/retrieving from elasticsearch
+ * server
+ * @author Chase
+ */
 public class ElasticSearchController {
     private static JestDroidClient client;
     private static String node = "http://cmput301.softwareprocess.es:8080";
@@ -32,7 +37,10 @@ public class ElasticSearchController {
         verifyClient();
     }
 
-    // Add user to elastic search database using userid as the id in elastic search
+    /**
+     * Add user to elastic search database using userid as the id in elastic search
+     * @param user (User class)
+     */
     public static void addUser(User user) {
         verifyClient();
 
@@ -50,6 +58,12 @@ public class ElasticSearchController {
     }
 
     // Get the user associated with a user_id
+
+    /**
+     * Get the user associated with a user_id
+     * @param user_id (String)
+     * @return Patient or CareProvider (Class)
+     */
     public static User getUser(String user_id) {
         verifyClient();
         Gson gson = new Gson();
@@ -78,7 +92,11 @@ public class ElasticSearchController {
         return null;
     }
 
-    // Add problem to elastic search database using problem id as the id in elastic search
+    /**
+     * Add problem to elastic search database using problem id as the id in elastic search
+     * @param p (Problem Class)
+     * @param user_id (String)
+     */
     public static void addProblem(Problem p, String user_id) {
         verifyClient();
 
@@ -110,7 +128,12 @@ public class ElasticSearchController {
         }
     }
 
-    // Get the problem from a given problem id
+    /**
+     * Get the problem from a given problem id
+     * @param problem_id (Integer)
+     * @param user_id (String)
+     * @return Problem (Class)
+     */
     public static Problem getProblem(Integer problem_id, String user_id) {
         verifyClient();
         String es_problem_id = user_id + "-" + problem_id.toString();
@@ -130,6 +153,11 @@ public class ElasticSearchController {
         return null;
     }
 
+    /**
+     * Removes a specified problem for the given user (corresponding to user_id)
+     * @param problem_id (Integer)
+     * @param user_id (String)
+     */
     public static void removeProblem(Integer problem_id, String user_id){
         verifyClient();
         String es_problem_id = user_id + "-" + problem_id.toString();
@@ -144,7 +172,9 @@ public class ElasticSearchController {
 
     }
 
-    // Create connection to elastic search server
+    /**
+     * Create connection to elastic search server
+     */
     public static void verifyClient() {
     // Code from LonelyTwitter
         if (client == null) {
@@ -162,6 +192,11 @@ public class ElasticSearchController {
         return gson.toJson(user);
     }
 
+    /**
+     * Converts json object to Problem object
+     * @param problem_json (String)
+     * @return Problem (Class)
+     */
     public Problem jsonToProblem(String problem_json) {
         Gson gson = new Gson();
 
@@ -170,6 +205,11 @@ public class ElasticSearchController {
         return gson.fromJson(problem_json, Problem.class);
     }
 
+    /**
+     * Converts json object to User object
+     * @param user_json (String)
+     * @return Patient or CareProvider (Class)
+     */
     public User jsonToUser(String user_json) {
         Gson gson = new Gson();
 
