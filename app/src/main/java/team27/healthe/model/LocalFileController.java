@@ -10,8 +10,11 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 
 public class LocalFileController {
+    private static String FILENAME;
 
-    private static final String FILENAME = "user.sav";
+    public LocalFileController(String filename) {
+        this.FILENAME = filename;
+    }
 
     public static void clearUserFile(Context context) {
         try {
