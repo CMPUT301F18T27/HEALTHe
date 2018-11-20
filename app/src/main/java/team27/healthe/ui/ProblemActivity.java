@@ -155,9 +155,9 @@ public class ProblemActivity extends AppCompatActivity {
                 }
                 Problem problem = new Problem(title, date, desc);
                 problems.add(problem);
-                refreshList();
+                //refreshList();
 
-                //new AddProblemES().execute(problem);
+                new AddProblemES().execute(problem);
 
 
                 file_controller.saveProblemInFile(problem, getApplicationContext());
