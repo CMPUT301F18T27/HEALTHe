@@ -143,8 +143,16 @@ public class ProblemActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
 
                 String title = title_text.getText().toString();
+                if (title.length() > 30) {
+                    Toast.makeText(getApplicationContext(), "Title must be less than 30 characters. Please try again.", Toast.LENGTH_SHORT).show();
+                    title = title_text.getText().toString();
+                }
                 Date date;
                 String desc = description_text.getText().toString();
+                if (desc.length() > 300) {
+                    Toast.makeText(getApplicationContext(), "Description must be less than 300 characters. Please try again.", Toast.LENGTH_SHORT).show();
+                    desc = description_text.getText().toString();
+                }
 
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
