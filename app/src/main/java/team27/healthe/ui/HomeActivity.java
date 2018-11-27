@@ -201,7 +201,8 @@ public class HomeActivity extends AppCompatActivity {
             else if (position == 1 && current_user instanceof CareProvider) {
                 return PatientListFragment.newInstance(current_user);
             }
-                return TempFragment.newInstance(current_user);
+                return ProblemListFragment.newInstance(current_user);
+                //return TempFragment.newInstance(current_user);
         }
 
         @Override
