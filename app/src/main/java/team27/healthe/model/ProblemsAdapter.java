@@ -44,9 +44,9 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
         return listItem;
     }
 
-    public void refresh(ArrayList<Problem> probems) {
+    public void refresh(ArrayList<Problem> problems) {
         this.clear();
-        this.addAll(probems);
+        this.addAll(problems);
         notifyDataSetChanged();
     }
 }
