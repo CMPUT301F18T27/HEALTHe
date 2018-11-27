@@ -93,6 +93,15 @@ public class ProblemActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    public void selectMenuItem() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Problem Menu");
+        dialog.setMessage("");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+    }
+
     public void addProblem() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Problem");
