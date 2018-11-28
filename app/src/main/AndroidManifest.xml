@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -55,11 +57,27 @@
             android:name=".ui.SearchActivity"
             android:label="@string/title_activity_search"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.SignupActivity" />
+        <activity
+            android:name=".ui.SignupActivity"
+            android:label="@string/title_activity_signup" />
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.ProfileActivity"
+            android:label="@string/title_activity_profile" />
+        <activity
+            android:name=".ui.CommentActivity"
+            android:label="@string/title_activity_comment"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.QRCodeActivity"
+            android:label="@string/title_activity_qrcode" />
+        <activity
+            android:name=".ui.ProblemInfoActivity"
+            android:label="@string/title_activity_problem_info"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
