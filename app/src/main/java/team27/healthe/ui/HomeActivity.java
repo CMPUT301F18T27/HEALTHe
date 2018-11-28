@@ -24,13 +24,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import team27.healthe.R;
@@ -38,6 +43,7 @@ import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class HomeActivity extends AppCompatActivity {
@@ -116,9 +122,31 @@ public class HomeActivity extends AppCompatActivity {
             logout();
         }
 
-        if (id == R.id.action_edit) {
+        else if (id == R.id.action_edit) {
             editProfile();
         }
+
+        else if (id == R.id.action_QRcode) {
+            Intent intent = new Intent(getApplicationContext(), QRCodeActivity.class);
+            intent.putExtra(QRCodeActivity.USERID_MESSAGE, current_user.getUserid());
+            startActivity(intent);
+
+        }
+
+        else if (id == R.id.action_test) {
+            ArrayList<String> comment_list = new ArrayList<String>();
+            comment_list.add("Test 123");
+            comment_list.add("Suck this!");
+            Record record = new Record(comment_list);
+
+            Gson gson = new Gson();
+            Intent intent = new Intent(getApplicationContext(), CommentActivity.class);
+            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+            intent.putExtra(CommentActivity.RECORD_MESSAGE, gson.toJson(record));
+            startActivity(intent);
+        }
+
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -144,41 +172,6 @@ public class HomeActivity extends AppCompatActivity {
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        public PlaceholderFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            return rootView;
-        }
     }
 
     /**

@@ -1,8 +1,10 @@
 package team27.healthe.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,7 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.gson.Gson;
+import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -37,6 +41,7 @@ import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {
     public static final String USER_MESSAGE = "team27.healthe.User";
+    private static final Integer BARCODE_READER_ACTIVITY_REQUEST = 27;
     private static String FILENAME = "user.sav";
 
 
@@ -61,10 +66,30 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == BARCODE_READER_ACTIVITY_REQUEST) {
+            if (resultCode != Activity.RESULT_OK) {
+                Toast.makeText(this, "Error scanning QR code", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
+                Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE);
+                login(barcode.rawValue);
+            }
+        }
+    }
+
+    public void onLoginClick(View view) {
+        String user_id = ((TextView) findViewById(R.id.loginIdText)).getText().toString();
+        login(user_id);
+    }
+
     // onClick for the login button
-    public void login(View view){
+    public void login(String user_id){
         if (isNetworkConnected()) {
-            String user_id = ((TextView) findViewById(R.id.loginIdText)).getText().toString();
             Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
             new getUserAsync().execute(user_id);
         }
@@ -130,6 +155,12 @@ public class LoginActivity extends AppCompatActivity {
         if (user != null) {
             handleLogin(user, false);
         }
+    }
+
+    public void scanQrCode(View view) {
+        // https://github.com/avaneeshkumarmaurya/Barcode-Reader
+        Intent launchIntent = BarcodeReaderActivity.getLaunchIntent(this, true, false);
+        startActivityForResult(launchIntent, BARCODE_READER_ACTIVITY_REQUEST);
     }
 
 }

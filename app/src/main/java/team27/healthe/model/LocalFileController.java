@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 /**
  * Local File access for handling operations involving storing/retrieving from local file
@@ -50,6 +51,58 @@ public class LocalFileController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Stores a list of patient objects to local file
+     * @param patients (ArrayList class)
+     * @param context (Context class)
+     */
+    public static void savePatientsInFile(ArrayList<Patient> patients, Context context) {
+        try {
+            Gson gson = new Gson();
+
+            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fos.write("".getBytes());
+            fos.close();
+
+            fos = context.openFileOutput(FILENAME, Context.MODE_APPEND);
+
+            for (User user: patients) {
+                fos.write((gson.toJson(user)+ "\n").getBytes());
+            }
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * Collects patients from local file from the given context
+     * @param context (Context class)
+     * @return patients (ArrayList class)
+     */
+    public ArrayList<Patient> loadPatientsFromFile(Context context) {
+        try {
+            FileInputStream fis = context.openFileInput(FILENAME);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+
+            ElasticSearchController es_controller = new ElasticSearchController();
+            ArrayList<Patient> patients = new ArrayList<>();
+            String user_json = in.readLine();
+
+            while (user_json != null) {
+                patients.add((Patient) es_controller.jsonToUser(user_json));
+                user_json = in.readLine();
+            }
+            fis.close();
+            return patients;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
