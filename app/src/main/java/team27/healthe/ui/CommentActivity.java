@@ -27,7 +27,6 @@ import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class CommentActivity extends AppCompatActivity {
-    public static final String RECORD_MESSAGE = "team27.healthe.RECORD";
     private Record record;
     private CommentListAdapter adapter;
     private User current_user;
@@ -70,7 +69,7 @@ public class CommentActivity extends AppCompatActivity {
 
     private void getItems(Intent intent) {
         Gson gson = new Gson();
-        String record_json = intent.getStringExtra(RECORD_MESSAGE);
+        String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
         this.record = gson.fromJson(record_json, Record.class);
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
@@ -103,8 +102,6 @@ public class CommentActivity extends AppCompatActivity {
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 saveComment(current_user.getUserid() + ":\n" + patient_text.getText().toString());
-                //TODO: Save comment on server
-
 
             }
         })
@@ -120,6 +117,11 @@ public class CommentActivity extends AppCompatActivity {
         this.record.addCommment(comment);
         ArrayList<String> comments = record.getCommentList();
         adapter.refresh(comments);
+
+        Gson gson = new Gson();
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
+        setResult(RESULT_OK,returnIntent);
     }
 
 }

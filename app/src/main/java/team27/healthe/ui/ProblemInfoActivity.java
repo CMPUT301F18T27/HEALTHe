@@ -5,29 +5,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Problem;
-import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class ProblemInfoActivity extends AppCompatActivity {
@@ -85,8 +76,8 @@ public class ProblemInfoActivity extends AppCompatActivity {
     }
 
     private void setTextViews() {
-        TextView title = (TextView) findViewById(R.id.problemTitle);
-        TextView date = (TextView) findViewById(R.id.problemDate);
+        TextView title = (TextView) findViewById(R.id.recordTitle);
+        TextView date = (TextView) findViewById(R.id.recordDate);
         TextView description = (TextView) findViewById(R.id.problemDescription);
 
         title.setText(problem.getTitle());

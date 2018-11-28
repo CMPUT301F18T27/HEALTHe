@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "team27.healthe"
-        minSdkVersion 18
+        minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -63,6 +63,7 @@ dependencies {
     implementation files('src/include/core-2.2.jar')
     implementation project(path: ':barcode-reader')
     implementation 'com.google.android.gms:play-services-vision:15.0.2'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
 }
 configurations.all {
     resolutionStrategy {

@@ -51,9 +51,9 @@ public class Record {
         // Not sure how this is used right now
         //body_location_s = c.getString(R.string.def_body_location_s);
         //geo_location_s = c.getString(R.string.def_geo_location_s);
-        title = null;
-        rdate = null;
-        description = null;
+        title = "Test title";
+        rdate = new Date();
+        description = "This is a record";
         commentList = comments;
         bodyLocation = null;
         geoLocation = null;
