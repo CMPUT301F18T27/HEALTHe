@@ -8,7 +8,7 @@ import java.util.Collection;
  * @author [fill in]
  */
 public class Patient extends User {
-    private ArrayList<Integer> problems;
+    private ArrayList<String> problems;
     private String user_type = "patient";
 
     public Patient(String userID, String email, String phone){
@@ -16,22 +16,22 @@ public class Patient extends User {
         this.problems = new ArrayList();
     }
 
-    public Collection<Integer> getProblemList() {
+    public Collection<String> getProblemList() {
         return this.problems;
     }
 
     /**
      * Adds a problem id to the patient's problem list
-     * @param p (Integer) problem_id
+     * @param p (String) problem_id
      */
-    public void addProblem(Integer p) {problems.add(p);}
+    public void addProblem(String p) {problems.add(p);}
 
     /**
      * checks if the given problem exists in the user's list
-     * @param p (Integer)
+     * @param p (String)
      * @return True if exists, False otherwise
      */
-    public Boolean hasProblem(Integer p) { return problems.contains(p); }
+    public Boolean hasProblem(String p) { return problems.contains(p); }
 
     // @TODO: problem title is not unique. finalize collection class to determine addressing
     public Problem getProblem(String problemTitle) {
@@ -40,9 +40,9 @@ public class Patient extends User {
 
     /**
      * Removes a problem from the user's list
-     * @param p (Integer) problem id
+     * @param p (String) problem id
      */
-    public void removeProblem(Integer p) {problems.remove(p);}
+    public void removeProblem(String p) {problems.remove(p);}
 
     /**
      * Returns the number of problems in the user's problem list

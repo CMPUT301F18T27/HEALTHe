@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,20 +14,10 @@
         android:orientation="vertical"
         tools:context=".ui.ProblemActivity">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="33dp"
-            android:gravity="left|center_vertical|center_horizontal"
-            android:text="@string/problem_list"
-            android:textAllCaps="true"
-            android:textColor="@android:color/black"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
         <ListView
             android:id="@+id/problem_list"
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="5"
             android:drawSelectorOnTop="false" />
 
@@ -36,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            app:backgroundTint="@android:color/white"
+            app:backgroundTint="@color/colorPrimary"
             app:srcCompat="@android:drawable/ic_input_add" />
 
     </LinearLayout>

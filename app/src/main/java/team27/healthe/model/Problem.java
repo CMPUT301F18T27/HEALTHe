@@ -17,15 +17,16 @@ public class Problem implements Comparable<Problem> {
     private Date pdate;
     private String description;
     private Collection<Integer> records;
-    private Integer problem_id;
+    private String problem_id;
     private String patient_id;
-    // private Collection<Record> records;
 
     public Problem() {
         this.title = "New Problem";
         this.pdate = new Date();
         this.description = "";
         this.records = new ArrayList<>();
+        this.problem_id = "";
+        this.patient_id = "";
     }
 
     public Problem(String ttl, Date date, String desc) {
@@ -33,7 +34,8 @@ public class Problem implements Comparable<Problem> {
         pdate = date;
         description = desc;
         records = new ArrayList<>();
-        patient_id = null;
+        this.problem_id = "";
+        this.patient_id = "";
     }
 
     public Problem(String ttl, Date date, String desc, String p_id) {
@@ -42,6 +44,7 @@ public class Problem implements Comparable<Problem> {
         description = desc;
         records = new ArrayList<>();
         patient_id = p_id;
+        this.problem_id = "";
     }
 
     public Problem(String ttl, Date date, String desc, Collection<Integer> recs) {
@@ -49,16 +52,17 @@ public class Problem implements Comparable<Problem> {
         pdate = date;
         description = desc;
         records = recs;
-
+        this.problem_id = "";
+        this.patient_id = "";
     }
 
     public Problem(String ttl, String desc, Collection<Integer> recs) {
         title = ttl;
-        pdate = Calendar.getInstance().getTime();
+        pdate = new Date();
         description = desc;
         records = recs;
-
-
+        this.problem_id = "";
+        this.patient_id = "";
     }
 
     public String getTitle() {
@@ -126,11 +130,11 @@ public class Problem implements Comparable<Problem> {
         records.remove(record_id);
     }
 
-    public void setProblemID(Integer pid) {
+    public void setProblemID(String pid) {
         problem_id = pid;
     }
 
-    public Integer getProblemID() {
+    public String getProblemID() {
         return problem_id;
     }
 

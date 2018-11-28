@@ -39,14 +39,13 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
         date.setText(current_problem.getPdateAsString());
 
         TextView recordNum = (TextView) listItem.findViewById(R.id.RecordNumber);
-        recordNum.setText(Integer.toString(current_problem.getNumberOfRecords()));
+        recordNum.setText("Records: " + Integer.toString(current_problem.getNumberOfRecords()));
 
         return listItem;
     }
 
     public void refresh(ArrayList<Problem> problems) {
-        this.clear();
-        this.addAll(problems);
+        this.recordedProblems = problems;
         notifyDataSetChanged();
     }
 }
