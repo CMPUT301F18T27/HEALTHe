@@ -41,7 +41,7 @@ public class RecordListActivity extends AppCompatActivity {
     public static ListView listView;
     private RecordListAdapter adapter;
 
-    private Problem current_problem;
+    private Problem current_problem = new Problem();
     private User current_user;
     public static LocalFileController file_controller = new LocalFileController();
     public static ArrayList<Record> records;
@@ -50,9 +50,10 @@ public class RecordListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record);
+        setContentView(R.layout.activity_record_list);
 
         listView = (ListView) findViewById(R.id.record_list);
+        records = new ArrayList<>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,7 +63,7 @@ public class RecordListActivity extends AppCompatActivity {
 
         // clicking the add button takes you to an alert dialog to choose the
         // type of record to add
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_record_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
