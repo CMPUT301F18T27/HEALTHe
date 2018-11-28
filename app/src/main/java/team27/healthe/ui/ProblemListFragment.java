@@ -85,10 +85,9 @@ public class ProblemListFragment extends Fragment {
 
         problems = new ArrayList<>();
         adapter = new ProblemsAdapter(getContext(), problems);
+        listView.setAdapter(adapter);
 
         getProblems();
-
-        listView.setAdapter(adapter);
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -387,7 +386,9 @@ public class ProblemListFragment extends Fragment {
         if (network_info != null && network_info.isConnected()) {
             getProblemsES();
         } else {
-            problems = file_controller.loadProblemsFromFile(getContext());
+            for (Problem problem : file_controller.loadProblemsFromFile(getContext())) {
+                problems.add(problem);
+            }
             adapter.refresh(problems);
         }
     }

@@ -20,7 +20,8 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value=""/>
+            android:value="AIzaSyAuHGNdWe7kgOWTUY9TziMpgog-hSKQ73w" />
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
@@ -91,6 +92,10 @@
         <activity
             android:name=".ui.GeoLocationActivity"
             android:label="@string/title_activity_geo_location"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.AllGeoLocationsActivity"
+            android:label="@string/title_activity_all_geo_locations"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

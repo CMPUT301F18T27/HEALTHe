@@ -12,8 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class ProblemsAdapter extends ArrayAdapter<Problem> {
-    private static final String FILENAME = "problems.sav";
-
     private Context context;
     private ArrayList<Problem> recordedProblems;
 
