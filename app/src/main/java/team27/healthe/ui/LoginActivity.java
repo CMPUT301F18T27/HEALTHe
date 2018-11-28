@@ -112,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
             intent.putExtra(USER_MESSAGE, gson.toJson(user));
 
             if (save_in_file) {
-                LocalFileController file_controller = new LocalFileController(FILENAME);
+                LocalFileController file_controller = new LocalFileController();
                 file_controller.saveUserInFile(user, this);
             }
 
@@ -150,7 +150,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loadFromFile() {
-        LocalFileController file_controller = new LocalFileController(FILENAME);
+        LocalFileController file_controller = new LocalFileController();
         User user = file_controller.loadUserFromFile(this);
         if (user != null) {
             handleLogin(user, false);

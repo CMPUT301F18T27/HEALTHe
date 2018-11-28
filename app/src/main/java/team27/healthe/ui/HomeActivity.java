@@ -88,18 +88,6 @@ public class HomeActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        */
-
     }
 
 
@@ -156,7 +144,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
-            LocalFileController file_controller = new LocalFileController(FILENAME);
+            LocalFileController file_controller = new LocalFileController();
             file_controller.clearUserFile(this);
             super.onBackPressed();
             return;
@@ -219,7 +207,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        LocalFileController file_controller = new LocalFileController(FILENAME);
+        LocalFileController file_controller = new LocalFileController();
         file_controller.clearUserFile(this);
         finish();
     }
@@ -270,7 +258,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 updateElasticSearch();
 
-                LocalFileController file_controller = new LocalFileController(FILENAME);
+                LocalFileController file_controller = new LocalFileController();
                 file_controller.saveUserInFile(current_user, getApplicationContext());
 
             }

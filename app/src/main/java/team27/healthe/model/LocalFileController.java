@@ -16,11 +16,9 @@ import java.util.ArrayList;
  * @author Chase
  */
 public class LocalFileController {
-    private static String FILENAME;
-
-    public LocalFileController(String filename) {
-        this.FILENAME = filename;
-    }
+    private static final String PROBLEM_FILENAME = "problems.sav";
+    private static final String USER_FILENAME = "user.sav";
+    private static final String PATIENTS_FILENAME = "patients.sav";
 
     /**
      * Empties the contents of the local file
@@ -28,7 +26,7 @@ public class LocalFileController {
      */
     public static void clearUserFile(Context context) {
         try {
-            FileOutputStream fos = context.openFileOutput(FILENAME, context.MODE_PRIVATE);
+            FileOutputStream fos = context.openFileOutput(USER_FILENAME, context.MODE_PRIVATE);
             fos.write("".getBytes());
             fos.close();
         } catch (Exception e) {
@@ -45,7 +43,7 @@ public class LocalFileController {
         try {
             Gson gson = new Gson();
 
-            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            FileOutputStream fos = context.openFileOutput(USER_FILENAME, Context.MODE_PRIVATE);
             fos.write(gson.toJson(user).getBytes());
             fos.close();
         } catch (Exception e) {
@@ -62,11 +60,11 @@ public class LocalFileController {
         try {
             Gson gson = new Gson();
 
-            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            FileOutputStream fos = context.openFileOutput(PATIENTS_FILENAME, Context.MODE_PRIVATE);
             fos.write("".getBytes());
             fos.close();
 
-            fos = context.openFileOutput(FILENAME, Context.MODE_APPEND);
+            fos = context.openFileOutput(PATIENTS_FILENAME, Context.MODE_APPEND);
 
             for (User user: patients) {
                 fos.write((gson.toJson(user)+ "\n").getBytes());
@@ -85,7 +83,7 @@ public class LocalFileController {
      */
     public ArrayList<Patient> loadPatientsFromFile(Context context) {
         try {
-            FileInputStream fis = context.openFileInput(FILENAME);
+            FileInputStream fis = context.openFileInput(PATIENTS_FILENAME);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
             ElasticSearchController es_controller = new ElasticSearchController();
@@ -112,7 +110,7 @@ public class LocalFileController {
      */
     public User loadUserFromFile(Context context) {
         try {
-            FileInputStream fis = context.openFileInput(FILENAME);
+            FileInputStream fis = context.openFileInput(USER_FILENAME);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
             String user_json = in.readLine();
@@ -130,7 +128,7 @@ public class LocalFileController {
     }
 
     /**
-     * Add problem to elastic search database using problem id as the id in elastic search
+     * Add problem to local file
      * @param p (Problem class)
      * @param context (Context class)
      */
@@ -138,8 +136,8 @@ public class LocalFileController {
         try {
             Gson gson = new Gson();
 
-            FileOutputStream fos = context.openFileOutput(FILENAME, Context.MODE_PRIVATE);
-            fos.write(gson.toJson(p).getBytes());
+            FileOutputStream fos = context.openFileOutput(PROBLEM_FILENAME, Context.MODE_APPEND);
+            fos.write((gson.toJson(p) + "\n").getBytes());
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,24 +145,45 @@ public class LocalFileController {
     }
 
     /**
-     * Get the problem from a given problem id
-     * @param problem_id (Integer)
-     * @param user_id (String)
+     * Add problems to lcoal database
+     * @param problems (ArrayList class)
+     * @param context (Context class)
+     */
+    public static void saveProblemsInFile(ArrayList<Problem> problems, Context context) {
+        try {
+            Gson gson = new Gson();
+            FileOutputStream fos = context.openFileOutput(PROBLEM_FILENAME, Context.MODE_PRIVATE);
+
+            for (Problem problem:problems) {
+                fos.write((gson.toJson(problem) + "\n").getBytes());
+            }
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get the problems from local file
      * @param context (Context class)
      * @return Problem (class)
      */
-    public static Problem loadProblemFromFile(Integer problem_id, String user_id, Context context) {
+    public static ArrayList<Problem> loadProblemsFromFile(Context context) {
         try {
-            FileInputStream fis = context.openFileInput(FILENAME);
+            FileInputStream fis = context.openFileInput(PROBLEM_FILENAME);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
+            Gson gson = new Gson();
+            ArrayList<Problem> problems = new ArrayList<>();
             String problem_json = in.readLine();
 
-            if (problem_json != null) {
-                ElasticSearchController es_controller = new ElasticSearchController();
-                fis.close();
-                return es_controller.jsonToProblem(problem_json);
+            while (problem_json != null) {
+                problems.add(gson.fromJson(problem_json,Problem.class));
+                problem_json = in.readLine();
             }
+            fis.close();
+            return problems;
 
         } catch (Exception e) {
             e.printStackTrace();

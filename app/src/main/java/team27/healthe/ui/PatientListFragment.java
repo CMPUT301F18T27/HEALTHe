@@ -140,8 +140,14 @@ public class PatientListFragment extends Fragment {
 
             if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
                 Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE);
-                Toast.makeText(getContext(), "Adding patient...", Toast.LENGTH_SHORT).show();
-                new getUserAsync().execute(barcode.rawValue);
+
+                if (current_user.hasPatient(barcode.rawValue)) {
+                    Toast.makeText(getContext(), "Patient already assigned to you", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(getContext(), "Adding patient...", Toast.LENGTH_SHORT).show();
+                    new getUserAsync().execute(barcode.rawValue);
+                }
             }
         }
     }
@@ -172,9 +178,13 @@ public class PatientListFragment extends Fragment {
 
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Adding patient...", Toast.LENGTH_SHORT).show();
-
-                new getUserAsync().execute(patient_text.getText().toString());
+                if (current_user.hasPatient(patient_text.getText().toString())) {
+                    Toast.makeText(getContext(), "Patient already assigned to you", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(getContext(), "Adding patient...", Toast.LENGTH_SHORT).show();
+                    new getUserAsync().execute(patient_text.getText().toString());
+                }
 
             }
         })
@@ -220,10 +230,10 @@ public class PatientListFragment extends Fragment {
 
                 new UpdateUser().execute(current_user);
 
-                LocalFileController fs_controller = new LocalFileController("user.sav");
+                LocalFileController fs_controller = new LocalFileController();
                 fs_controller.saveUserInFile(current_user, getContext());
 
-                fs_controller = new LocalFileController(FILENAME);
+                fs_controller = new LocalFileController();
                 fs_controller.savePatientsInFile(this.patients, getContext());
             }
             else {
@@ -281,7 +291,7 @@ public class PatientListFragment extends Fragment {
         if (network_info != null && network_info.isConnected()) {
             new getPatientsAsync().execute(new ArrayList<String>(current_user.getPatients()));
         } else {
-            LocalFileController fs_controller = new LocalFileController(FILENAME);
+            LocalFileController fs_controller = new LocalFileController();
             this.patients = fs_controller.loadPatientsFromFile(getContext());
         }
     }
@@ -289,7 +299,7 @@ public class PatientListFragment extends Fragment {
     private void updatePatients(ArrayList<Patient> patients) {
         this.patients = patients;
 
-        LocalFileController fs_controller = new LocalFileController(FILENAME);
+        LocalFileController fs_controller = new LocalFileController();
         fs_controller.savePatientsInFile(this.patients, getContext());
     }
 

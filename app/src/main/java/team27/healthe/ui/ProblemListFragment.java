@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,7 +40,6 @@ import team27.healthe.model.ProblemsAdapter;
 import team27.healthe.model.User;
 
 public class ProblemListFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_USER = "param1";
 
@@ -47,7 +48,7 @@ public class ProblemListFragment extends Fragment {
     private ProblemsAdapter adapter;
     public static ArrayList<Problem> problems;
     public static String FILENAME = "problems.sav";
-    public static LocalFileController file_controller = new LocalFileController(FILENAME);
+    public static LocalFileController file_controller = new LocalFileController();
     private Patient current_user;
 
     public ProblemListFragment() {
@@ -72,7 +73,6 @@ public class ProblemListFragment extends Fragment {
         if (getArguments() != null) {
             this.current_user = (Patient)es_controller.jsonToUser(getArguments().getString(ARG_USER));
         }
-
     }
 
     @Override
@@ -81,13 +81,14 @@ public class ProblemListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_problem_list2, container, false);
 
-        //getUserFromIntent();
-        getProblems();
-
         listView = (ListView) view.findViewById(R.id.problem_list);
 
-        //Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        problems = new ArrayList<>();
+        adapter = new ProblemsAdapter(getContext(), problems);
+
+        getProblems();
+
+        listView.setAdapter(adapter);
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +102,12 @@ public class ProblemListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Problem problem = (Problem) listView.getItemAtPosition(position);
-                editProblem(problem);
+
+                Gson gson = new Gson();
+                Intent intent = new Intent(getContext(), ProblemInfoActivity.class);
+                intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+                intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE,gson.toJson(problem));
+                startActivity(intent);
             }
         });
 
@@ -109,20 +115,11 @@ public class ProblemListFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Problem problem = (Problem) listView.getItemAtPosition(position);
-                deleteProblem(problem);
+                editProblem(problem);
                 return true;
             }
         });
         return view;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadFromFile();
-
-        adapter = new ProblemsAdapter(getContext(), problems);
-        listView.setAdapter(adapter);
     }
 
     public void addProblem() {
@@ -186,38 +183,13 @@ public class ProblemListFragment extends Fragment {
                     date = new Date();
                 }
                 Problem problem = new Problem(title, date, desc);
+
                 problems.add(problem);
-                //refreshList();
-
-                new AddProblemES().execute(problem);
-
+                adapter.refresh(problems);
 
                 file_controller.saveProblemInFile(problem, getContext());
 
-            }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                });
-        dialog.show();
-    }
-
-    public void deleteProblem(Problem prob) {
-        final Problem problem = prob;
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Delete Problem");
-        dialog.setMessage("Are you sure you want to delete this problem?");
-
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Deleting problem...", Toast.LENGTH_SHORT).show();
-
-                new DeleteProblem().execute(problem);
-
-                file_controller.removeProblemFromFile();
-                adapter.refresh(problems);
+                new AddProblemES().execute(problem);
 
             }
         })
@@ -227,7 +199,6 @@ public class ProblemListFragment extends Fragment {
                     }
                 });
         dialog.show();
-
     }
 
     public void editProblem(Problem prob) {
@@ -277,6 +248,8 @@ public class ProblemListFragment extends Fragment {
 
         dialog.setView(layout);
 
+        problems.remove(prob);
+
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getContext(), "Updating problem...", Toast.LENGTH_SHORT).show();
@@ -285,9 +258,12 @@ public class ProblemListFragment extends Fragment {
                 problem.setPdateAsDateObj(date_text.getText().toString());
                 problem.setDescription(description_text.getText().toString());
 
-                new UpdateProblem().execute(problem);
+                problems.add(problem);
+                adapter.refresh(problems);
 
-                file_controller.saveProblemInFile(problem, getContext());
+                file_controller.saveProblemsInFile(problems, getContext());
+
+                new UpdateProblem().execute(problem);
 
             }
         })
@@ -307,12 +283,14 @@ public class ProblemListFragment extends Fragment {
 
             for (Problem problem : problems) {
 
-                if (problem.getProblemID() == null) { // If account already exists
-                    es_controller.addProblem(problem, current_user.getUserid());
+                Problem new_problem = es_controller.addProblem(problem);
+
+                if (new_problem == null) {
                     return problem;
                 } else {
-                    return null;
+                    return new_problem;
                 }
+
             }
             return null;
         }
@@ -320,23 +298,10 @@ public class ProblemListFragment extends Fragment {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
-        }
-    }
-
-    private class DeleteProblem extends AsyncTask<Problem, Void, Problem> {
-
-        @Override
-        protected Problem doInBackground(Problem... problems) {
-            ElasticSearchController es_controller = new ElasticSearchController();
-            for(Problem problem:problems) {
-                es_controller.removeProblem(problem.getProblemID(), current_user.getUserid());
+            if (!problem.getProblemID().equals("")) {
+                current_user.addProblem(problem.getProblemID());
+                new UpdateUser().execute(current_user);
             }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Problem problem) {
-            super.onPostExecute(problem);
         }
     }
 
@@ -346,7 +311,13 @@ public class ProblemListFragment extends Fragment {
         protected Problem doInBackground(Problem... problems) {
             ElasticSearchController es_controller = new ElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.addProblem(problem, current_user.getUserid());
+                if (!problem.getProblemID().equals("")) {
+                    es_controller.addProblem(problem);
+                    return problem;
+                } else {
+                    return  es_controller.addProblem(problem);
+                }
+
             }
             return null;
         }
@@ -354,62 +325,72 @@ public class ProblemListFragment extends Fragment {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
+            if (!problem.getProblemID().equals("")) {
+                if (!current_user.hasProblem(problem.getProblemID())) {
+                    current_user.addProblem(problem.getProblemID());
+                    new UpdateUser().execute(current_user);
+                }
+            }
         }
     }
 
     // Async class for getting problems from elastic search server
-    private class getProblemAsync extends AsyncTask<Integer, Void, ArrayList<Problem>> {
+    private class getProblemAsync extends AsyncTask<String, Void, Problem> {
 
         @Override
-        protected ArrayList<Problem> doInBackground(Integer... problem_ids) {
+        protected Problem doInBackground(String... problem_ids) {
             ElasticSearchController es_controller = new ElasticSearchController();
 
-            for (Integer problem_id: problem_ids) {
-                Problem problem = es_controller.getProblem(problem_id, current_user.getUserid());
-                // TODO: Fix null return
-                if (problem != null ) {
-                    problems.add(problem);
-                }
+            for (String problem_id: problem_ids) {
+                return es_controller.getProblem(problem_id);
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Problem> problems) {
-            super.onPostExecute(problems);
-            // TODO: Fix null return
-            if (problems != null) {
-                for (Problem problem : problems) {
-                    file_controller.saveProblemInFile(problem, getContext());
-                }
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if (problem != null) {
+                problems.add(problem);
+                adapter.refresh(problems);
+
+
+                //TODO: fix saving
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveProblemsInFile(problems, getContext());
             }
         }
     }
 
-    private void loadFromFile() {
-        this.problems = new ArrayList<>();
-        Collection<Integer> problems = current_user.getProblemList();
+    private class UpdateUser extends AsyncTask<User, Void, Void> {
 
-        for (Integer problem_id : problems) {
-            Problem problem = file_controller.loadProblemFromFile(problem_id, current_user.getUserid(), getContext());
-            // TODO: Actually add problems to the problem list
-            //this.problems.add(problem);
+        @Override
+        protected Void doInBackground(User... users) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for (User user : users) {
+                es_controller.addUser(user);
+            }
+            return null;
         }
     }
 
+    private void getProblemsES() {
+        for (String problem_id : current_user.getProblemList()) {
+            new getProblemAsync().execute(problem_id);
+        }
+    }
 
     private void getProblems() {
-        if (current_user.getProblemCount() != 0) {
-            for (Integer problem_id : current_user.getProblemList()) {
-                new getProblemAsync().execute(problem_id);
-            }
+        ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            getProblemsES();
         } else {
-            problems = new ArrayList<Problem>();
+            problems = file_controller.loadProblemsFromFile(getContext());
+            adapter.refresh(problems);
         }
     }
 
-    private void refreshList() {
-        adapter.refresh(problems);
-    }
 
 }

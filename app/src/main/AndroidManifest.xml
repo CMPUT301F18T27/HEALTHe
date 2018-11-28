@@ -71,7 +71,13 @@
             android:name=".ui.CommentActivity"
             android:label="@string/title_activity_comment"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.QRCodeActivity"></activity>
+        <activity
+            android:name=".ui.QRCodeActivity"
+            android:label="@string/title_activity_qrcode" />
+        <activity
+            android:name=".ui.ProblemInfoActivity"
+            android:label="@string/title_activity_problem_info"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
