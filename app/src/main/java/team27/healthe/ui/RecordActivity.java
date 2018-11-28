@@ -28,4 +28,7 @@ public class RecordActivity extends AppCompatActivity {
         });
     }
 
+    // TODO: decide how to get here..
+    
+
 }
