@@ -12,10 +12,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -36,7 +39,7 @@ import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class RecordListActivity extends AppCompatActivity {
-    public static final String RECORD_INFO = "team27.healthe.Record";
+    public static final String RECORD_MESSAGE = "team27.healthe.Record";
 
     public static ListView listView;
     private RecordListAdapter adapter;
@@ -45,6 +48,7 @@ public class RecordListActivity extends AppCompatActivity {
     private User current_user;
     public static LocalFileController file_controller = new LocalFileController();
     public static ArrayList<Record> records;
+    private static String record_type = "";
     //public static String FILENAME = "records.sav";
 
     @Override
@@ -67,7 +71,7 @@ public class RecordListActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectRecordType();
+                addRecord();
             }
         });
 
@@ -104,7 +108,7 @@ public class RecordListActivity extends AppCompatActivity {
         Gson gson = new Gson();
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
         // TODO: decide what to pass through here, record or use elastic search?
-        intent.putExtra(RECORD_INFO, gson.toJson(record));
+        intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivity(intent);
     }
 
@@ -135,13 +139,44 @@ public class RecordListActivity extends AppCompatActivity {
 
     }
 
-    public void selectRecordType() {
+    public void selectAddMethod(Record record, String type) {
+        Gson gson = new Gson();
+        if (type.equals("Comment")) {
+            Intent intent = new Intent(this, CommentActivity.class);
+            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+            intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
+            startActivity(intent);
+        } else if (type.equals("Photo")) {
+
+        } else if (type.equals("Geo-location")) {
+
+        } else if (type.equals("Body Location")) {
+
+        } else {
+            // TODO: error handling
+        }
+    }
+
+    public void addRecord() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Select Record Type");
+        dialog.setTitle("Add Record");
         dialog.setMessage("");
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
+
+        //Add title for problem
+        final TextView record_title = new TextView(this);
+        record_title.setText("Record Title:");
+        layout.addView(record_title);
+
+        // Add a TextView for problem title
+        final EditText title_text = new EditText(this);
+        title_text.setInputType(InputType.TYPE_CLASS_TEXT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
+        title_text.setLayoutParams(params);
+        layout.addView(title_text); // Notice this is an add method
 
         //Add title for problem
         final TextView record_type_text = new TextView(this);
@@ -159,14 +194,14 @@ public class RecordListActivity extends AppCompatActivity {
         //Apply the adapter to the spinner
         record_type_spinner.setAdapter(adapter);
 
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ((LinearLayout.LayoutParams) params).setMargins(0, 0, 0, 64);
+//        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        ((LinearLayout.LayoutParams) params).setMargins(16, 0, 0, 64);
         record_type_spinner.setLayoutParams(params);
 
         record_type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String record_type = (String) parent.getItemAtPosition(position);
+                 record_type = (String) parent.getItemAtPosition(position);
             }
 
             @Override
@@ -182,6 +217,17 @@ public class RecordListActivity extends AppCompatActivity {
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 // TODO: check and add corresponding record
+                String title = title_text.getText().toString();
+                Record record = new Record(title);
+
+                records.add(record);
+                //adapter.refresh(records);
+
+                file_controller.saveRecordInFile(record, getApplicationContext());
+
+                //new AddProblemES().execute(problem);
+
+                selectAddMethod(record, record_type);
             }
         })
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
