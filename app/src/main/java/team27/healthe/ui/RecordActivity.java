@@ -35,9 +35,6 @@ public class RecordActivity extends AppCompatActivity {
     private User current_user;
     private Record record;
 
-public class RecordActivity extends AppCompatActivity {
-    private Record current_record;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,11 +113,12 @@ public class RecordActivity extends AppCompatActivity {
 
     }
 
-    public void onClickGeoLocation(View view){
+    public void onClickGeoLocation(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, GeoLocationActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivityForResult(intent, GEO_REQUEST_CODE);
+    }
 
 }
