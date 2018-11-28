@@ -14,6 +14,7 @@ import java.util.Map;
 
 import io.searchbox.client.JestResult;
 import io.searchbox.core.Delete;
+import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
@@ -95,57 +96,47 @@ public class ElasticSearchController {
     /**
      * Add problem to elastic search database using problem id as the id in elastic search
      * @param p (Problem Class)
-     * @param user_id (String)
      */
-    public static void addProblem(Problem p, String user_id) {
+    public static Problem addProblem(Problem p) {
         verifyClient();
 
         Gson gson = new Gson();
         String problem_json = gson.toJson(p);
-        Patient patient = (Patient)getUser(user_id);
-        Collection<Integer> plist = patient.getProblemList();
-        Integer problem_id_index;
-        System.out.println("plist size" + plist.size());
-        if (plist.size() > 0){
-            problem_id_index = Collections.max(patient.getProblemList()) + 1;
-        } else {
-            problem_id_index = 0;
-        }
-        System.out.println("problem_id_index" + problem_id_index);
-        p.setProblemID(problem_id_index);
-        patient.addProblem(problem_id_index);
-        addUser(patient);
-        String ins_problem_id = user_id + "-" + problem_id_index.toString();
 
-        Index index = new Index.Builder(problem_json)
-                .index(test_index).type(problem_type).id(ins_problem_id).build();//--.id(p.getProblemID().toString())
+        Index index;
+        if (p.getProblemID().equals("")) {
+            index = new Index.Builder(problem_json).index(test_index).type(problem_type).build();
+        }
+        else {
+            index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
+        }
 
         try {
-            client.execute(index);
+            DocumentResult result = client.execute(index);
+            p.setProblemID(result.getId());
+            return p;
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
+            return null;
         }
     }
 
     /**
      * Get the problem from a given problem id
      * @param problem_id (Integer)
-     * @param user_id (String)
      * @return Problem (Class)
      */
-    public static Problem getProblem(Integer problem_id, String user_id) {
+    public static Problem getProblem(String problem_id) {
         verifyClient();
-        String es_problem_id = user_id + "-" + problem_id.toString();
-        Get get = new Get.Builder(test_index, es_problem_id).type(problem_type).build();
-
-
+        Get get = new Get.Builder(test_index, problem_id).type(problem_type).build();
 
         try {
             JestResult result = client.execute(get);
-            Problem p;
-            p = result.getSourceAsObject(Problem.class);
-            return p;
+
+            Gson gson = new Gson();
+            Problem problem = gson.fromJson(result.getSourceAsString(),Problem.class);
+            return problem;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -156,18 +147,16 @@ public class ElasticSearchController {
     /**
      * Removes a specified problem for the given user (corresponding to user_id)
      * @param problem_id (Integer)
-     * @param user_id (String)
      */
-    public static void removeProblem(Integer problem_id, String user_id){
+    public static void removeProblem(String problem_id){
         verifyClient();
-        String es_problem_id = user_id + "-" + problem_id.toString();
         try{
-            client.execute(new Delete.Builder(es_problem_id)
+            client.execute(new Delete.Builder(problem_id)
                     .index("problem")
                     .type("problem")
                     .build());
         } catch (Exception e){
-
+            e.printStackTrace();
         }
 
     }

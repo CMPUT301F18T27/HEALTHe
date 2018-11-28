@@ -2,6 +2,7 @@ package team27.healthe.model;
 
 import team27.healthe.R;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +39,13 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
         date.setText(current_problem.getPdateAsString());
 
         TextView recordNum = (TextView) listItem.findViewById(R.id.RecordNumber);
-        recordNum.setText(current_problem.getNumberOfRecords());
+        recordNum.setText("Records: " + Integer.toString(current_problem.getNumberOfRecords()));
 
         return listItem;
+    }
+
+    public void refresh(ArrayList<Problem> problems) {
+        this.recordedProblems = problems;
+        notifyDataSetChanged();
     }
 }

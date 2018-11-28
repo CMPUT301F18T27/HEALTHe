@@ -9,12 +9,13 @@
     <string name="title_activity_physician">PhysicianActivity</string>
     <string name="title_activity_patient_list">PatientListActivity</string>
     <string name="title_activity_patient">PatientActivity</string>
-    <string name="title_activity_profile">ProfileActivity</string>
-    <string name="title_activity_problem_list">ProblemListActivity</string>
-    <string name="title_activity_problem">ProblemActivity</string>
+    <string name="title_activity_profile">Profile Details</string>
+    <string name="title_activity_problem_list">Problems</string>
+    <string name="title_activity_problem">Problems</string>
     <string name="title_activity_record_list">RecordListActivity</string>
     <string name="title_activity_record">RecordActivity</string>
     <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_signup">Account Creation</string>
     <string name="login_button">Login</string>
     <string name="login_text_box">User ID</string>
     <string name="login_have_account">Create an account</string>
@@ -33,4 +34,16 @@
     <string name="profile_loading">Loading...</string>
     <string name="appname">HEALTHe</string>
     <string name="problem_list">Problem List</string>
+    <string name="view_problems">View Problems</string>
+    <string name="record_list">Record List</string>
+    <string-array name="Record_Types">
+        <item>Geo-Location</item>
+        <item>Body Location</item>
+        <item>Photo</item>
+        <item>Comment</item>
+    </string-array>
+    <string name="title_activity_comment">Comments</string>
+    <string name="qr_code_help">Scan this QR code to login or be added as a patient</string>
+    <string name="title_activity_qrcode">QR Code</string>
+    <string name="title_activity_problem_info">Problem Details</string>
 </resources>

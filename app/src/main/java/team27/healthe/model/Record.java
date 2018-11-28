@@ -20,7 +20,7 @@ public class Record {
     private Date rdate;
     private String description;
 
-    private ArrayList<Integer> commentList;
+    private ArrayList<String> commentList;
     private String body_location_s; // @TODO: is this necessary?
     private BodyLocation bodyLocation;
     private String geo_location_s; // @TODO: is this necessary?
@@ -28,7 +28,7 @@ public class Record {
     private ArrayList<Integer> imageList;
     private Integer record_id;
 
-    public Record(String ttl, Date date, String desc, ArrayList<Integer> comments,
+    public Record(String ttl, Date date, String desc, ArrayList<String> comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Integer> images) {
 
         // Note: either need to pass in context or add this file to the record activity
@@ -43,6 +43,22 @@ public class Record {
         geoLocation = geoLoc;
         imageList = images;
         record_id = null; // TODO: fix with auto id
+    }
+
+    //Temp constructor for testing, ignore it
+    public Record(ArrayList<String> comments) {
+        // Note: either need to pass in context or add this file to the record activity
+        // Not sure how this is used right now
+        //body_location_s = c.getString(R.string.def_body_location_s);
+        //geo_location_s = c.getString(R.string.def_geo_location_s);
+        title = null;
+        rdate = null;
+        description = null;
+        commentList = comments;
+        bodyLocation = null;
+        geoLocation = null;
+        imageList = null;
+        record_id = null;
     }
 
     public Record(String ttl) {
@@ -80,13 +96,15 @@ public class Record {
         this.description = description;
     }
 
-    public ArrayList<Integer> getCommentList() {
+    public ArrayList<String> getCommentList() {
         return commentList;
     }
 
-    public void setCommentList(ArrayList<Integer> comments) {
+    public void setCommentList(ArrayList<String> comments) {
         this.commentList = comments;
     }
+
+    public void addCommment(String comment) { this.commentList.add(comment); }
 
     public BodyLocation getBodyLocation() {
         return bodyLocation;
