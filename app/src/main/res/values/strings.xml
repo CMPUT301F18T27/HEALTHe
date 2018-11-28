@@ -39,4 +39,6 @@
     <string name="qr_code_help">Scan this QR code to login or be added as a patient</string>
     <string name="title_activity_qrcode">QR Code</string>
     <string name="title_activity_problem_info">Problem Details</string>
+    <string name="title_activity_photo">PhotoActivity</string>
+    <string name="title_activity_geo_location">GeoLocationActivity</string>
 </resources>

@@ -128,9 +128,9 @@ public class HomeActivity extends AppCompatActivity {
             Record record = new Record(comment_list);
 
             Gson gson = new Gson();
-            Intent intent = new Intent(getApplicationContext(), CommentActivity.class);
+            Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
             intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-            intent.putExtra(CommentActivity.RECORD_MESSAGE, gson.toJson(record));
+            intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
             startActivity(intent);
         }
 

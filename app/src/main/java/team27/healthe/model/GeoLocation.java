@@ -1,34 +1,34 @@
 package team27.healthe.model;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Represents a geolocation
  * @author Tamara
  */
 public class GeoLocation {
-    private double latitude;
-    private double longitude;
+    private LatLng lat_lng;
 
     private String name;
 
     public GeoLocation(double lat, double lon) {
-        latitude = lat;
-        longitude = lon;
+        lat_lng = new LatLng(lat,lon);
     }
 
-    public double getLatitude() {
-        return latitude;
+    public GeoLocation(LatLng latlng) {
+        lat_lng = latlng;
     }
 
-    public void setLatitude(double lat) {
-        this.latitude = lat;
+    public LatLng getLatLng() {
+        return lat_lng;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public void setLatLng(double lat, double lon) {
+        this.lat_lng = new LatLng(lat, lon);
     }
 
-    public void setLongitude(double lon) {
-        this.longitude = lon;
+    public void setLatLng(LatLng lat_lng) {
+        this.lat_lng = lat_lng;
     }
 
     public void setName(String name) {
