@@ -35,6 +35,13 @@
     <string name="appname">HEALTHe</string>
     <string name="problem_list">Problem List</string>
     <string name="view_problems">View Problems</string>
+    <string name="record_list">Record List</string>
+    <string-array name="Record_Types">
+        <item>Geo-Location</item>
+        <item>Body Location</item>
+        <item>Photo</item>
+        <item>Comment</item>
+    </string-array>
     <string name="title_activity_comment">Comments</string>
     <string name="qr_code_help">Scan this QR code to login or be added as a patient</string>
     <string name="title_activity_qrcode">QR Code</string>

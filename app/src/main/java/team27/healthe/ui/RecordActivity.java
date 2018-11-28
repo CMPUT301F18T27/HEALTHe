@@ -1,15 +1,27 @@
 package team27.healthe.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
@@ -22,6 +34,9 @@ public class RecordActivity extends AppCompatActivity {
     private static final Integer COMMENT_REQUEST_CODE = 5;
     private User current_user;
     private Record record;
+
+public class RecordActivity extends AppCompatActivity {
+    private Record current_record;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +122,5 @@ public class RecordActivity extends AppCompatActivity {
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivityForResult(intent, GEO_REQUEST_CODE);
-
-    }
 
 }
