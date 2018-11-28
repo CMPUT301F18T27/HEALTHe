@@ -19,6 +19,7 @@ public class LocalFileController {
     private static final String PROBLEM_FILENAME = "problems.sav";
     private static final String USER_FILENAME = "user.sav";
     private static final String PATIENTS_FILENAME = "patients.sav";
+    private static final String RECORD_FILENAME = "records.sav";
 
     /**
      * Empties the contents of the local file
@@ -192,4 +193,60 @@ public class LocalFileController {
     }
 
     public static void removeProblemFromFile(){}
+
+    /**
+     * Add problems to lcoal database
+     * @param problems (ArrayList class)
+     * @param context (Context class)
+     */
+    public static void saveRecordsInFile(ArrayList<Record> records, Context context) {
+        try {
+            Gson gson = new Gson();
+            FileOutputStream fos = context.openFileOutput(RECORD_FILENAME, Context.MODE_PRIVATE);
+
+            for (Record record : records) {
+                fos.write((gson.toJson(record) + "\n").getBytes());
+            }
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<Record> loadRecordsFromFile(Context context) {
+        try {
+            FileInputStream fis = context.openFileInput(RECORD_FILENAME);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+
+            Gson gson = new Gson();
+            ArrayList<Record> records = new ArrayList<>();
+            String record_json = in.readLine();
+
+            while (record_json!= null) {
+                records.add(gson.fromJson(record_json,Record.class));
+                record_json = in.readLine();
+            }
+            fis.close();
+            return records;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void saveRecordInFile(Record r, Context context) {
+        try {
+            Gson gson = new Gson();
+
+            FileOutputStream fos = context.openFileOutput(RECORD_FILENAME, Context.MODE_APPEND);
+            fos.write((gson.toJson(r) + "\n").getBytes());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeRecordFromFile() {}
 }

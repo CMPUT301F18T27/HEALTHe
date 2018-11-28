@@ -33,6 +33,7 @@ public class ElasticSearchController {
     private static String test_index = "cmput301f18t27test";
     private static String user_type = "user";
     private static String problem_type = "problem";
+    private static String record_type = "record";
 
     public ElasticSearchController() {
         verifyClient();
@@ -160,6 +161,46 @@ public class ElasticSearchController {
         }
 
     }
+
+    /**
+     * Get the record from a given record id
+     * @param record_id (Integer)
+     * @return Record (Class)
+     */
+    public static Record getRecord(String record_id) {
+        verifyClient();
+        Get get = new Get.Builder(test_index, record_id).type(record_type).build();
+
+        try {
+            JestResult result = client.execute(get);
+
+            Gson gson = new Gson();
+            Record record = gson.fromJson(result.getSourceAsString(), Record.class);
+            return record;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Removes a specified record for the problem (corresponding to user_id)
+     * @param record_id (String)
+     */
+    public static void removeRecord(String record_id){
+        verifyClient();
+        try{
+            client.execute(new Delete.Builder(record_id)
+                    .index("record")
+                    .type("record")
+                    .build());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
 
     /**
      * Create connection to elastic search server
