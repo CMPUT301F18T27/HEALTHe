@@ -148,13 +148,14 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
                     createBodyLocation(getApplicationContext(), event.getX(), event.getY());
 
                     //  textView.setText("Touch coordinates : " +String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
-                    System.out.println("X "+String.valueOf(event.getX())+"");
-                    System.out.println("y "+String.valueOf(event.getY())+"");
+                    System.out.println("X " + String.valueOf(event.getX()) + "");
+                    System.out.println("y " + String.valueOf(event.getY()) + "");
+//                    finish();
                 }
                 return true;
             }
@@ -166,11 +167,11 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 //        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        d.dismiss();
-    }
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        d.dismiss();
+//    }
 
 
     public void createBodyLocation(Context c, float x_set, float y_set){
@@ -253,9 +254,10 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
 //                LocalFileController file_controller = new LocalFileController();
 //                file_controller.saveUserInFile(current_user, getApplicationContext());
-                d = dialog;
+//                d = dialog;
                 bl.setLocation(bloc_text.getText().toString());
-                dialog.dismiss();
+                finish();
+//                dialog.dismiss();
             }
         })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -266,7 +268,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         dialog.show();
 
         System.out.println("DEBUG-----"+bl.getLocationName());
-        finish();
+//        finish();
 
 
 
