@@ -3,6 +3,7 @@ package team27.healthe.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
@@ -24,6 +26,8 @@ import java.util.ArrayList;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.GeoLocation;
+import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
@@ -42,7 +46,10 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_geo_locations);
 
-        getItems(getIntent());
+        // Gets the MapView from the XML layout and creates it
+        mapView = (MapView) findViewById(R.id.mapViewAll);
+        mapView.onCreate(savedInstanceState);
+        mapView.getMapAsync(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,23 +59,10 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
     @Override
     public void onMapReady(GoogleMap map) {
         this.map = map;
-        map.getUiSettings().setMyLocationButtonEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(false);
         map.getUiSettings().setZoomControlsEnabled(true);
 
-        /*
-        if (record.getGeoLocation() != null) {
-            marker = map.addMarker(new MarkerOptions().position(record.getGeoLocation().getLatLng()).title("Record Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 13));
-        }
-        */
-
-
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
-        }
-        else {
-            map.setMyLocationEnabled(true);
-        }
+        getItems(getIntent());
     }
 
     @Override
@@ -91,10 +85,65 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         String problems_json = intent.getStringExtra(PROBLEMS_MESSAGE);
 
+        this.current_user = es_controller.jsonToUser(user_json);
         ArrayList<Problem> problems = gson.fromJson(problems_json, new TypeToken<ArrayList<Problem>>(){}.getType());
 
-        this.current_user = es_controller.jsonToUser(user_json);
-        //this.record = gson.fromJson(record_json, Record.class);
+        ArrayList<String> record_ids = new ArrayList<>();
+        for (Problem problem: problems) {
+            for (String record_id:problem.getRecords()) {
+                record_ids.add(record_id);
+            }
+        }
+
+        new getRecordsAsync().execute(record_ids);
+    }
+
+    // Async class for getting records from elastic search server
+    private class getRecordsAsync extends AsyncTask<ArrayList<String>, Void, ArrayList<Record>> {
+
+        @Override
+        protected ArrayList<Record> doInBackground(ArrayList<String>... record_id_list) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (ArrayList<String>record_ids : record_id_list) {
+                ArrayList<Record> es_records = new ArrayList<>();
+                for (String record_id: record_ids) {
+                    Record temp_record = es_controller.getRecord(record_id);
+                    if (temp_record != null) {
+                        es_records.add(temp_record);
+                    }
+                }
+                return es_records;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Record> es_records) {
+            super.onPostExecute(es_records);
+            records = es_records;
+            setMarkers();
+        }
+    }
+
+    private void setMarkers() {
+        boolean set_camera = false;
+        LatLngBounds.Builder latlng_builder = new LatLngBounds.Builder();
+        for (Record record: records) {
+            GeoLocation geo_loc = record.getGeoLocation();
+            if (geo_loc != null) {
+                if (geo_loc.getLatLng() != null) {
+                    Marker marker = map.addMarker(new MarkerOptions().position(geo_loc.getLatLng()).title(record.getTitle()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    markers.add(marker);
+                    latlng_builder.include(marker.getPosition());
+                    set_camera = true;
+                }
+            }
+        }
+        if (set_camera) {
+            LatLngBounds bounds = latlng_builder.build();
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 70));
+        }
     }
 
     @Override

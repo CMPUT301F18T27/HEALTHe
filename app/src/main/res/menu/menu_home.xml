@@ -18,6 +18,13 @@
     <item
         android:id="@+id/action_QRcode"
         android:icon="@android:drawable/ic_menu_view"
+        android:orderInCategory="60"
         android:title="QR Code"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_map_view"
+        android:icon="@android:drawable/ic_dialog_map"
+        android:orderInCategory="40"
+        android:title="Map View"
+        app:showAsAction="always" />
 </menu>

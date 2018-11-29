@@ -64,7 +64,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private User current_user;
     private boolean doubleBackToExitPressedOnce = false;
-    private static String FILENAME = "user.sav";
+    private ProblemListFragment problem_list_fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +99,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem map_view = menu.findItem(R.id.action_map_view);
+        map_view.setVisible(current_user instanceof Patient);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -118,7 +125,10 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), QRCodeActivity.class);
             intent.putExtra(QRCodeActivity.USERID_MESSAGE, current_user.getUserid());
             startActivity(intent);
+        }
 
+        else if (id == R.id.action_map_view) {
+            problem_list_fragment.getAllGeoLocations();
         }
 
         else if (id == R.id.action_test) {
@@ -180,10 +190,10 @@ public class HomeActivity extends AppCompatActivity {
                 return ProfileFragment.newInstance(current_user);
             }
             else if (position == 1 && current_user instanceof CareProvider) {
-                return PatientListFragment.newInstance(current_user);
+                return  PatientListFragment.newInstance(current_user);
             }
-                return ProblemListFragment.newInstance(current_user);
-                //return TempFragment.newInstance(current_user);
+                problem_list_fragment = ProblemListFragment.newInstance(current_user);
+                return problem_list_fragment;
         }
 
         @Override
