@@ -195,8 +195,8 @@ public class LocalFileController {
     public static void removeProblemFromFile(){}
 
     /**
-     * Add problems to lcoal database
-     * @param problems (ArrayList class)
+     * Add problems to local database
+     * @param records (ArrayList class)
      * @param context (Context class)
      */
     public static void saveRecordsInFile(ArrayList<Record> records, Context context) {
