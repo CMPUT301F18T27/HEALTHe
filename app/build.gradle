@@ -63,6 +63,11 @@ dependencies {
     implementation files('src/include/core-2.2.jar')
     implementation project(path: ':barcode-reader')
     implementation 'com.google.android.gms:play-services-vision:15.0.2'
+    //    implementation project(path: ':picasso-2.71828')
+    //    implementation files('src/include/picasso-2.71828.aar')
+    //    implementation 'com.squareup.picasso3:picasso:2.71828'
+    implementation project(':picasso-2.71828')
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
 configurations.all {
     resolutionStrategy {

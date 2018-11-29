@@ -134,6 +134,9 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+        else if (id == R.id.action_body_locations) {
+            editBodyLocations();
+        }
 
 
         return super.onOptionsItemSelected(item);
@@ -272,6 +275,10 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    private void editBodyLocations(){
+        Intent intent = new Intent(this, EditBodyLocationsActivity.class);
+        startActivity(intent);
+    }
     private void updateElasticSearch(){
         new UpdateUser().execute(current_user);
     }
