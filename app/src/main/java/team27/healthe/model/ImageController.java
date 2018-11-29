@@ -1,7 +1,10 @@
 package team27.healthe.model;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 
@@ -16,10 +19,11 @@ public class ImageController {
 
     public ImageController(Context c, String name){
 
-//        file = new File(c.getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
-//                File.separator + "body_locations");
-        file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES+
+        file = new File(c.getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
                 File.separator + "body_locations");
+//        file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);//+
+               // File.separator + "body_locations");
+
         if (!file.exists()){
             file.mkdirs();
         }
@@ -32,8 +36,8 @@ public class ImageController {
 //                e.printStackTrace();
 //            }
 //        }
-        System.out.println(file.isDirectory());
-        System.out.println("DEBUG---"+file.getAbsolutePath());
+//        System.out.println(file.isDirectory());
+//        System.out.println("DEBUG---"+file.getAbsolutePath());
         image_list = new ArrayList<>();
         refreshImageList();
 //        file = c.getFilesDir(name, Context.MODE_PRIVATE);
@@ -50,17 +54,28 @@ public class ImageController {
         return image_list;
     }
 
+//    public Bitmap getBmp(int i){
+//        Bitmap bmp = new
+//    }
     public void refreshImageList(){
         image_list.clear();
         if (file.isDirectory()){
             File[] array_files = file.listFiles();
-            for (File f: array_files){
-                image_list.add(f.getAbsolutePath());
+            if (array_files != null){
+                for (File f: array_files){
+                    if(f.getName().startsWith("bloc_")){
+                        image_list.add(f.getAbsolutePath());
+                    }
+                    else{
+                        System.out.println("Skipping: "+f.getName());
+                    }
+                }
+                System.out.println("image files:");
+                for(String filename: image_list){
+                    System.out.println("image files: "+filename);
+                }
             }
-            System.out.println("image files:");
-            for(String filename: image_list){
-                System.out.println("image files: "+filename);
-            }
+
         }
     }
 
@@ -80,14 +95,16 @@ public class ImageController {
         return image_file;
     }
 
-    public void saveImage(Context c, Bitmap b, String n){
+    public String saveImage(Context c, Bitmap b, String n) {
         File image_file = null;
         try {
-            image_file = File.createTempFile(n, ".jpg", file);
-            System.out.println("DEBUG---"+image_file.getAbsolutePath());
+
+            System.out.println("DEBUG---" + file.getAbsolutePath());
+            image_file = File.createTempFile("bloc_" + n, ".jpg", file);
+            System.out.println("DEBUG---" + image_file.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(image_file);//new File(file.getAbsolutePath()+File.separator+n));//c.openFileOutput(file.getAbsolutePath()+File.separator+n, c.MODE_PRIVATE);
             b.compress(Bitmap.CompressFormat.PNG, 100, fos);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -101,7 +118,11 @@ public class ImageController {
 //            e.printStackTrace();
 //        }
 
-
+        if (image_file != null) {
+            return image_file.getAbsolutePath();
+        } else {
+            return null;
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package team27.healthe.model;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -19,10 +20,12 @@ import team27.healthe.R;
 public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHolder> {
     private ArrayList<String> image_list;
     private Context context;
+//    private ImageController ic;
 
     public ImageAdapter(Context c, ArrayList<String> image_list){
         this.context = c;
         this.image_list = image_list;
+//        this.ic = new ImageController(c, "body_locations");
     }
 
     @NonNull
@@ -36,7 +39,7 @@ public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHo
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder viewHolder, int i) {
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Picasso.get().load(image_list.get(i)).into(viewHolder.img);
-//        viewHolder.img.setImageResource();
+        viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(image_list.get(i)));
 
     }
 

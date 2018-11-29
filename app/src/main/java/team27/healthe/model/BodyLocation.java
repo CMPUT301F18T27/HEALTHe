@@ -7,25 +7,35 @@ import android.graphics.Point;
  *
  */
 public class BodyLocation {
-    Point location;
+//    Point location;
+    float x_location;
+    float y_location;
     String body_string;
 
-    public BodyLocation(int x, int y){
-        location = new Point(x, y);
+    public BodyLocation(float x, float y){
+//        location = new Point(x, y);
+        x_location = x;
+        y_location = y;
         body_string = getLocationName();
     }
 
     public BodyLocation(){
-        location = new Point(0,0);
+//        location = new Point(0,0);
+        x_location = 0;
+        y_location = 0;
         body_string = "default-nochoice";//replace hardcoded value
     }
 
-    public void setPoint(int x, int y){
-        location.set(x, y);
+    public void setPoint(float x, float y){
+        x_location = x;
+        y_location = y;
     }
 
-    public Point getPoint(){
-        return location;
+    public float getX(){
+        return x_location;
+    }
+    public float getY(){
+        return y_location;
     }
 
     /**
@@ -34,6 +44,9 @@ public class BodyLocation {
      */
     public String getLocationName(){
 
-        return null;
+        return body_string;
+    }
+    public void setLocation(String body_location){
+        body_string = body_location;
     }
 }

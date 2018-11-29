@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,18 +18,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <provider
-            android:authorities="healthe.fileprovider"
             android:name="android.support.v4.content.FileProvider"
+            android:authorities="healthe.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"
             tools:replace="android:authorities">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths"
-                tools:replace="android:resource"/>
-
+                tools:replace="android:resource" />
         </provider>
-
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -96,7 +95,17 @@
         <activity
             android:name=".ui.EditBodyLocationsActivity"
             android:label="@string/title_activity_edit_body_locations"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name=".ui.SelectBodyLocationActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_select_body_location"
+            android:theme="@style/FullscreenTheme"></activity>
     </application>
 
 </manifest>
