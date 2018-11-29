@@ -393,5 +393,13 @@ public class ProblemListFragment extends Fragment {
         }
     }
 
+    public void getAllGeoLocations() {
+        Gson gson = new Gson();
+        Intent intent = new Intent(getContext(), AllGeoLocationsActivity.class);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        intent.putExtra(AllGeoLocationsActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
+        startActivity(intent);
+    }
+
 
 }

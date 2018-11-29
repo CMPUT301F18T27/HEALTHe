@@ -49,8 +49,8 @@ public class Record {
     public Record(ArrayList<String> comments) {
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
-        //body_location_s = c.getString(R.string.def_body_location_s);
-        //geo_location_s = c.getString(R.string.def_geo_location_s);
+        // body_location_s = c.getString(R.string.def_body_location_s);
+        // geo_location_s = c.getString(R.string.def_geo_location_s);
         title = "Test title";
         rdate = new Date();
         description = "This is a record";
