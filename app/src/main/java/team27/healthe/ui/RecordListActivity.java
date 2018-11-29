@@ -27,8 +27,11 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
@@ -44,12 +47,9 @@ public class RecordListActivity extends AppCompatActivity {
     public static ListView listView;
     private RecordListAdapter adapter;
 
-    private Problem current_problem = new Problem();
-    private User current_user;
+    private Problem current_problem;
     public static LocalFileController file_controller = new LocalFileController();
     public static ArrayList<Record> records;
-    private static String record_type = "";
-    //public static String FILENAME = "records.sav";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,18 +96,16 @@ public class RecordListActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //loadFromFile();
+        loadFromFile();
 
         adapter = new RecordListAdapter(this, records);
         listView.setAdapter(adapter);
     }
 
-    // TODO: decide how to get here..
 
     public void viewRecord(Record record) {
         Gson gson = new Gson();
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
-        // TODO: decide what to pass through here, record or use elastic search?
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivity(intent);
     }
@@ -122,7 +120,7 @@ public class RecordListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Deleting record...", Toast.LENGTH_SHORT).show();
 
-                // TODO: implement elastic search & file search?
+                records.remove(record);
                 new DeleteRecord().execute(record);
 
                 file_controller.removeRecordFromFile();
@@ -139,23 +137,6 @@ public class RecordListActivity extends AppCompatActivity {
 
     }
 
-    public void selectAddMethod(Record record, String type) {
-        Gson gson = new Gson();
-        if (type.equals("Comment")) {
-            Intent intent = new Intent(this, CommentActivity.class);
-            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-            intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
-            startActivity(intent);
-        } else if (type.equals("Photo")) {
-
-        } else if (type.equals("Geo-location")) {
-
-        } else if (type.equals("Body Location")) {
-
-        } else {
-            // TODO: error handling
-        }
-    }
 
     public void addRecord() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -165,12 +146,12 @@ public class RecordListActivity extends AppCompatActivity {
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        //Add title for problem
+        //Add title for record
         final TextView record_title = new TextView(this);
         record_title.setText("Record Title:");
         layout.addView(record_title);
 
-        // Add a TextView for problem title
+        // Add a TextView for record title
         final EditText title_text = new EditText(this);
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
         ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -178,39 +159,27 @@ public class RecordListActivity extends AppCompatActivity {
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method
 
-        //Add title for problem
-        final TextView record_type_text = new TextView(this);
-        record_type_text.setText("Record Type:");
-        layout.addView(record_type_text);
+        //Add title for date started
+        final TextView date_title = new TextView(this);
+        date_title.setText("Date Started:");
+        layout.addView(date_title);
 
-        // TODO: test to see how spinner works
-        // Add a spinner for record type title
-        final Spinner record_type_spinner = new Spinner(this);
-        // Creates an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.Record_Types, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appear
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Apply the adapter to the spinner
-        record_type_spinner.setAdapter(adapter);
+        // Add a TextView for date
+        final EditText date_text = new EditText(this);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
+        date_text.setText(formatter.format(new Date()));
+        layout.addView(date_text); // Another add method
 
-//        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//        ((LinearLayout.LayoutParams) params).setMargins(16, 0, 0, 64);
-        record_type_spinner.setLayoutParams(params);
+        //Add title for record description
+        final TextView description_title = new TextView(this);
+        description_title.setText("Description:");
+        layout.addView(description_title);
 
-        record_type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                 record_type = (String) parent.getItemAtPosition(position);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // auto generated method stub
-            }
-        });
-
-        layout.addView(record_type_spinner); // Notice this is an add method
+        // Add a TextView for description
+        final EditText description_text = new EditText(this);
+        description_text.setInputType(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE);
+        layout.addView(description_text); // Another add method
 
         dialog.setView(layout);
 
@@ -218,16 +187,22 @@ public class RecordListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // TODO: check and add corresponding record
                 String title = title_text.getText().toString();
-                Record record = new Record(title);
+                Date date;
+                String desc = description_text.getText().toString();
 
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    date = formatter.parse(date_text.getText().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    date = new Date();
+                }
+                Record record = new Record(title, date, desc);
                 records.add(record);
-                //adapter.refresh(records);
 
                 file_controller.saveRecordInFile(record, getApplicationContext());
-
-                //new AddProblemES().execute(problem);
-
-                selectAddMethod(record, record_type);
+                new AddRecordES().execute(record);
+                adapter.refresh(records);
             }
         })
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -239,29 +214,35 @@ public class RecordListActivity extends AppCompatActivity {
         dialog.show();
     }
 
-//    private class AddProblemES extends AsyncTask<Problem, Void, Problem> {
-//
-//        @Override
-//        protected Problem doInBackground(Problem... problems) {
-//            ElasticSearchController es_controller = new ElasticSearchController();
-//
-//            for (Problem problem : problems) {
-//
-//                if (problem.getProblemID() == null) { // If account already exists
-//                    es_controller.addProblem(problem, current_user.getUserid());
-//                    return problem;
-//                } else {
-//                    return null;
-//                }
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(Problem problem) {
-//            super.onPostExecute(problem);
-//        }
-//    }
+    private class AddRecordES extends AsyncTask<Record, Void, Record> {
+
+        @Override
+        protected Record doInBackground(Record... records) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (Record record : records) {
+
+                Record new_record = es_controller.addRecord(record);
+
+                if (new_record == null) {
+                    return record;
+                } else {
+                    return new_record;
+                }
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (!record.getRecordID().equals("")) {
+                current_problem.addRecord(record.getRecordID());
+                new UpdateProblem().execute(current_problem);
+            }
+        }
+    }
 
     private class DeleteRecord extends AsyncTask<Record, Void, Record> {
 
@@ -309,36 +290,29 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
-//    private void loadFromFile() {
-//        Collection<String> records = current_problem.getRecords();
-//
-//        for (String record_id : records) {
-//            Record record = file_controller.loadRecordFromFile(record_id, getApplicationContext());
-//        }
-//    }
+    private class UpdateProblem extends AsyncTask<Problem, Void, Void> {
 
-    private void getFromIntent() {
-        Intent intent = getIntent();
-
-        Gson gson = new Gson();
-        ElasticSearchController es_controller = new ElasticSearchController();
-
-        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
-        String problem_json = intent.getStringExtra(ProblemInfoActivity.PROBLEM_MESSAGE);
-
-        this.current_user = es_controller.jsonToUser(user_json);
-        this.current_problem = gson.fromJson(problem_json, Problem.class);
+        @Override
+        protected Void doInBackground(Problem... problems) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for (Problem problem : problems) {
+                es_controller.addProblem(problem);
+            }
+            return null;
+        }
     }
 
-//    private void getRecords() {
-//        if (current_problem.getNumberOfRecords() != 0) {
-//            for (String record_id : current_problem.getRecords()) {
-//                new getRecordAsync().execute(record_id);
-//            }
-//        } else {
-//            records = new ArrayList<Record>();
-//        }
-//    }
+    private void loadFromFile() {
+//        Collection<String> records = current_problem.getRecords();
+        records = file_controller.loadRecordsFromFile(getApplicationContext());
+    }
+
+    private void getFromIntent() {
+        Gson gson = new Gson();
+        Intent intent = getIntent();
+        String problem_json = intent.getStringExtra(ProblemInfoActivity.PROBLEM_MESSAGE);
+        this.current_problem = gson.fromJson(problem_json, Problem.class);
+    }
 
     private void getRecordsES() {
         for (String record_id : current_problem.getRecords()) {
@@ -356,9 +330,5 @@ public class RecordListActivity extends AppCompatActivity {
             records = file_controller.loadRecordsFromFile(getApplicationContext());
             adapter.refresh(records);
         }
-    }
-
-    private void refreshList() {
-        adapter.refresh(records);
     }
 }

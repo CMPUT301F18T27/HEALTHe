@@ -88,7 +88,6 @@ public class ProblemInfoActivity extends AppCompatActivity {
     public void onSelectRecords(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, RecordListActivity.class);
-        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(PROBLEM_MESSAGE, gson.toJson(problem));
         startActivity(intent);
     }

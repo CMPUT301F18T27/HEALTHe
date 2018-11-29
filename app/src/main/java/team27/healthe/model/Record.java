@@ -61,15 +61,15 @@ public class Record {
         record_id = "";
     }
 
-    public Record(String ttl) {
+    public Record(String ttl, Date date, String desc) {
         title = ttl;
-        rdate = Calendar.getInstance().getTime();
-        description = null; // not sure if I can actually do this
+        rdate = date;
+        description = desc;
         commentList = null;
         bodyLocation = null;
         geoLocation = null;
         imageList = null;
-        record_id = ""; // TODO: fix with auto id
+        record_id = "";
     }
 
     public String getTitle() {
