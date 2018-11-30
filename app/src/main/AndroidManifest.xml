@@ -9,6 +9,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
 
     <application
         android:allowBackup="true"
@@ -17,6 +21,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAuHGNdWe7kgOWTUY9TziMpgog-hSKQ73w" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="healthe.fileprovider"
@@ -91,6 +99,20 @@
         <activity
             android:name=".ui.ProblemInfoActivity"
             android:label="@string/title_activity_problem_info"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.PhotoActivity"
+            android:label="@string/title_activity_photo"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.GeoLocationActivity"
+            android:label="@string/title_activity_geo_location"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.AllGeoLocationsActivity"
+            android:label="@string/title_activity_all_geo_locations"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.SlideshowActivity"></activity>
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ViewBodyLocationsActivity"

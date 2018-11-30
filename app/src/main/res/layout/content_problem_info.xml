@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_problem_info">
 
     <TextView
-        android:id="@+id/problemTitle"
+        android:id="@+id/recordTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/problemDate"
+        android:id="@+id/recordDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -34,7 +34,7 @@
         android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/problemTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/recordTitle" />
 
     <TextView
         android:id="@+id/problemDescription"
@@ -47,7 +47,7 @@
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/problemDate" />
+        app:layout_constraintTop_toBottomOf="@+id/recordDate" />
 
     <Button
         android:id="@+id/button7"

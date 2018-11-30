@@ -25,11 +25,11 @@ public class Record {
     private BodyLocation bodyLocation;
     private String geo_location_s; // @TODO: is this necessary?
     private GeoLocation geoLocation;
-    private ArrayList<Integer> imageList;
-    private Integer record_id;
+    private ArrayList<Photo> photos;
+    private String record_id;
 
     public Record(String ttl, Date date, String desc, ArrayList<String> comments,
-                  BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Integer> images) {
+                  BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Photo> images) {
 
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
@@ -41,35 +41,35 @@ public class Record {
         commentList = comments;
         bodyLocation = bodyLoc;
         geoLocation = geoLoc;
-        imageList = images;
-        record_id = null; // TODO: fix with auto id
+        photos = images;
+        record_id = ""; // TODO: fix with auto id
     }
 
     //Temp constructor for testing, ignore it
     public Record(ArrayList<String> comments) {
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
-        //body_location_s = c.getString(R.string.def_body_location_s);
-        //geo_location_s = c.getString(R.string.def_geo_location_s);
-        title = null;
-        rdate = null;
-        description = null;
+        // body_location_s = c.getString(R.string.def_body_location_s);
+        // geo_location_s = c.getString(R.string.def_geo_location_s);
+        title = "Test title";
+        rdate = new Date();
+        description = "This is a record";
         commentList = comments;
         bodyLocation = null;
         geoLocation = null;
-        imageList = null;
-        record_id = null;
+        photos = new ArrayList();
+        record_id = "";
     }
 
-    public Record(String ttl) {
+    public Record(String ttl, Date date, String desc) {
         title = ttl;
-        rdate = Calendar.getInstance().getTime();
-        description = null; // not sure if I can actually do this
+        rdate = date;
+        description = desc;
         commentList = null;
         bodyLocation = null;
         geoLocation = null;
-        imageList = null;
-        record_id = null; // TODO: fix with auto id
+        photos = new ArrayList();
+        record_id = "";
     }
 
     public String getTitle() {
@@ -122,19 +122,21 @@ public class Record {
         this.geoLocation = geoLoc;
     }
 
-    public ArrayList<Integer> getImageList() {
-        return imageList;
+    public ArrayList<Photo> getPhotos() {
+        return photos;
     }
 
-    public void setImageList(ArrayList<Integer> images) {
-        this.imageList = images;
+    public void setPhotos(ArrayList<Photo> images) {
+        this.photos = images;
     }
 
-    public Integer getRecordID(){
+    public void addPhoto(Photo photo) {this.photos.add(photo);}
+
+    public String getRecordID(){
         return record_id;
     }
 
-    public void setRecordID(Integer rid){
+    public void setRecordID(String rid){
         record_id = rid;
     }
 

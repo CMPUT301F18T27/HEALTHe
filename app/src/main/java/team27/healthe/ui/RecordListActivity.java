@@ -1,17 +1,24 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -20,31 +27,53 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+
 import team27.healthe.R;
+import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.LocalFileController;
+import team27.healthe.model.Patient;
+import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
+import team27.healthe.model.User;
 
 public class RecordListActivity extends AppCompatActivity {
-    public static final String RECORD_INFO = "team27.healthe.Record";
+    public static final String RECORD_MESSAGE = "team27.healthe.Record";
+
     public static ListView listView;
     private RecordListAdapter adapter;
+
+    private Problem current_problem;
+    public static LocalFileController file_controller = new LocalFileController();
+    public static ArrayList<Record> records;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record);
+        setContentView(R.layout.activity_record_list);
 
         listView = (ListView) findViewById(R.id.record_list);
+        records = new ArrayList<>();
+        adapter = new RecordListAdapter(this, records);
+        listView.setAdapter(adapter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getFromIntent();
+        getRecords();
+
         // clicking the add button takes you to an alert dialog to choose the
         // type of record to add
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_record_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectRecordType();
+                addRecord();
             }
         });
 
@@ -66,13 +95,11 @@ public class RecordListActivity extends AppCompatActivity {
         });
     }
 
-    // TODO: decide how to get here..
 
     public void viewRecord(Record record) {
         Gson gson = new Gson();
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
-        // TODO: decide what to pass through here, record or use elastic search?
-        intent.putExtra(RECORD_INFO, gson.toJson(record));
+        intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivity(intent);
     }
 
@@ -86,11 +113,11 @@ public class RecordListActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Deleting record...", Toast.LENGTH_SHORT).show();
 
-                // TODO: implement elastic search & file search?
-//                new DeleteRecord().execute(problem);
-//
-//                file_controller.removeRecordFromFile();
-//                adapter.refresh(records);
+                records.remove(record);
+                new DeleteRecord().execute(record);
+
+                file_controller.removeRecordFromFile();
+                adapter.refresh(records);
 
             }
         })
@@ -103,53 +130,72 @@ public class RecordListActivity extends AppCompatActivity {
 
     }
 
-    public void selectRecordType() {
+
+    public void addRecord() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Select Record Type");
+        dialog.setTitle("Add Record");
         dialog.setMessage("");
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
 
-        //Add title for problem
-        final TextView record_type_text = new TextView(this);
-        record_type_text.setText("Record Type:");
-        layout.addView(record_type_text);
+        //Add title for record
+        final TextView record_title = new TextView(this);
+        record_title.setText("Record Title:");
+        layout.addView(record_title);
 
-        // TODO: test to see how spinner works
-        // Add a spinner for record type title
-        final Spinner record_type_spinner = new Spinner(this);
-        // Creates an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.Record_Types, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appear
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //Apply the adapter to the spinner
-        record_type_spinner.setAdapter(adapter);
-
+        // Add a TextView for record title
+        final EditText title_text = new EditText(this);
+        title_text.setInputType(InputType.TYPE_CLASS_TEXT);
         ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ((LinearLayout.LayoutParams) params).setMargins(0, 0, 0, 64);
-        record_type_spinner.setLayoutParams(params);
+        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
+        title_text.setLayoutParams(params);
+        layout.addView(title_text); // Notice this is an add method
 
-        record_type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String record_type = (String) parent.getItemAtPosition(position);
-            }
+        //Add title for date started
+        final TextView date_title = new TextView(this);
+        date_title.setText("Date Started:");
+        layout.addView(date_title);
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // auto generated method stub
-            }
-        });
+        // Add a TextView for date
+        final EditText date_text = new EditText(this);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
+        date_text.setText(formatter.format(new Date()));
+        layout.addView(date_text); // Another add method
 
-        layout.addView(record_type_spinner); // Notice this is an add method
+        //Add title for record description
+        final TextView description_title = new TextView(this);
+        description_title.setText("Description:");
+        layout.addView(description_title);
+
+        // Add a TextView for description
+        final EditText description_text = new EditText(this);
+        description_text.setInputType(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE);
+        layout.addView(description_text); // Another add method
 
         dialog.setView(layout);
 
         dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 // TODO: check and add corresponding record
+                String title = title_text.getText().toString();
+                Date date;
+                String desc = description_text.getText().toString();
+
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    date = formatter.parse(date_text.getText().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    date = new Date();
+                }
+                Record record = new Record(title, date, desc);
+                records.add(record);
+
+                file_controller.saveRecordInFile(record, getApplicationContext());
+                new AddRecordES().execute(record);
+                adapter.refresh(records);
             }
         })
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -159,5 +205,118 @@ public class RecordListActivity extends AppCompatActivity {
                 });
 
         dialog.show();
+    }
+
+    private class AddRecordES extends AsyncTask<Record, Void, Record> {
+
+        @Override
+        protected Record doInBackground(Record... records) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (Record record : records) {
+
+                Record new_record = es_controller.addRecord(record);
+
+                if (new_record == null) {
+                    return record;
+                } else {
+                    return new_record;
+                }
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (!record.getRecordID().equals("")) {
+                current_problem.addRecord(record.getRecordID());
+                new UpdateProblem().execute(current_problem);
+            }
+        }
+    }
+
+    private class DeleteRecord extends AsyncTask<Record, Void, Record> {
+
+        @Override
+        protected Record doInBackground(Record... records) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for(Record record:records) {
+                es_controller.removeRecord(record.getRecordID());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+        }
+    }
+
+
+    // Async class for getting records from elastic search server
+    private class getRecordAsync extends AsyncTask<String, Void, Record> {
+
+        @Override
+        protected Record doInBackground(String... record_ids) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (String record_id : record_ids) {
+                return es_controller.getRecord(record_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                records.add(record);
+                adapter.refresh(records);
+
+
+                //TODO: fix saving
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveRecordsInFile(records, getApplicationContext());
+            }
+        }
+    }
+
+    private class UpdateProblem extends AsyncTask<Problem, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Problem... problems) {
+            ElasticSearchController es_controller = new ElasticSearchController();
+            for (Problem problem : problems) {
+                es_controller.addProblem(problem);
+            }
+            return null;
+        }
+    }
+
+    private void getFromIntent() {
+        Gson gson = new Gson();
+        Intent intent = getIntent();
+        String problem_json = intent.getStringExtra(ProblemInfoActivity.PROBLEM_MESSAGE);
+        this.current_problem = gson.fromJson(problem_json, Problem.class);
+    }
+
+    private void getRecordsES() {
+        for (String record_id : current_problem.getRecords()) {
+            new getRecordAsync().execute(record_id);
+        }
+    }
+
+    private void getRecords() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            getRecordsES();
+        } else {
+            records = file_controller.loadRecordsFromFile(getApplicationContext());
+            adapter.refresh(records);
+        }
     }
 }

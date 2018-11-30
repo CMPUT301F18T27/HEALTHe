@@ -8,4 +8,15 @@
     tools:context=".ui.RecordListActivity"
     tools:showIn="@layout/activity_record_list">
 
+    <ListView
+        android:id="@+id/record_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="5"
+        android:drawSelectorOnTop="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

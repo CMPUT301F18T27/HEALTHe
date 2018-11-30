@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -16,10 +18,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,7 +32,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import team27.healthe.R;
@@ -35,6 +43,7 @@ import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -56,7 +65,7 @@ public class HomeActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private User current_user;
     private boolean doubleBackToExitPressedOnce = false;
-    private static String FILENAME = "user.sav";
+    private ProblemListFragment problem_list_fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +100,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem map_view = menu.findItem(R.id.action_map_view);
+        map_view.setVisible(current_user instanceof Patient);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -110,7 +126,10 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), QRCodeActivity.class);
             intent.putExtra(QRCodeActivity.USERID_MESSAGE, current_user.getUserid());
             startActivity(intent);
+        }
 
+        else if (id == R.id.action_map_view) {
+            problem_list_fragment.getAllGeoLocations();
         }
 
         else if (id == R.id.action_test) {
@@ -118,11 +137,15 @@ public class HomeActivity extends AppCompatActivity {
             comment_list.add("Test 123");
             comment_list.add("Suck this!");
             Record record = new Record(comment_list);
+            Photo photo2 = new Photo("AWdj5Gbf8OXLMedoUnvl");
+            Photo photo = new Photo("AWdjxIfb8OXLMedoUnvX");
+            record.addPhoto(photo);
+            record.addPhoto(photo2);
 
             Gson gson = new Gson();
-            Intent intent = new Intent(getApplicationContext(), CommentActivity.class);
+            Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
             intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-            intent.putExtra(CommentActivity.RECORD_MESSAGE, gson.toJson(record));
+            intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
             startActivity(intent);
         }
 
@@ -175,10 +198,10 @@ public class HomeActivity extends AppCompatActivity {
                 return ProfileFragment.newInstance(current_user);
             }
             else if (position == 1 && current_user instanceof CareProvider) {
-                return PatientListFragment.newInstance(current_user);
+                return  PatientListFragment.newInstance(current_user);
             }
-                return ProblemListFragment.newInstance(current_user);
-                //return TempFragment.newInstance(current_user);
+                problem_list_fragment = ProblemListFragment.newInstance(current_user);
+                return problem_list_fragment;
         }
 
         @Override

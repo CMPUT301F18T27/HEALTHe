@@ -16,7 +16,7 @@ public class Problem implements Comparable<Problem> {
     private String title;
     private Date pdate;
     private String description;
-    private Collection<Integer> records;
+    private Collection<String> records;
     private String problem_id;
     private String patient_id;
 
@@ -47,7 +47,7 @@ public class Problem implements Comparable<Problem> {
         this.problem_id = "";
     }
 
-    public Problem(String ttl, Date date, String desc, Collection<Integer> recs) {
+    public Problem(String ttl, Date date, String desc, Collection<String> recs) {
         title = ttl;
         pdate = date;
         description = desc;
@@ -56,7 +56,7 @@ public class Problem implements Comparable<Problem> {
         this.patient_id = "";
     }
 
-    public Problem(String ttl, String desc, Collection<Integer> recs) {
+    public Problem(String ttl, String desc, Collection<String> recs) {
         title = ttl;
         pdate = new Date();
         description = desc;
@@ -114,19 +114,19 @@ public class Problem implements Comparable<Problem> {
         this.description = description;
     }
 
-    public Collection<Integer> getRecords() {
+    public Collection<String> getRecords() {
         return records;
     }
 
-    public void setRecords(Collection<Integer> records) {
+    public void setRecords(Collection<String> records) {
         this.records = records;
     }
 
-    public void addRecord(Integer record_id) {
+    public void addRecord(String record_id) {
         records.add(record_id);
     }
 
-    public void removeRecord(Integer record_id) {
+    public void removeRecord(String record_id) {
         records.remove(record_id);
     }
 

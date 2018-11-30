@@ -1,6 +1,8 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,10 +19,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -28,10 +34,13 @@ import com.google.gson.Gson;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
@@ -85,10 +94,9 @@ public class ProblemListFragment extends Fragment {
 
         problems = new ArrayList<>();
         adapter = new ProblemsAdapter(getContext(), problems);
+        listView.setAdapter(adapter);
 
         getProblems();
-
-        listView.setAdapter(adapter);
 
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +115,7 @@ public class ProblemListFragment extends Fragment {
                 Intent intent = new Intent(getContext(), ProblemInfoActivity.class);
                 intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
                 intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE,gson.toJson(problem));
+                intent.putExtra(ProblemInfoActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
                 startActivity(intent);
             }
         });
@@ -123,9 +132,11 @@ public class ProblemListFragment extends Fragment {
     }
 
     public void addProblem() {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Add Problem");
-        dialog.setMessage("");
+        dialog.setTitle("Edit Problem");
+        //dialog.setMessage("");
+
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -149,11 +160,17 @@ public class ProblemListFragment extends Fragment {
         layout.addView(date_title);
 
         // Add a TextView for date
-        final EditText date_text = new EditText(getContext());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
+        final TextView date_text = new TextView(getContext());
+        date_text.setTextSize(18);
         date_text.setText(formatter.format(new Date()));
         layout.addView(date_text); // Another add method
+        date_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateTimePicker(date_text);
+            }
+        });
+
 
         //Add title for problem description
         final TextView description_title = new TextView(getContext());
@@ -169,8 +186,7 @@ public class ProblemListFragment extends Fragment {
 
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-
+                //Toast.makeText(getApplicationContext(), "Deleting problem...", Toast.LENGTH_SHORT).show();
                 String title = title_text.getText().toString();
                 Date date;
                 String desc = description_text.getText().toString();
@@ -182,15 +198,14 @@ public class ProblemListFragment extends Fragment {
                     e.printStackTrace();
                     date = new Date();
                 }
-                Problem problem = new Problem(title, date, desc);
 
-                problems.add(problem);
-                adapter.refresh(problems);
+                if (validProblemInputs(title, date, desc)) {
+                    Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
+                    Problem problem = new Problem(title, date, desc);;
 
-                file_controller.saveProblemInFile(problem, getContext());
-
-                new AddProblemES().execute(problem);
-
+                    new AddProblemES().execute(problem);
+                    dialog.dismiss(); //Dismiss once everything is OK.
+                }
             }
         })
                 .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -199,79 +214,63 @@ public class ProblemListFragment extends Fragment {
                     }
                 });
         dialog.show();
+
     }
 
-    public void editProblem(Problem prob) {
-        final Problem problem = prob;
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Edit Problem");
-        dialog.setMessage("");
-
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        //Add title for problem
-        final TextView problem_title = new TextView(getContext());
-        problem_title.setText("Problem Title:");
-        layout.addView(problem_title);
-
-        // Add a TextView for problem title
-        final EditText title_text = new EditText(getContext());
-        title_text.setText(problem.getTitle());
-        title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
-        title_text.setLayoutParams(params);
-        layout.addView(title_text); // Notice this is an add method
-
-        //Add title for date started
-        final TextView date_title = new TextView(getContext());
-        date_title.setText("Date Started:");
-        layout.addView(date_title);
-
-        // Add a TextView for date
-        final EditText date_text = new EditText(getContext());
-        date_text.setText(problem.getPdateAsString());
-        date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
-        layout.addView(date_text); // Another add method
-
-        //Add title for problem description
-        final TextView description_title = new TextView(getContext());
-        description_title.setText("Description:");
-        layout.addView(description_title);
-
-        // Add a TextView for description
-        final EditText description_text = new EditText(getContext());
-        description_text.setText(problem.getDescription());
-        description_text.setInputType(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE);
-        layout.addView(description_text); // Another add method
-
-        dialog.setView(layout);
-
-        problems.remove(prob);
-
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Updating problem...", Toast.LENGTH_SHORT).show();
-
-                problem.setTitle(title_text.getText().toString());
-                problem.setPdateAsDateObj(date_text.getText().toString());
-                problem.setDescription(description_text.getText().toString());
-
-                problems.add(problem);
-                adapter.refresh(problems);
-
-                file_controller.saveProblemsInFile(problems, getContext());
-
-                new UpdateProblem().execute(problem);
-
-            }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
+    private void showDateTimePicker(final TextView date_textview) {
+        //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
+        final Calendar date;
+        final Calendar currentDate = Calendar.getInstance();
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        date = Calendar.getInstance();
+        final Context context = getContext();
+        new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                date.set(year, monthOfYear, dayOfMonth);
+                new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        date.set(Calendar.MINUTE, minute);
+                        Date new_date = date.getTime();
+                        date_textview.setText(formatter.format(new_date));
                     }
-                });
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+
+    }
+
+    public void editProblem(final Problem prob) {
+        //final Problem problem = prob;
+        final AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle("Delete Problem")
+                .setMessage("Are you sure you want to delete this problem?")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        problems.remove(prob);
+                        file_controller.saveProblemsInFile(problems, getContext());
+                        adapter.refresh(problems);
+
+                        new DeleteProblem().execute(prob);
+
+                        if (prob.getProblemID() != null) {
+                            current_user.removeProblem(prob.getProblemID());
+                            file_controller.saveUserInFile(current_user, getContext());
+                            new UpdateUser().execute(current_user);
+                        }
+
+                        //TODO: Delete records and photos associated with problem
+
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+
         dialog.show();
     }
 
@@ -279,7 +278,7 @@ public class ProblemListFragment extends Fragment {
 
         @Override
         protected Problem doInBackground(Problem... problems) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (Problem problem : problems) {
 
@@ -301,36 +300,29 @@ public class ProblemListFragment extends Fragment {
             if (!problem.getProblemID().equals("")) {
                 current_user.addProblem(problem.getProblemID());
                 new UpdateUser().execute(current_user);
+                problems.add(problem);
+                adapter.refresh(problems);
             }
+            else {
+                problems.add(problem);
+                adapter.refresh(problems);
+                //TODO: Add problem to es server and user once online again
+            }
+            file_controller.saveProblemsInFile(problems, getContext());
+            file_controller.saveUserInFile(current_user, getContext());
         }
     }
+    
 
-    private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
+    private class DeleteProblem extends AsyncTask<Problem, Void, Void> {
 
         @Override
-        protected Problem doInBackground(Problem... problems) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+        protected Void doInBackground(Problem... problems) {
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for(Problem problem:problems) {
-                if (!problem.getProblemID().equals("")) {
-                    es_controller.addProblem(problem);
-                    return problem;
-                } else {
-                    return  es_controller.addProblem(problem);
-                }
-
+                es_controller.removeProblem(problem.getProblemID());
             }
             return null;
-        }
-
-        @Override
-        protected void onPostExecute(Problem problem) {
-            super.onPostExecute(problem);
-            if (!problem.getProblemID().equals("")) {
-                if (!current_user.hasProblem(problem.getProblemID())) {
-                    current_user.addProblem(problem.getProblemID());
-                    new UpdateUser().execute(current_user);
-                }
-            }
         }
     }
 
@@ -339,7 +331,7 @@ public class ProblemListFragment extends Fragment {
 
         @Override
         protected Problem doInBackground(String... problem_ids) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (String problem_id: problem_ids) {
                 return es_controller.getProblem(problem_id);
@@ -366,7 +358,7 @@ public class ProblemListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(User... users) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
             for (User user : users) {
                 es_controller.addUser(user);
             }
@@ -387,10 +379,29 @@ public class ProblemListFragment extends Fragment {
         if (network_info != null && network_info.isConnected()) {
             getProblemsES();
         } else {
-            problems = file_controller.loadProblemsFromFile(getContext());
+            for (Problem problem : file_controller.loadProblemsFromFile(getContext())) {
+                problems.add(problem);
+            }
             adapter.refresh(problems);
         }
     }
 
+    public void getAllGeoLocations() {
+        Gson gson = new Gson();
+        Intent intent = new Intent(getContext(), AllGeoLocationsActivity.class);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        intent.putExtra(AllGeoLocationsActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
+        startActivity(intent);
+    }
 
+    public boolean validProblemInputs(String title, Date date, String desc) {
+        if (title.length() > 30) {
+            Toast.makeText(getContext(), "Problem title exceeds maximum of 30 characters", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (desc.length() > 300) {
+            Toast.makeText(getContext(), "Problem description exceeds maximum of 300 characters", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 }

@@ -8,4 +8,11 @@
     tools:context=".ui.ProblemActivity"
     tools:showIn="@layout/activity_problem">
 
+    <ListView
+        android:id="@+id/problem_list"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="5"
+        android:drawSelectorOnTop="false" />
+
 </android.support.constraint.ConstraintLayout>

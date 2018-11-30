@@ -1,1 +1,1 @@
-include ':app', ':barcode-reader', ':picasso-2.71828'
+include ':app', ':barcode-reader'
