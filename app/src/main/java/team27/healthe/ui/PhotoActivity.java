@@ -135,6 +135,7 @@ public class PhotoActivity extends AppCompatActivity {
 
             OutputStream output_stream = new FileOutputStream(photo_file);
             photo_bitmap.compress(Bitmap.CompressFormat.JPEG, 30 , output_stream);
+            output_stream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -137,8 +137,8 @@ public class HomeActivity extends AppCompatActivity {
             comment_list.add("Test 123");
             comment_list.add("Suck this!");
             Record record = new Record(comment_list);
-            Photo photo2 = new Photo("AWdjev0U8OXLMedoUnud");
-            Photo photo = new Photo("AWdjVSE08OXLMedoUnt-");
+            Photo photo2 = new Photo("AWdj5Gbf8OXLMedoUnvl");
+            Photo photo = new Photo("AWdjxIfb8OXLMedoUnvX");
             record.addPhoto(photo);
             record.addPhoto(photo2);
 

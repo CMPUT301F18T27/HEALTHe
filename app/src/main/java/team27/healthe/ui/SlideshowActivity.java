@@ -87,8 +87,8 @@ public class SlideshowActivity extends AppCompatActivity {
             Button next_button = (Button) findViewById(R.id.buttonNext);
             Button prev_button = (Button) findViewById(R.id.buttonPrev);
 
-            next_button.setVisibility(image_view.GONE);
-            prev_button.setVisibility(image_view.GONE);
+            next_button.setVisibility(image_view.INVISIBLE);
+            prev_button.setVisibility(image_view.INVISIBLE);
         } else {
             no_photos_text.setVisibility(image_view.INVISIBLE);
             image_view.setVisibility(View.VISIBLE);
@@ -145,7 +145,7 @@ public class SlideshowActivity extends AppCompatActivity {
 
     private void updateButtons() {
         Button next_button = (Button) findViewById(R.id.buttonNext);
-        if (image_index < image_files.size()) {
+        if (image_index < image_files.size() - 1) {
             next_button.setVisibility(next_button.VISIBLE);
         }
         if (image_files.size() == 1) {
@@ -175,7 +175,7 @@ public class SlideshowActivity extends AppCompatActivity {
         image_index++;
         image_view.setImageURI(Uri.fromFile(image_files.get(image_index)));
         prev_button.setVisibility(view.VISIBLE);
-        if (image_index == image_files.size()){
+        if (image_index == image_files.size() - 1){
             next_button.setVisibility(view.INVISIBLE);
         }
 

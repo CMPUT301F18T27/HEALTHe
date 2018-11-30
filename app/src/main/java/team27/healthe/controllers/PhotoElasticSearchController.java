@@ -1,5 +1,9 @@
 package team27.healthe.controllers;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Environment;
 import android.util.Log;
 
@@ -8,6 +12,8 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import android.util.Base64;
 
 import io.searchbox.client.JestResult;
@@ -25,6 +31,7 @@ public class PhotoElasticSearchController extends ElasticSearchController{
 
         try {
             JestResult result = client.execute(get);
+            if (!result.isSucceeded()) { return false; }
 
             Gson gson = new Gson();
             ElasticSearchPhoto es_photo = gson.fromJson(result.getSourceAsString(),ElasticSearchPhoto.class);
@@ -100,6 +107,9 @@ public class PhotoElasticSearchController extends ElasticSearchController{
             FileOutputStream file_out_stream = new FileOutputStream(photo_file);
             byte[] bytes = Base64.decode(base64_photo, Base64.DEFAULT);
             file_out_stream.write(bytes);
+            file_out_stream.close();
+            //orientatePhoto(photo_file);
+
             return true;
         } catch (Exception e) {
             return false;
@@ -117,4 +127,50 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         }
         return mediaStorageDir;
     }
+
+    /*
+    private void orientatePhoto(File photo_file) {
+        // Taken from: https://stackoverflow.com/questions/14066038/why-does-an-image-captured-using-camera-intent-gets-rotated-on-some-devices-on-a
+        try {
+            ExifInterface ei = new ExifInterface(photo_file.getAbsolutePath());
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+
+            Bitmap photo = BitmapFactory.decodeFile(photo_file.getAbsolutePath());
+
+            Bitmap rotatedBitmap;
+            switch (orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotatedBitmap = rotateImage(photo, 90);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotatedBitmap = rotateImage(photo, 180);
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotatedBitmap = rotateImage(photo, 270);
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    rotatedBitmap = photo;
+            }
+
+            OutputStream output_stream = new FileOutputStream(photo_file);
+            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100 , output_stream);
+            output_stream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
+    */
 }
