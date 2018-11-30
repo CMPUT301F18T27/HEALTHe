@@ -58,6 +58,8 @@ public class RecordListActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.record_list);
         records = new ArrayList<>();
+        adapter = new RecordListAdapter(this, records);
+        listView.setAdapter(adapter);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -91,15 +93,6 @@ public class RecordListActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        loadFromFile();
-
-        adapter = new RecordListAdapter(this, records);
-        listView.setAdapter(adapter);
     }
 
 
@@ -300,11 +293,6 @@ public class RecordListActivity extends AppCompatActivity {
             }
             return null;
         }
-    }
-
-    private void loadFromFile() {
-//        Collection<String> records = current_problem.getRecords();
-        records = file_controller.loadRecordsFromFile(getApplicationContext());
     }
 
     private void getFromIntent() {
