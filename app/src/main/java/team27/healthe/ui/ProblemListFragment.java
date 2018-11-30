@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +25,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.vision.text.Line;
 import com.google.gson.Gson;
 
 import java.text.ParseException;
@@ -35,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
@@ -150,41 +154,50 @@ public class ProblemListFragment extends Fragment {
         // Add a TextView for problem title
         final EditText title_text = new EditText(getContext());
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method
 
-        // Add a TextView for date
-        final EditText date_text = new EditText(getContext());
-        date_text.setText("Date Started");
-        layout.addView(date_text); // Another add method
-
-        //SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        // date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
-        //date_text.setText(formatter.format(new Date()));
-
         //Add button for date started
         final ImageButton date_button = new ImageButton(getContext());
         date_button.setImageResource(R.drawable.calendar);
+        date_button.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+        date_button.setAdjustViewBounds(true);
+        date_button.setLayoutParams(new RelativeLayout.LayoutParams(200, 200));
+        layout.addView(date_button);
+
+        // Add a TextView for date
+        final EditText date_text = new EditText(getContext());
+        date_text.setText("Date Started");
+
+        RelativeLayout.LayoutParams date_params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        date_params.addRule(RelativeLayout.LEFT_OF, date_button.getId());
+        date_params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        date_text.setLayoutParams(date_params);
+
+        layout.addView(date_text); // Another add method
+
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int mYear, int mMonth, int mDay) {
+                view.setMinDate(System.currentTimeMillis() - 1000);
+                date_text.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
+            }
+        };
         date_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Calendar c = Calendar.getInstance();
+                final Calendar c = Calendar.getInstance(Locale.CANADA);
                 int day = c.get(Calendar.DAY_OF_MONTH);
                 int month = c.get(Calendar.MONTH);
                 int year = c.get(Calendar.YEAR);
-
-                final DatePickerDialog dpd = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int mYear, int mMonth, int mDay) {
-                        date_text.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
-                    }
-                }, day, month, year);
-                dpd.show();
+                DatePickerDialog date_picker = new DatePickerDialog(getContext(), date, year, month, day);
+                date_picker.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                date_picker.show();
             }
         });
-        layout.addView(date_button);
+
 
 //        final TextView date_title = new TextView(getContext());
 //        date_title.setText("Date Started:");

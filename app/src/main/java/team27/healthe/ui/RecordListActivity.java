@@ -57,7 +57,7 @@ public class RecordListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record_list);
 
         listView = (ListView) findViewById(R.id.record_list);
-        records = new ArrayList<>();
+        //records = new ArrayList<Record>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
