@@ -25,11 +25,11 @@ public class Record {
     private BodyLocation bodyLocation;
     private String geo_location_s; // @TODO: is this necessary?
     private GeoLocation geoLocation;
-    private ArrayList<Integer> imageList;
+    private ArrayList<Photo> photos;
     private String record_id;
 
     public Record(String ttl, Date date, String desc, ArrayList<String> comments,
-                  BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Integer> images) {
+                  BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Photo> images) {
 
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
@@ -41,7 +41,7 @@ public class Record {
         commentList = comments;
         bodyLocation = bodyLoc;
         geoLocation = geoLoc;
-        imageList = images;
+        photos = images;
         record_id = ""; // TODO: fix with auto id
     }
 
@@ -57,7 +57,7 @@ public class Record {
         commentList = comments;
         bodyLocation = null;
         geoLocation = null;
-        imageList = null;
+        photos = null;
         record_id = "";
     }
 
@@ -68,7 +68,7 @@ public class Record {
         commentList = null;
         bodyLocation = null;
         geoLocation = null;
-        imageList = null;
+        photos = null;
         record_id = "";
     }
 
@@ -122,12 +122,12 @@ public class Record {
         this.geoLocation = geoLoc;
     }
 
-    public ArrayList<Integer> getImageList() {
-        return imageList;
+    public ArrayList<Photo> getPhotos() {
+        return photos;
     }
 
-    public void setImageList(ArrayList<Integer> images) {
-        this.imageList = images;
+    public void setPhotos(ArrayList<Photo> images) {
+        this.photos = images;
     }
 
     public String getRecordID(){

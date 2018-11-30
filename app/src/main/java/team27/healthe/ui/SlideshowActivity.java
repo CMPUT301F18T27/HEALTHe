@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
@@ -23,6 +24,7 @@ public class SlideshowActivity extends AppCompatActivity {
     private User current_user;
     private Record record;
     private Integer image_count = 0;
+    private ArrayList<File> image_files;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,7 @@ public class SlideshowActivity extends AppCompatActivity {
         String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
 
         this.current_user = es_controller.jsonToUser(user_json);
+        this.record = gson.fromJson(record_json, Record.class);
 
     }
 
@@ -171,6 +174,10 @@ public class SlideshowActivity extends AppCompatActivity {
     }
 
     public void onClickAddPhoto(View view) {
-
+        Gson gson = new Gson();
+        Intent intent = new Intent(this, PhotoActivity.class);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
+        startActivity(intent);
     }
 }
