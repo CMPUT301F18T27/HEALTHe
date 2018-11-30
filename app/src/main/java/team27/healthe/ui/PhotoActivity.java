@@ -46,6 +46,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     }
 
+    // onClick for take photo button
     public void takePhoto(View view) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         File file = getOutputMediaFile();
@@ -67,16 +68,20 @@ public class PhotoActivity extends AppCompatActivity {
 
     private static File getOutputMediaFile(){
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CameraDemo");
+                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
 
         if (!mediaStorageDir.exists()){
             if (!mediaStorageDir.mkdirs()){
                 return null;
             }
         }
-
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        return new File(mediaStorageDir.getPath() + File.separator + "IMG_"+ timeStamp + ".jpg");
+        Integer count = 0;
+        File filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
+        while (filename.exists()) {
+            count++;
+            filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
+        }
+        return filename;
     }
 
 }
