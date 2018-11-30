@@ -2,6 +2,7 @@ package team27.healthe.ui;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -37,6 +39,8 @@ import java.util.Collection;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
@@ -111,6 +115,7 @@ public class ProblemListFragment extends Fragment {
                 Intent intent = new Intent(getContext(), ProblemInfoActivity.class);
                 intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
                 intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE,gson.toJson(problem));
+                intent.putExtra(ProblemInfoActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
                 startActivity(intent);
             }
         });
@@ -127,6 +132,7 @@ public class ProblemListFragment extends Fragment {
     }
 
     public void addProblem() {
+        /*
         final Calendar c = Calendar.getInstance();
         final AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setTitle("Add Problem")
@@ -227,12 +233,7 @@ public class ProblemListFragment extends Fragment {
 
                         if (validProblemInputs(title, date, desc)) {
                             Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-                            Problem problem = new Problem(title, date, desc);
-
-                            problems.add(problem);
-                            adapter.refresh(problems);
-
-                            file_controller.saveProblemInFile(problem, getContext());
+                            Problem problem = new Problem(title, date, desc);;
 
                             new AddProblemES().execute(problem);
                             dialog.dismiss(); //Dismiss once everything is OK.
@@ -243,20 +244,147 @@ public class ProblemListFragment extends Fragment {
         });
 
         dialog.show();
+        */
+        //Stop here
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+        dialog.setTitle("Edit Problem");
+        //dialog.setMessage("");
+
+
+        LinearLayout layout = new LinearLayout(getContext());
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        //Add title for problem
+        final TextView problem_title = new TextView(getContext());
+        problem_title.setText("Problem Title:");
+        layout.addView(problem_title);
+
+        // Add a TextView for problem title
+        final EditText title_text = new EditText(getContext());
+        title_text.setInputType(InputType.TYPE_CLASS_TEXT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
+        title_text.setLayoutParams(params);
+        layout.addView(title_text); // Notice this is an add method
+
+        //Add title for date started
+        final TextView date_title = new TextView(getContext());
+        date_title.setText("Date Started:");
+        layout.addView(date_title);
+
+        // Add a TextView for date
+        final TextView date_text = new TextView(getContext());
+        date_text.setTextSize(18);
+        date_text.setText(formatter.format(new Date()));
+        layout.addView(date_text); // Another add method
+        date_text.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateTimePicker(date_text);
+            }
+        });
+
+
+        //Add title for problem description
+        final TextView description_title = new TextView(getContext());
+        description_title.setText("Description:");
+        layout.addView(description_title);
+
+        // Add a TextView for description
+        final EditText description_text = new EditText(getContext());
+        description_text.setInputType(InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE);
+        layout.addView(description_text); // Another add method
+
+        dialog.setView(layout);
+
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                //Toast.makeText(getApplicationContext(), "Deleting problem...", Toast.LENGTH_SHORT).show();
+                String title = title_text.getText().toString();
+                Date date;
+                String desc = description_text.getText().toString();
+
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                    date = formatter.parse(date_text.getText().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    date = new Date();
+                }
+
+                if (validProblemInputs(title, date, desc)) {
+                    Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
+                    Problem problem = new Problem(title, date, desc);;
+
+                    new AddProblemES().execute(problem);
+                    dialog.dismiss(); //Dismiss once everything is OK.
+                }
+            }
+        })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                });
+        dialog.show();
+
     }
 
-    public void editProblem(Problem prob) {
-        final Problem problem = prob;
+    private void showDateTimePicker(final TextView date_textview) {
+        //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
+        final Calendar date;
+        final Calendar currentDate = Calendar.getInstance();
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        date = Calendar.getInstance();
+        final Context context = getContext();
+        new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                date.set(year, monthOfYear, dayOfMonth);
+                new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        date.set(Calendar.MINUTE, minute);
+                        Date new_date = date.getTime();
+                        date_textview.setText(formatter.format(new_date));
+                    }
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+
+    }
+
+    public void editProblem(final Problem prob) {
+        //final Problem problem = prob;
         final AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setTitle("Edit Problem")
-                .setMessage("")
-                .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
+                .setTitle("Delete Problem")
+                .setMessage("Are you sure you want to delete this problem?")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        problems.remove(prob);
+                        file_controller.saveProblemsInFile(problems, getContext());
+                        adapter.refresh(problems);
+
+                        new DeleteProblem().execute(prob);
+
+                        if (prob.getProblemID() != null) {
+                            current_user.removeProblem(prob.getProblemID());
+                            file_controller.saveUserInFile(current_user, getContext());
+                            new UpdateUser().execute(current_user);
+                        }
+
+                        //TODO: Delete records and photos associated with problem
+
+                    }
+                })
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 })
                 .create();
-
+        /*
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
 
@@ -340,6 +468,7 @@ public class ProblemListFragment extends Fragment {
 
             }
         });
+        */
 
         dialog.show();
     }
@@ -348,7 +477,7 @@ public class ProblemListFragment extends Fragment {
 
         @Override
         protected Problem doInBackground(Problem... problems) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (Problem problem : problems) {
 
@@ -370,10 +499,19 @@ public class ProblemListFragment extends Fragment {
             if (!problem.getProblemID().equals("")) {
                 current_user.addProblem(problem.getProblemID());
                 new UpdateUser().execute(current_user);
+                problems.add(problem);
+                adapter.refresh(problems);
             }
+            else {
+                problems.add(problem);
+                adapter.refresh(problems);
+                //TODO: Add problem to es server and user once online again
+            }
+            file_controller.saveProblemsInFile(problems, getContext());
+            file_controller.saveUserInFile(current_user, getContext());
         }
     }
-
+    /*
     private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
@@ -402,13 +540,26 @@ public class ProblemListFragment extends Fragment {
             }
         }
     }
+    */
+
+    private class DeleteProblem extends AsyncTask<Problem, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Problem... problems) {
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
+            for(Problem problem:problems) {
+                es_controller.removeProblem(problem.getProblemID());
+            }
+            return null;
+        }
+    }
 
     // Async class for getting problems from elastic search server
     private class getProblemAsync extends AsyncTask<String, Void, Problem> {
 
         @Override
         protected Problem doInBackground(String... problem_ids) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (String problem_id: problem_ids) {
                 return es_controller.getProblem(problem_id);
@@ -435,7 +586,7 @@ public class ProblemListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(User... users) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
             for (User user : users) {
                 es_controller.addUser(user);
             }
