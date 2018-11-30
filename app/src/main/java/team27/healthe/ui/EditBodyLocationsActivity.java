@@ -32,10 +32,27 @@ import team27.healthe.model.ImageController;
 public class EditBodyLocationsActivity extends AppCompatActivity {
     ImageController ic;
     ImageAdapter image_adapter;
-
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
+    private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
+    private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED
+                    | checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    | checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_CAMERA_REQUEST_CODE);
+            }
+        }
+
+
         ic = new ImageController(getApplicationContext(), "app_body_locations");
         ArrayList<String> image_list = ic.getImageList();
 
@@ -67,9 +84,7 @@ public class EditBodyLocationsActivity extends AppCompatActivity {
 
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int MY_CAMERA_REQUEST_CODE = 100;
-    private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
-    private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
+
     private void takePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -80,27 +95,7 @@ public class EditBodyLocationsActivity extends AppCompatActivity {
 //            System.out.println("URI--"+uri.getPath());
 //            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.CAMERA)
-                        != PackageManager.PERMISSION_GRANTED
-                        | checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                        | checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA,
-                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    Manifest.permission.READ_EXTERNAL_STORAGE},
-                            MY_CAMERA_REQUEST_CODE);
-                }
-//                if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                        != PackageManager.PERMISSION_GRANTED) {
-//                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                            MY_WRITE_EXTERNAL_REQUEST_CODE);
-//                }
-//                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-//                        != PackageManager.PERMISSION_GRANTED) {
-//                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-//                            MY_READ_EXTERNAL_REQUEST_CODE);
-//                }
-            }
+
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
