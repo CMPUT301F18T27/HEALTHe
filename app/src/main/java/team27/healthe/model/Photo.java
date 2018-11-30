@@ -9,6 +9,15 @@ public class Photo {
         body_location = null;
     }
 
+    public Photo(String id) {
+        this.id = id;
+    }
+
+    public Photo(String id, BodyLocation body_location) {
+        this.id = id;
+        this.body_location = body_location;
+    }
+
     public String getId() {return id;}
 
     public void setId(String key) {this.id = key;}

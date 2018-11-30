@@ -37,7 +37,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/button20"
+            android:id="@+id/takePhotoButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
@@ -51,6 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_weight="1"
+            android:onClick="onClickBodyLocation"
             android:text="Set Body Location" />
     </LinearLayout>
 
@@ -61,6 +62,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:onClick="onClickSave"
         android:text="Save"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

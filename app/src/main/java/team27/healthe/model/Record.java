@@ -130,6 +130,8 @@ public class Record {
         this.photos = images;
     }
 
+    public void addPhoto(Photo photo) {this.photos.add(photo);}
+
     public String getRecordID(){
         return record_id;
     }

@@ -43,6 +43,7 @@ import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -136,6 +137,8 @@ public class HomeActivity extends AppCompatActivity {
             comment_list.add("Test 123");
             comment_list.add("Suck this!");
             Record record = new Record(comment_list);
+            Photo photo = new Photo("AWdjVSE08OXLMedoUnt-");
+            record.addPhoto(photo);
 
             Gson gson = new Gson();
             Intent intent = new Intent(getApplicationContext(), RecordActivity.class);

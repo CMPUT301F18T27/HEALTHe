@@ -15,6 +15,7 @@ import io.searchbox.core.Delete;
 import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
+import team27.healthe.model.ElasticSearchPhoto;
 
 public class PhotoElasticSearchController extends ElasticSearchController{
 
@@ -26,7 +27,8 @@ public class PhotoElasticSearchController extends ElasticSearchController{
             JestResult result = client.execute(get);
 
             Gson gson = new Gson();
-            if (decodeFromBase64(gson.fromJson(result.getSourceAsString(),String.class), id)) {
+            ElasticSearchPhoto es_photo = gson.fromJson(result.getSourceAsString(),ElasticSearchPhoto.class);
+            if (decodeFromBase64(es_photo.getBase64String(), id)) {
                 return true;
             }
 
@@ -41,7 +43,8 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         verifyClient();
 
         Gson gson = new Gson();
-        String photo_json = gson.toJson(encodeFileToBase64(photo));
+        ElasticSearchPhoto es_photo = new ElasticSearchPhoto(encodeFileToBase64(photo));
+        String photo_json = gson.toJson(es_photo);
 
         Index index;
         if (id == null) {
