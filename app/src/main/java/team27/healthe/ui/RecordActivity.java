@@ -56,6 +56,7 @@ public class RecordActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String record_json = data.getStringExtra(RECORD_MESSAGE);
                 this.record = gson.fromJson(record_json, Record.class);
+                //TODO: Save record to es server
             }
         }
     }

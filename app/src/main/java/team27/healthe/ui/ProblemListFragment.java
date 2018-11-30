@@ -253,7 +253,6 @@ public class ProblemListFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
                 .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
                     }
                 })
                 .create();
@@ -299,8 +298,6 @@ public class ProblemListFragment extends Fragment {
 
         dialog.setView(layout);
 
-        problems.remove(prob);
-
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
             @Override
@@ -339,6 +336,8 @@ public class ProblemListFragment extends Fragment {
                         }
                     }
                 });
+
+
             }
         });
 
