@@ -27,6 +27,7 @@ import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class SlideshowActivity extends AppCompatActivity {
+    private static final Integer PHOTO_REQUEST_CODE = 10;
     private User current_user;
     private Record record;
     private Integer image_index = 0;
@@ -46,6 +47,32 @@ public class SlideshowActivity extends AppCompatActivity {
 
         setImage();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PHOTO_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                boolean success = data.getBooleanExtra(PhotoActivity.SUCCESS_MESSAGE, false);
+                if (success) {
+                    String id = data.getStringExtra(PhotoActivity.PHOTO_ID_MESSAGE);
+                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
+                    if (photo_file.exists()) {
+                        image_files.add(photo_file);
+                    }
+                    Photo photo = new Photo(id);
+                    record.addPhoto(photo);
+                    setIntent();
+                }else {
+                    String file_name = data.getStringExtra(PhotoActivity.FILENAME_MESSAGE);
+                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + file_name + ".jpg");
+                    if (photo_file.exists()) {
+                        image_files.add(photo_file);
+                    }
+                }
+                updateButtons();
+            }
+        }
     }
 
     private void getItems(Intent intent) {
@@ -153,6 +180,13 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    private void setIntent() {
+        Gson gson = new Gson();
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK,returnIntent);
+        returnIntent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
+    }
+
 
     public void onClickPrev(View view) {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
@@ -183,10 +217,14 @@ public class SlideshowActivity extends AppCompatActivity {
 
     public void onClickAddPhoto(View view) {
         //TODO: prevent adding more than 10 images
-        Gson gson = new Gson();
-        Intent intent = new Intent(this, PhotoActivity.class);
-        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-        intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
-        startActivity(intent);
+        if (record.getPhotos().size() <= 10) {
+            Gson gson = new Gson();
+            Intent intent = new Intent(this, PhotoActivity.class);
+            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+            intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
+            startActivityForResult(intent, PHOTO_REQUEST_CODE);
+        } else {
+            Toast.makeText(this, "You can only attach up to 10 photos", Toast.LENGTH_SHORT).show();
+        }
     }
 }

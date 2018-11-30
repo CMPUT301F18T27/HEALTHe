@@ -32,6 +32,8 @@ public class RecordActivity extends AppCompatActivity {
     public static final String RECORD_MESSAGE = "team27.healthe.RECORD";
     private static final Integer GEO_REQUEST_CODE = 4;
     private static final Integer COMMENT_REQUEST_CODE = 5;
+    private static final Integer PHOTO_REQUEST_CODE = 6;
+    private static final Integer BODYLOCATION_REQUEST_CODE = 7;
     private User current_user;
     private Record record;
 
@@ -49,15 +51,7 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == GEO_REQUEST_CODE) {
-            if(resultCode == RESULT_OK){
-                Gson gson = new Gson();
-                String record_json = data.getStringExtra(RECORD_MESSAGE);
-                this.record = gson.fromJson(record_json, Record.class);
-            }
-        }
-
-        if (requestCode == COMMENT_REQUEST_CODE) {
+        if (requestCode == GEO_REQUEST_CODE || requestCode == COMMENT_REQUEST_CODE || requestCode == PHOTO_REQUEST_CODE || requestCode == BODYLOCATION_REQUEST_CODE) {
             if(resultCode == RESULT_OK){
                 Gson gson = new Gson();
                 String record_json = data.getStringExtra(RECORD_MESSAGE);
@@ -100,7 +94,7 @@ public class RecordActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SlideshowActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
-        startActivity(intent);
+        startActivityForResult(intent, PHOTO_REQUEST_CODE);
 
     }
 
@@ -109,7 +103,7 @@ public class RecordActivity extends AppCompatActivity {
         Intent intent = new Intent(this, CommentActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
-        startActivity(intent);
+        startActivityForResult(intent, BODYLOCATION_REQUEST_CODE);
 
     }
 
