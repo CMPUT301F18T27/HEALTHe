@@ -1,6 +1,7 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +18,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,6 +32,7 @@ import com.google.gson.Gson;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
@@ -122,9 +127,17 @@ public class ProblemListFragment extends Fragment {
     }
 
     public void addProblem() {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Add Problem");
-        dialog.setMessage("");
+        final Calendar c = Calendar.getInstance();
+        final AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle("Add Problem")
+                .setMessage("")
+                .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .create();
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -142,17 +155,41 @@ public class ProblemListFragment extends Fragment {
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method
 
-        //Add title for date started
-        final TextView date_title = new TextView(getContext());
-        date_title.setText("Date Started:");
-        layout.addView(date_title);
-
         // Add a TextView for date
         final EditText date_text = new EditText(getContext());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
-        date_text.setText(formatter.format(new Date()));
+        date_text.setText("Date Started");
         layout.addView(date_text); // Another add method
+
+        //SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        // date_text.setInputType(InputType.TYPE_CLASS_DATETIME);
+        //date_text.setText(formatter.format(new Date()));
+
+        //Add button for date started
+        final ImageButton date_button = new ImageButton(getContext());
+        date_button.setImageResource(R.drawable.calendar);
+        date_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar c = Calendar.getInstance();
+                int day = c.get(Calendar.DAY_OF_MONTH);
+                int month = c.get(Calendar.MONTH);
+                int year = c.get(Calendar.YEAR);
+
+                final DatePickerDialog dpd = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int mYear, int mMonth, int mDay) {
+                        date_text.setText(mDay + "/" + (mMonth+1) + "/" + mYear);
+                    }
+                }, day, month, year);
+                dpd.show();
+            }
+        });
+        layout.addView(date_button);
+
+//        final TextView date_title = new TextView(getContext());
+//        date_title.setText("Date Started:");
+//        layout.addView(date_title);
+
 
         //Add title for problem description
         final TextView description_title = new TextView(getContext());
@@ -166,45 +203,60 @@ public class ProblemListFragment extends Fragment {
 
         dialog.setView(layout);
 
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
-                String title = title_text.getText().toString();
-                Date date;
-                String desc = description_text.getText().toString();
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
 
-                try {
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-                    date = formatter.parse(date_text.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                    date = new Date();
-                }
-                Problem problem = new Problem(title, date, desc);
+                Button b = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                b.setOnClickListener(new View.OnClickListener() {
 
-                problems.add(problem);
-                adapter.refresh(problems);
+                    @Override
+                    public void onClick(View view) {
+                        String title = title_text.getText().toString();
+                        Date date;
+                        String desc = description_text.getText().toString();
 
-                file_controller.saveProblemInFile(problem, getContext());
+                        try {
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                            date = formatter.parse(date_text.getText().toString());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            date = new Date();
+                        }
 
-                new AddProblemES().execute(problem);
+                        if (validProblemInputs(title, date, desc)) {
+                            Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
+                            Problem problem = new Problem(title, date, desc);
 
-            }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
+                            problems.add(problem);
+                            adapter.refresh(problems);
+
+                            file_controller.saveProblemInFile(problem, getContext());
+
+                            new AddProblemES().execute(problem);
+                            dialog.dismiss(); //Dismiss once everything is OK.
+                        }
                     }
                 });
+            }
+        });
+
         dialog.show();
     }
 
     public void editProblem(Problem prob) {
         final Problem problem = prob;
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Edit Problem");
-        dialog.setMessage("");
+        final AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setTitle("Edit Problem")
+                .setMessage("")
+                .setPositiveButton(android.R.string.ok, null) //Set to null. We override the onclick
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .create();
 
         LinearLayout layout = new LinearLayout(getContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -249,28 +301,47 @@ public class ProblemListFragment extends Fragment {
 
         problems.remove(prob);
 
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getContext(), "Updating problem...", Toast.LENGTH_SHORT).show();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
 
-                problem.setTitle(title_text.getText().toString());
-                problem.setPdateAsDateObj(date_text.getText().toString());
-                problem.setDescription(description_text.getText().toString());
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
 
-                problems.add(problem);
-                adapter.refresh(problems);
+                Button b = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                b.setOnClickListener(new View.OnClickListener() {
 
-                file_controller.saveProblemsInFile(problems, getContext());
+                    @Override
+                    public void onClick(View view) {
+                        String title = title_text.getText().toString();
+                        Date date;
+                        String desc = description_text.getText().toString();
 
-                new UpdateProblem().execute(problem);
+                        try {
+                            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+                            date = formatter.parse(date_text.getText().toString());
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            date = new Date();
+                        }
 
-            }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
+                        if (validProblemInputs(title, date, desc)) {
+                            Toast.makeText(getContext(), "Updating problem...", Toast.LENGTH_SHORT).show();
+                            problem.setTitle(title);
+                            problem.setPdate(date);
+                            problem.setDescription(desc);
+
+                            problems.add(problem);
+                            adapter.refresh(problems);
+
+                            file_controller.saveProblemsInFile(problems, getContext());
+
+                            new UpdateProblem().execute(problem);
+                            dialog.dismiss(); //Dismiss once everything is OK.
+                        }
                     }
                 });
+            }
+        });
+
         dialog.show();
     }
 
@@ -401,5 +472,14 @@ public class ProblemListFragment extends Fragment {
         startActivity(intent);
     }
 
-
+    public boolean validProblemInputs(String title, Date date, String desc) {
+        if (title.length() > 30) {
+            Toast.makeText(getContext(), "Problem title exceeds maximum of 30 characters", Toast.LENGTH_SHORT).show();
+            return false;
+        } else if (desc.length() > 300) {
+            Toast.makeText(getContext(), "Problem description exceeds maximum of 300 characters", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 }
