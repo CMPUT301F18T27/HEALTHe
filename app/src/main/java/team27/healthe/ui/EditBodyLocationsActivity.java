@@ -88,14 +88,6 @@ public class EditBodyLocationsActivity extends AppCompatActivity {
     private void takePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//            startActivityForResult(takePictureIntent, 1);
-//            File image_file = ic.getImageFile(new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
-//            System.out.println("DEBUG---"+image_file.getAbsolutePath());
-//            Uri uri = FileProvider.getUriForFile(this, "healthe.fileprovider", image_file);
-//            System.out.println("URI--"+uri.getPath());
-//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-
-
             startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
         }
     }
@@ -107,7 +99,7 @@ public class EditBodyLocationsActivity extends AppCompatActivity {
             Bundle bundle = intent.getExtras();
             Bitmap image = (Bitmap) bundle.get("data");
             String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String file_name = ic.saveImage(getApplicationContext(), image, ts);
+            String file_name = ic.saveImage(image, ts);
             Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
             select_location.putExtra("file_name",file_name);
             startActivity(select_location);

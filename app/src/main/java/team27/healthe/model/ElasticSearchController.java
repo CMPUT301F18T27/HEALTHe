@@ -1,5 +1,8 @@
 package team27.healthe.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -7,6 +10,7 @@ import com.searchly.jestdroid.DroidClientConfig;
 import com.searchly.jestdroid.JestClientFactory;
 import com.searchly.jestdroid.JestDroidClient;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +37,8 @@ public class ElasticSearchController {
     private static String test_index = "cmput301f18t27test";
     private static String user_type = "user";
     private static String problem_type = "problem";
+    private static String image_type = "img";
+    private static String body_location_type = "body_location";
 
     public ElasticSearchController() {
         verifyClient();
@@ -161,6 +167,55 @@ public class ElasticSearchController {
 
     }
 
+    public static void addImage(Bitmap image, String filename){
+        String image_string;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        image_string = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+
+        verifyClient();
+
+        Gson gson = new Gson();
+        String image_json = gson.toJson(image_string);
+
+        Index index = new Index.Builder(image_json).index(test_index).type(image_type).id(filename).build();
+//        Index index;
+//        if (.getProblemID().equals("")) {
+//            index = new Index.Builder(problem_json).index(test_index).type(problem_type).build();
+//        }
+//        else {
+//            index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
+//        }
+
+        try {
+            client.execute(index);
+        }
+        catch (Exception e) {
+            Log.i("Error", e.toString());
+        }
+
+    }
+
+    public static Bitmap getImage(String filename) {
+        verifyClient();
+        Get get = new Get.Builder(test_index, filename).type(image_type).build();
+
+        try {
+            JestResult result = client.execute(get);
+
+            Gson gson = new Gson();
+            String image_string = gson.fromJson(result.getSourceAsString(), String.class);
+            byte[] decode_string = Base64.decode(image_string, Base64.DEFAULT);
+            Bitmap image = BitmapFactory.decodeByteArray(decode_string,0, decode_string.length);
+//            Problem problem = gson.fromJson(result.getSourceAsString(),Problem.class);
+            return image;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Create connection to elastic search server
      */
@@ -211,4 +266,6 @@ public class ElasticSearchController {
             return gson.fromJson(user_json,CareProvider.class);
         }
     }
+
+
 }

@@ -11,6 +11,8 @@ public class BodyLocation {
 //    Point location;
     float x_location;
     float y_location;
+    String patient_id;
+    String body_location_id;
     String body_string;
     Uri uri;
 
@@ -58,5 +60,21 @@ public class BodyLocation {
 
     public void setUri(Uri u){
         uri = u;
+    }
+
+    public void setPatientId(String id){
+        patient_id = id;
+    }
+
+    public String getPatientId(){
+        return patient_id;
+    }
+
+    public void setBodyLocationId(String body_location_id){
+        this.body_location_id = body_location_id;
+    }
+
+    public String getBodyLocationId(){
+        return body_location_id;
     }
 }

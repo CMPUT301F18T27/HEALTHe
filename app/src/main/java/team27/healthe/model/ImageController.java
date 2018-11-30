@@ -95,7 +95,7 @@ public class ImageController {
         return image_file;
     }
 
-    public String saveImage(Context c, Bitmap b, String n) {
+    public String saveImage(Bitmap b, String n) {
         File image_file = null;
         try {
 
@@ -103,25 +103,33 @@ public class ImageController {
             image_file = File.createTempFile(n, ".jpg", file);
             System.out.println("DEBUG---" + image_file.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(image_file);//new File(file.getAbsolutePath()+File.separator+n));//c.openFileOutput(file.getAbsolutePath()+File.separator+n, c.MODE_PRIVATE);
-            b.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            b.compress(Bitmap.CompressFormat.PNG, 25, fos);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-//        try  {
-//            FileOutputStream fos = c.openFileOutput((new File(c.getFilesDir(),n)).getAbsolutePath(), c.MODE_PRIVATE);
-////            FileOutputStream out = new FileOutputStream(getImageFile(n));
-//            b.compress(Bitmap.CompressFormat.PNG, 100, fos); // bmp is your Bitmap instance
-//            System.out.println("SUCCESS!!!!");
-//            // PNG is a lossless format, the compression factor (100) is ignored
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         if (image_file != null) {
             return image_file.getAbsolutePath();
         } else {
             return null;
+        }
+    }
+
+    public void renameImage(String old_filename, String new_filename){
+        File file = new File(old_filename);
+        File file2 = new File(new_filename);
+        if(file2.exists()){
+            System.out.println("ERROR: file already exists for renaming");
+        }
+        else{
+//            File new_file = null;
+//            try{
+//                new_file = File.createTempFile(name, ".jpg", file);
+//            } catch (java.io.IOException e){
+//                e.printStackTrace();
+//            }
+            file.renameTo(file2);
         }
     }
 
