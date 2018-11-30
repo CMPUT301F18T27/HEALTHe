@@ -23,6 +23,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,6 +38,9 @@ import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Problem;
 
 public class PhotoActivity extends AppCompatActivity {
+    public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
+    public static final String SUCCESS_MESSAGE = "team27.healthe.SUCCESS";
+    public static final String FILENAME_MESSAGE = "team27.healthe.FILENAME";
     private static final Integer PHOTO_REQUEST_CODE = 100;
     private Uri photo_uri;
     private File photo_file;
@@ -106,6 +111,7 @@ public class PhotoActivity extends AppCompatActivity {
             return;
         }
         saving = true;
+        Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show();
         new AddPhoto().execute(photo_file);
     }
 
@@ -223,14 +229,18 @@ public class PhotoActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String id) {
             super.onPostExecute(id);
-            // return id here
+            Gson gson = new Gson();
+            Intent returnIntent = new Intent();
+            setResult(RESULT_OK,returnIntent);
             if (id != null) {
                 Toast.makeText(getApplicationContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
                 updateFilename(id);
-                //TODO: Pass id to requesting activity
+                returnIntent.putExtra(PHOTO_ID_MESSAGE,id);
+                returnIntent.putExtra(SUCCESS_MESSAGE, true);
                 finish();
             } else {
-                //TODO: Pass filename to requestion activity
+                returnIntent.putExtra(FILENAME_MESSAGE,photo_file.getName());
+                returnIntent.putExtra(SUCCESS_MESSAGE, false);
                 finish();
             }
         }
