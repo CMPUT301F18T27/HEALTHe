@@ -93,7 +93,7 @@
             android:label="@string/title_activity_problem_info"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ui.EditBodyLocationsActivity"
+            android:name=".ui.ViewBodyLocationsActivity"
             android:label="@string/title_activity_edit_body_locations"
             android:theme="@style/AppTheme.NoActionBar" />
 

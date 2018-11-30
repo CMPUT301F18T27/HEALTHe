@@ -29,7 +29,7 @@ import team27.healthe.R;
 import team27.healthe.model.ImageAdapter;
 import team27.healthe.model.ImageController;
 
-public class EditBodyLocationsActivity extends AppCompatActivity {
+public class ViewBodyLocationsActivity extends AppCompatActivity {
     ImageController ic;
     ImageAdapter image_adapter;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
@@ -53,7 +53,7 @@ public class EditBodyLocationsActivity extends AppCompatActivity {
         }
 
 
-        ic = new ImageController(getApplicationContext(), "app_body_locations");
+        ic = new ImageController(getApplicationContext(), "body_locations");
         ArrayList<String> image_list = ic.getImageList();
 
         setContentView(R.layout.activity_edit_body_locations);

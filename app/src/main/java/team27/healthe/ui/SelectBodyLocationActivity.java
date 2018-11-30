@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -60,34 +61,45 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_select_body_location);
 
-
         ImageView imageView = (ImageView) findViewById(R.id.view_select_body_location);
-        if(x_location != 0 && y_location != 0) {
-            Canvas c = new Canvas();
-            Paint p = new Paint();
-            p.setColor(Color.RED);
-            c.drawLine(x_location-5, y_location, x_location+5, y_location, p);
-            c.drawLine(x_location, y_location-5, x_location, y_location+5, p);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                imageView.onDrawForeground(c);
-            }
-            else {
-                System.out.println("WARNING--SKIPPING CROSSHAIR DRAWING");
-            }
-        }
+
         System.out.println("loading: "+file_name);
 
+        x_location = 50;
+        y_location = 50;
         File imgFile = new File(file_name);
 
         if(imgFile.exists()){
 
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
 
+            if(x_location != 0 && y_location != 0) {
+                Bitmap temp_bmp = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(),Bitmap.Config.RGB_565);
+                Canvas c = new Canvas(temp_bmp);
+                Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
+                p.setStrokeWidth(2);
+                p.setColor(Color.RED);
+                c.drawBitmap(myBitmap, 0, 0, null);
+                c.drawLine(x_location-5, y_location, x_location+5, y_location, p);
+                c.drawLine(x_location, y_location-5, x_location, y_location+5, p);
 
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    System.out.println("CANVAS SHOULD BE DRAWN!");
+//                    imageView.setImageBitmap(c.d);
+//                }
+//                else {
+//                    System.out.println("WARNING--SKIPPING CROSSHAIR DRAWING");
+//                }
+                imageView.setImageDrawable(new BitmapDrawable(getResources(), temp_bmp));
+                System.out.println("CANVAS SHOULD BE DRAWN!");
+            }
+            else{
+                imageView.setImageBitmap(myBitmap);
+            }
 
-            imageView.setImageBitmap(myBitmap);
 
         }
+
 
         bl = new BodyLocation();
         imageView.setOnTouchListener(new View.OnTouchListener() {
@@ -95,11 +107,11 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
 
-                    createBodyLocation(getApplicationContext(), event.getX(), event.getY());
+                    createBodyLocation(getApplicationContext(), event.getRawX(), event.getRawY());
 
                     //  textView.setText("Touch coordinates : " +String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
-                    System.out.println("X " + String.valueOf(event.getX()) + "");
-                    System.out.println("y " + String.valueOf(event.getY()) + "");
+                    System.out.println("X " + String.valueOf(event.getRawX()) + "");
+                    System.out.println("y " + String.valueOf(event.getRawY()) + "");
 //                    finish();
                 }
                 return true;
