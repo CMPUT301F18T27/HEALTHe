@@ -1,6 +1,7 @@
 package team27.healthe.model;
 
 import android.graphics.Point;
+import android.net.Uri;
 
 /** Represents body location screen
  * @author Chris
@@ -11,6 +12,7 @@ public class BodyLocation {
     float x_location;
     float y_location;
     String body_string;
+    Uri uri;
 
     public BodyLocation(float x, float y){
 //        location = new Point(x, y);
@@ -48,5 +50,13 @@ public class BodyLocation {
     }
     public void setLocation(String body_location){
         body_string = body_location;
+    }
+
+    public Uri getUri(){
+        return uri;
+    }
+
+    public void setUri(Uri u){
+        uri = u;
     }
 }

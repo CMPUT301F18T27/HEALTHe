@@ -14,6 +14,8 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 import com.squareup.picasso.*;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import team27.healthe.R;
 
@@ -37,9 +39,19 @@ public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ImageAdapter.ImageViewHolder viewHolder, int i) {
+        String filename = image_list.get(i);
+        if(filename.startsWith("\\w+_")){
+            String r = "(^\\w+_)([\\w\\s]+)";
+            Pattern pattern = Pattern.compile(r);
+            Matcher m = pattern.matcher(filename);
+            if(m.find()){
+                viewHolder.title.setText(m.group(1));
+            }
+        }
+
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Picasso.get().load(image_list.get(i)).into(viewHolder.img);
-        viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(image_list.get(i)));
+        Picasso.get().load(filename).into(viewHolder.img);
+        viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(filename));
 
     }
 
@@ -49,11 +61,11 @@ public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHo
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder{
-//        private TextView title;
+        private TextView title;
         private ImageView img;
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
-//            title = (TextView) itemView.findViewById(R.id.title);
+            title = (TextView) itemView.findViewById(R.id.title);
             img = (ImageView) itemView.findViewById(R.id.img);
         }
     }

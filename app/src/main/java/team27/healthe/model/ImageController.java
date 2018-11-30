@@ -100,7 +100,7 @@ public class ImageController {
         try {
 
             System.out.println("DEBUG---" + file.getAbsolutePath());
-            image_file = File.createTempFile("bloc_" + n, ".jpg", file);
+            image_file = File.createTempFile(n, ".jpg", file);
             System.out.println("DEBUG---" + image_file.getAbsolutePath());
             FileOutputStream fos = new FileOutputStream(image_file);//new File(file.getAbsolutePath()+File.separator+n));//c.openFileOutput(file.getAbsolutePath()+File.separator+n, c.MODE_PRIVATE);
             b.compress(Bitmap.CompressFormat.PNG, 100, fos);

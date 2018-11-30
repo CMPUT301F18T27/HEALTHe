@@ -7,6 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,8 +40,8 @@ import team27.healthe.model.LocalFileController;
  */
 public class SelectBodyLocationActivity extends AppCompatActivity {
     BodyLocation bl;
-    AlertDialog.Builder dialog;
-    DialogInterface d;
+//    Canvas c;
+//    DialogInterface d;
 //    /**
 //     * Whether or not the system UI should be auto-hidden after
 //     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -112,7 +117,15 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         String file_name = intent.getStringExtra("file_name");
+        float x_location = 66;
+        float y_location = 66;
+        if (intent.hasExtra("x_loc") && intent.hasExtra("y_loc")){
+            x_location = intent.getFloatExtra("x_loc", 0);
+            y_location = intent.getFloatExtra("y_loc", 0);
+        }
         setContentView(R.layout.activity_select_body_location);
+//        c = new Canvas();
+
 
 //        mVisible = true;
 //        mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -128,6 +141,19 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 //        });
 
         ImageView imageView = (ImageView) findViewById(R.id.view_select_body_location);
+        if(x_location != 0 && y_location != 0) {
+            Canvas c = new Canvas();
+            Paint p = new Paint();
+            p.setColor(Color.RED);
+            c.drawLine(x_location-5, y_location, x_location+5, y_location, p);
+            c.drawLine(x_location, y_location-5, x_location, y_location+5, p);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                imageView.onDrawForeground(c);
+            }
+            else {
+                System.out.println("WARNING--SKIPPING CROSSHAIR DRAWING");
+            }
+        }
         System.out.println("loading: "+file_name);
 
         File imgFile = new File(file_name);
@@ -209,7 +235,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         bl.setPoint(x_set, y_set);
 
 
-        dialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Label Body Location");
         dialog.setMessage("");
 
