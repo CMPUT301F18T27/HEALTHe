@@ -57,7 +57,7 @@ public class Record {
         commentList = comments;
         bodyLocation = null;
         geoLocation = null;
-        photos = null;
+        photos = new ArrayList();
         record_id = "";
     }
 
@@ -68,7 +68,7 @@ public class Record {
         commentList = null;
         bodyLocation = null;
         geoLocation = null;
-        photos = null;
+        photos = new ArrayList();
         record_id = "";
     }
 

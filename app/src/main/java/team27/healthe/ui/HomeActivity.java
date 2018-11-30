@@ -137,8 +137,10 @@ public class HomeActivity extends AppCompatActivity {
             comment_list.add("Test 123");
             comment_list.add("Suck this!");
             Record record = new Record(comment_list);
+            Photo photo2 = new Photo("AWdjev0U8OXLMedoUnud");
             Photo photo = new Photo("AWdjVSE08OXLMedoUnt-");
             record.addPhoto(photo);
+            record.addPhoto(photo2);
 
             Gson gson = new Gson();
             Intent intent = new Intent(getApplicationContext(), RecordActivity.class);

@@ -83,7 +83,7 @@ public class PhotoActivity extends AppCompatActivity {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photo_uri);
 
-            startActivityForResult(intent, 100);
+            startActivityForResult(intent, PHOTO_REQUEST_CODE);
         } else {
             Toast.makeText(this, "Unable to access external storage", Toast.LENGTH_SHORT).show();
         }
@@ -111,7 +111,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 100) {
+        if (requestCode == PHOTO_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 compressImage();
                 ImageView image_view = findViewById(R.id.imagePhoto);

@@ -1,7 +1,10 @@
 package team27.healthe.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -16,14 +20,16 @@ import java.io.File;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class SlideshowActivity extends AppCompatActivity {
     private User current_user;
     private Record record;
-    private Integer image_count = 0;
+    private Integer image_index = 0;
     private ArrayList<File> image_files;
 
     @Override
@@ -31,7 +37,12 @@ public class SlideshowActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_slideshow);
 
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 201);
+        }
+
         getItems(getIntent());
+        getFiles();
 
         setImage();
 
@@ -49,13 +60,27 @@ public class SlideshowActivity extends AppCompatActivity {
 
     }
 
+    private void getFiles() {
+        image_files = new ArrayList<>();
+        File media_directory = getMediaDirectory();
+        if (media_directory != null) {
+            for (Photo photo : record.getPhotos()) {
+                File photo_file = new File(media_directory.getPath() + File.separator + photo.getId() + ".jpg");
+                if (photo_file.exists()) {
+                    image_files.add(photo_file);
+                }
+                else {
+                    new GetPhoto().execute(photo);
+                }
+            }
+        }
+    }
+
     private void setImage() {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         TextView no_photos_text = (TextView) findViewById(R.id.noPhotosTextView);
 
-        File image_file = getFirstPhoto();
-
-        if (image_file == null) {
+        if (image_files.isEmpty()) {
             image_view.setVisibility(View.INVISIBLE);
             no_photos_text.setVisibility(image_view.VISIBLE);
 
@@ -68,17 +93,17 @@ public class SlideshowActivity extends AppCompatActivity {
             no_photos_text.setVisibility(image_view.INVISIBLE);
             image_view.setVisibility(View.VISIBLE);
 
-            image_view.setImageURI(Uri.fromFile(image_file));
+            image_view.setImageURI(Uri.fromFile(image_files.get(image_index)));
         }
 
-        if (getNextPhoto(false) != null) {
+        if (image_files.size() > 1) {
             Button next_button = (Button) findViewById(R.id.buttonNext);
             next_button.setVisibility(image_view.VISIBLE);
         }
 
     }
 
-    private File getFirstPhoto(){
+    private static File getMediaDirectory() {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
 
@@ -87,70 +112,57 @@ public class SlideshowActivity extends AppCompatActivity {
                 return null;
             }
         }
-
-        File image_file = new File(mediaStorageDir.getPath() + File.separator + "picture_" + this.image_count.toString() + ".jpg");
-
-        if (image_file.exists()) {return image_file;}
-        return null;
+        return mediaStorageDir;
     }
 
-    private File getNextPhoto(boolean increment){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
+    private class GetPhoto extends AsyncTask<Photo, Void, String> {
 
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
+        @Override
+        protected String doInBackground(Photo... photos) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (Photo photo : photos) {
+                boolean success = photo_controller.getPhoto(photo.getId());
+                if (success) {
+                    return photo.getId();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String id) {
+            super.onPostExecute(id);
+            if (id != null) {
+                File photo_file = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
+                if (photo_file.exists()) {
+                    image_files.add(photo_file);
+                    updateButtons();
+                }
             }
         }
-        image_count++;
-        File image_file = new File(mediaStorageDir.getPath() + File.separator + "picture_" + this.image_count.toString() + ".jpg");
-
-        if (image_file.exists()) {
-            if (!increment) {
-                image_count--;
-            }
-            return image_file;
-        }
-        image_count--;
-        return null;
     }
 
-    private File getPrevPhoto(boolean increment){
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
+    private void updateButtons() {
+        Button next_button = (Button) findViewById(R.id.buttonNext);
+        if (image_index < image_files.size()) {
+            next_button.setVisibility(next_button.VISIBLE);
         }
-        image_count--;
-        File image_file = new File(mediaStorageDir.getPath() + File.separator + "picture_" + this.image_count.toString() + ".jpg");
-
-        if (image_file.exists()) {
-            if (!increment) {
-                image_count++;
-            }
-            return image_file;
+        if (image_files.size() == 1) {
+            setImage();
         }
-        image_count++;
-        return null;
     }
+
 
     public void onClickPrev(View view) {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         Button next_button = (Button) findViewById(R.id.buttonNext);
         Button prev_button = (Button) findViewById(R.id.buttonPrev);
 
-        File image_file = getPrevPhoto(true);
-        if (image_file != null) {
-            image_view.setImageURI(Uri.fromFile(image_file));
-            next_button.setVisibility(view.VISIBLE);
-            if (getPrevPhoto(false) == null) {
-                prev_button.setVisibility(view.INVISIBLE);
-            }
-        } else {
+        image_index--;
+        image_view.setImageURI(Uri.fromFile(image_files.get(image_index)));
+        next_button.setVisibility(view.VISIBLE);
+        if (image_index == 0){
             prev_button.setVisibility(view.INVISIBLE);
         }
     }
@@ -160,20 +172,17 @@ public class SlideshowActivity extends AppCompatActivity {
         Button next_button = (Button) findViewById(R.id.buttonNext);
         Button prev_button = (Button) findViewById(R.id.buttonPrev);
 
-        File image_file = getNextPhoto(true);
-        if (image_file != null) {
-            image_view.setImageURI(Uri.fromFile(image_file));
-            prev_button.setVisibility(view.VISIBLE);
-            if (getNextPhoto(false) == null) {
-                next_button.setVisibility(view.INVISIBLE);
-            }
-        } else {
+        image_index++;
+        image_view.setImageURI(Uri.fromFile(image_files.get(image_index)));
+        prev_button.setVisibility(view.VISIBLE);
+        if (image_index == image_files.size()){
             next_button.setVisibility(view.INVISIBLE);
         }
 
     }
 
     public void onClickAddPhoto(View view) {
+        //TODO: prevent adding more than 10 images
         Gson gson = new Gson();
         Intent intent = new Intent(this, PhotoActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
