@@ -97,7 +97,7 @@ public class RecordActivity extends AppCompatActivity {
 
     public void onClickPhotos(View view){
         Gson gson = new Gson();
-        Intent intent = new Intent(this, PhotoActivity.class);
+        Intent intent = new Intent(this, SlideshowActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivity(intent);
