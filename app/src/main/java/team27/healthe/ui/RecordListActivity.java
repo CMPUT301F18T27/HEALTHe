@@ -56,11 +56,14 @@ public class RecordListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_list);
 
-        listView = (ListView) findViewById(R.id.record_list);
-        //records = new ArrayList<Record>();
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        listView = (ListView) findViewById(R.id.record_list);
+
+        records = new ArrayList<>();
+        adapter = new RecordListAdapter(this, records);
+        listView.setAdapter(adapter);
 
         getFromIntent();
         getRecords();
@@ -94,12 +97,12 @@ public class RecordListActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        loadFromFile();
+    protected void onResume() {
+        super.onResume();
+        //loadFromFile();
+        getRecords();
 
-        adapter = new RecordListAdapter(this, records);
-        listView.setAdapter(adapter);
+        adapter.refresh(records);
     }
 
 
@@ -327,7 +330,9 @@ public class RecordListActivity extends AppCompatActivity {
         if (network_info != null && network_info.isConnected()) {
             getRecordsES();
         } else {
-            records = file_controller.loadRecordsFromFile(getApplicationContext());
+            for (Record record : file_controller.loadRecordsFromFile(getApplicationContext())) {
+                records.add(record);
+            }
             adapter.refresh(records);
         }
     }
