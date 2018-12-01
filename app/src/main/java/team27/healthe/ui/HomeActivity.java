@@ -28,10 +28,15 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.elasticsearch.search.SearchHits;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import io.searchbox.core.SearchResult;
 import team27.healthe.R;
+import team27.healthe.controllers.ElasticSearchSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
@@ -94,13 +99,13 @@ public class HomeActivity extends AppCompatActivity {
         SearchView search_view = (SearchView) search_item.getActionView();
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(String s) {
+            public boolean onQueryTextSubmit(final String s) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
                 builder.setTitle("Search")
                         .setMessage("What would you like to search for?")
                         .setPositiveButton("General", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // continue with delete
+                                new SearchGeneral().execute(s);
                             }
                         })
                         .setNegativeButton("Body Location", new DialogInterface.OnClickListener() {
@@ -132,6 +137,8 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem map_view = menu.findItem(R.id.action_map_view);
         map_view.setVisible(current_user instanceof Patient);
+        MenuItem body_location = menu.findItem(R.id.action_body_locations);
+        body_location.setVisible(current_user instanceof Patient);
         return true;
     }
 
@@ -348,6 +355,37 @@ public class HomeActivity extends AppCompatActivity {
             Fragment fragment  = (ProfileFragment)allFragments.get(0);
             ((ProfileFragment) fragment).updateUser(current_user);
         }
+    }
+
+    private class SearchGeneral extends AsyncTask<String, Void, SearchResult> {
+
+        @Override
+        protected SearchResult doInBackground(String... terms) {
+            ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
+            for(String term:terms) {
+                return es_controller.searchGeneral(term);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(SearchResult search) {
+            super.onPostExecute(search);
+            if (search.isSucceeded()) {
+                ArrayList<String> hits = new ArrayList<>();
+                List<String> temp_hits = search.getSourceAsStringList();
+                hits.addAll(temp_hits);
+                startSearchActivity(hits);
+            }
+        }
+    }
+
+    private void startSearchActivity(ArrayList<String> hits) {
+        Gson gson = new Gson();
+        Intent intent = new Intent(this, SearchResultsActivity.class);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        intent.putExtra(SearchResultsActivity.SEARCH_MESSAGE, hits);
+        startActivity(intent);
     }
 
 }

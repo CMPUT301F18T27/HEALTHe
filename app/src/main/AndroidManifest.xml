@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -112,8 +111,8 @@
             android:name=".ui.AllGeoLocationsActivity"
             android:label="@string/title_activity_all_geo_locations"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.SlideshowActivity"></activity>
-            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ui.SlideshowActivity" />
+        android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ViewBodyLocationsActivity"
             android:label="@string/title_activity_edit_body_locations"
@@ -126,7 +125,8 @@
         <activity
             android:name=".ui.SelectBodyLocationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_select_body_location"></activity>
+            android:label="@string/title_activity_select_body_location" />
+        <activity android:name=".ui.SearchResultsActivity"></activity>
     </application>
 
 </manifest>
