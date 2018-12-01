@@ -1,5 +1,7 @@
 package team27.healthe;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -12,39 +14,50 @@ public class GeoLocationTest {
     public void testNewGeoLocConstructor() {
         double lon = 63.6786;
         double lat = 38.1235;
+        LatLng latlng = new LatLng(lat,lon);
 
-        GeoLocation g = new GeoLocation(lon, lat);
+        GeoLocation g1 = new GeoLocation(lat, lon);
+        assertEquals(lat, g1.getLatLng().latitude, 0.001);
+        assertEquals(lon, g1.getLatLng().longitude, 0.001);
 
-        assertEquals(lat, g.getLatitude(), 0.001);
-        assertEquals(lon, g.getLongitude(), 0.001);
+        GeoLocation g2 = new GeoLocation(latlng);
+        assertEquals(latlng, g2.getLatLng());
     }
 
     @Test
-    public void testLongitude() {
+    public void testName() {
         double lon = 63.6786;
         double lat = 38.1235;
+        LatLng latlng = new LatLng(lat,lon);
+        GeoLocation g = new GeoLocation(latlng);
 
-        GeoLocation g = new GeoLocation(lon, lat);
-
-        // TESTING SETTERS AND GETTERS FOR TITLE
-        assertEquals(g.getLongitude(), lon, 0.001);
-        double newLon = 24.6878;
-        g.setLongitude(newLon);
-        assertEquals(newLon, g.getLongitude(), 0.001);
+        // TESTING SETTERS AND GETTERS FOR NAME
+        assertEquals(g.getName(), "");
+        String name = "New GeoLocation";
+        g.setName(name);
+        assertEquals(name, g.getName());
     }
 
     @Test
-    public void testLatitude() {
+    public void testLatLng() {
         double lon = 63.6786;
         double lat = 38.1235;
-
+        LatLng latlng = new LatLng(lat,lon);
         GeoLocation g = new GeoLocation(lon, lat);
 
-        // TESTING SETTERS AND GETTERS FOR TITLE
-        assertEquals(g.getLatitude(), lat, 0.001);
-        double newLat = 56.2342;
-        g.setLatitude(newLat);
-        assertEquals(newLat, g.getLongitude(), 0.001);
+        // TESTING SETTERS AND GETTERS FOR LATLONG
+        assertEquals(g.getLatLng(), latlng);
+        LatLng newLatLng = new LatLng(92.4576, 12.2864);
+        g.setLatLng(newLatLng);
+        assertEquals(newLatLng, g.getLatLng());
+
+        assertEquals(g.getLatLng(), latlng);
+        double newLat = 123.658;
+        double newLon = 152.6423;
+        g.setLatLng(newLat, newLon);
+
+        assertEquals(newLat, g.getLatLng().latitude, 0.001);
+        assertEquals(newLon, g.getLatLng().longitude, 0.001);
     }
 
 }

@@ -36,7 +36,7 @@ public class CareProvider extends User {
      * Gets the number of patients the care-provider has
      * @return no. patients (Integer)
      */
-    public Integer getPatientCount() {return patients.size();}
+    public int getPatientCount() {return patients.size();}
 
 
     /**
