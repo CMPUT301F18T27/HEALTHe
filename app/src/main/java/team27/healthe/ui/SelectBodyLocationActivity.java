@@ -1,6 +1,5 @@
 package team27.healthe.ui;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,12 +11,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
-import android.support.v7.app.ActionBar;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.InputType;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,13 +29,16 @@ import android.widget.Toast;
 
 import java.io.File;
 
+import io.searchbox.core.Get;
 import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.ImageController;
-import team27.healthe.model.LocalFileController;
+import team27.healthe.controllers.ImageController;
+import team27.healthe.model.Patient;
+import team27.healthe.model.User;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -75,8 +76,8 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         System.out.println("loading: "+file_name);
 
         //test values
-        x_location = 50;
-        y_location = 50;
+//        x_location = 50;
+//        y_location = 50;
         image_file = new File(file_name);
 
         if(image_file.exists()){
@@ -84,22 +85,17 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             Bitmap myBitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
 
             if(x_location != 0 && y_location != 0) {
+                float x_scaled = posScale(x_location, myBitmap.getWidth(), "x");
+                float y_scaled = posScale(y_location, myBitmap.getHeight(), "y");
                 Bitmap temp_bmp = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(),Bitmap.Config.RGB_565);
                 Canvas c = new Canvas(temp_bmp);
                 Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
                 p.setStrokeWidth(2);
                 p.setColor(Color.RED);
                 c.drawBitmap(myBitmap, 0, 0, null);
-                c.drawLine(x_location-5, y_location, x_location+5, y_location, p);
-                c.drawLine(x_location, y_location-5, x_location, y_location+5, p);
+                c.drawLine(x_scaled-5, y_scaled, x_scaled+5, y_scaled, p);
+                c.drawLine(x_scaled, y_scaled-5, x_scaled, y_scaled+5, p);
 
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    System.out.println("CANVAS SHOULD BE DRAWN!");
-//                    imageView.setImageBitmap(c.d);
-//                }
-//                else {
-//                    System.out.println("WARNING--SKIPPING CROSSHAIR DRAWING");
-//                }
                 imageView.setImageDrawable(new BitmapDrawable(getResources(), temp_bmp));
                 System.out.println("CANVAS SHOULD BE DRAWN!");
             }
@@ -119,10 +115,8 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
                     createBodyLocation(getApplicationContext(), event.getRawX(), event.getRawY());
 
-                    //  textView.setText("Touch coordinates : " +String.valueOf(event.getX()) + "x" + String.valueOf(event.getY()));
                     System.out.println("X " + String.valueOf(event.getRawX()) + "");
                     System.out.println("y " + String.valueOf(event.getRawY()) + "");
-//                    finish();
                 }
                 return true;
             }
@@ -131,8 +125,100 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
     }
 
+    private float posScale(float val, float max, String orientation){
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        if(orientation.equals("x")){
+            float scale = max/size.x;
+            return scale*val;
+        }
+        else if (orientation.equals("y")){
+            float scale = max/size.y;
+            return scale*val;
+        }
+        return 0;
+    }
 
+    private class BodyLocationTask extends AsyncTask<BodyLocation, Void, Void> {
 
+        @Override
+        protected Void doInBackground(BodyLocation... body_locations) {
+            BodyLocationElasticSearchController bles_controller =
+                    new BodyLocationElasticSearchController();
+            for (BodyLocation bl : body_locations) {
+                bles_controller.addBodyLocation(bl);
+            }
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void v){
+            super.onPostExecute(null);
+
+            callPhotoTask();
+        }
+    }
+    private void callPhotoTask(){
+        new PhotoTask().execute(image_file);
+    }
+    private class PhotoTask extends AsyncTask<File, Void, Void> {
+
+        @Override
+        protected Void doInBackground(File... files) {
+            PhotoElasticSearchController pes_controller =
+                    new PhotoElasticSearchController();
+            for (File f : files) {
+                pes_controller.addPhoto(f, f.getName());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v){
+            super.onPostExecute(null);
+            startUpdateUser();
+        }
+    }
+    protected void startUpdateUser(){
+        new getUserAsync().execute(current_user);
+    }
+
+    // Async class for getting user from elastic search server
+    private class getUserAsync extends AsyncTask<String, Void, User> {
+
+        @Override
+        protected User doInBackground(String... user_ids) {
+            UserElasticSearchController ues = new UserElasticSearchController();
+
+            for (String user_id: user_ids) {
+                User user = ues.getUser(user_id);
+                return user;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            updateUser(user);
+
+        }
+    }
+    private class updateUserAsync extends AsyncTask<User, Void, Void>{
+        @Override
+        protected Void doInBackground(User... users){
+            UserElasticSearchController ues = new UserElasticSearchController();
+            for (User user: users) {
+                ues.addUser(user);
+            }
+            return null;
+        }
+    }
+    protected void updateUser(User user){
+        Patient p = (Patient) user;
+        p.addBodyLocation(bl.getBodyLocationId());
+        new updateUserAsync().execute(p);
+    }
 
     public void createBodyLocation(Context c, float x_set, float y_set){
 
@@ -168,13 +254,15 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Adding Body Location", Toast.LENGTH_SHORT).show();
-                BodyLocationElasticSearchController blesc = new BodyLocationElasticSearchController();
-                PhotoElasticSearchController pesc = new PhotoElasticSearchController();
+//                BodyLocationElasticSearchController blesc = new BodyLocationElasticSearchController();
+//                PhotoElasticSearchController pesc = new PhotoElasticSearchController();
                 bl.setLocation(bloc_text.getText().toString());
                 bl.setPatientId(current_user);
                 bl.setBodyLocationId(image_file.getName());
-                blesc.addBodyLocation(bl);
-                pesc.addPhoto(image_file, image_file.getName());
+                new BodyLocationTask().execute(bl);
+
+//                blesc.addBodyLocation(bl);
+//                pesc.addPhoto(image_file, image_file.getName());
                 System.out.println("FILENAME: "+file_name+"\nbody location text: "+bl.getLocationName());
                 finish();
 

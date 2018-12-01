@@ -4,14 +4,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,30 +18,39 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
+import team27.healthe.controllers.BodyLocationListener;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.model.ImageAdapter;
-import team27.healthe.model.ImageController;
+import team27.healthe.controllers.ImageController;
 
-public class ViewBodyLocationsActivity extends AppCompatActivity {
+public class ViewBodyLocationsActivity extends AppCompatActivity implements BodyLocationListener {
     ImageController ic;
     ImageAdapter image_adapter;
+    ArrayList<String> image_list;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
     private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
     String current_user;
     BodyLocationElasticSearchController blesc;
     @Override
+    public void recyclerViewClicked(View v, int i){
+        editLocation(image_list.get(i));
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         blesc = new BodyLocationElasticSearchController();
         Intent intent = getIntent();
+
         current_user = "";
         if (intent.hasExtra("current_user")){
             current_user = intent.getStringExtra("current_user");
@@ -60,11 +67,16 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
                         MY_CAMERA_REQUEST_CODE);
             }
         }
+        if (intent.hasExtra("auto_photo")){
+            if(intent.getBooleanExtra("auto_photo", false)){
+                takePhoto();
+            }
+        }
 
 
         ic = new ImageController(getApplicationContext(), "body_locations");
         ic.refreshImageList(current_user);
-        final ArrayList<String> image_list = ic.getImageList();
+        image_list = ic.getImageList();
 
         setContentView(R.layout.activity_edit_body_locations);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -75,8 +87,8 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),2);
         recyclerView.setLayoutManager(layoutManager);
-//        ArrayList<CreateList> createLists = prepareData();
-        image_adapter = new ImageAdapter(getApplicationContext(), image_list);
+        image_adapter = new ImageAdapter(getApplicationContext(), image_list, this);
+        ic.setImageAdapter(image_adapter);
         recyclerView.setAdapter(image_adapter);
 
 
@@ -86,17 +98,15 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 takePhoto();
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
             }
         });
-        recyclerView.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                int index = recyclerView.indexOfChild(view);
-                editLocation(image_list.get(index));
-            }
-        });
+//        recyclerView.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View view){
+//                int index = recyclerView.indexOfChild(view);
+//                editLocation(image_list.get(index));
+//            }
+//        });
     }
 
 
@@ -109,19 +119,47 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
         }
     }
 
-    private void editLocation(String file_name){
+    private class GetBodyLocationTask extends AsyncTask<String, Void, BodyLocation> {
+
+        @Override
+        protected BodyLocation doInBackground(String... body_location_ids) {
+            BodyLocationElasticSearchController bles_controller =
+                    new BodyLocationElasticSearchController();
+            BodyLocation bl = null;
+            for (String bl_id : body_location_ids) {
+                System.out.println("Attempting to get body location for id: "+bl_id);
+                File temp = new File(bl_id);
+                bl = bles_controller.getBodyLocation(temp.getName());
+            }
+            return bl;
+        }
+        @Override
+        protected void onPostExecute(BodyLocation bl){
+            super.onPostExecute(null);
+
+            launchEditLocation(bl);
+        }
+    }
+
+    private void launchEditLocation(BodyLocation bl){
         Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
-        BodyLocation bl = blesc.getBodyLocation(file_name);
+
         if (bl != null){
             select_location.putExtra("x_loc", bl.getX());
             select_location.putExtra("y_loc", bl.getY());
+            select_location.putExtra("file_name",ic.getAbsolutePath(bl.getBodyLocationId()));
         }
         else {
             System.out.println("ERROR--body location was null from elasticsearch");
         }
 
-        select_location.putExtra("file_name",file_name);
+
         select_location.putExtra("current_user", current_user);
+        startActivity(select_location);
+    }
+
+    private void editLocation(String file_name){
+        new GetBodyLocationTask().execute(file_name);
     }
 
     @Override
@@ -135,8 +173,6 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
             select_location.putExtra("file_name",file_name);
             select_location.putExtra("current_user", current_user);
             startActivity(select_location);
-//            Bundle b = new Bundle();
-//            b.putExtras
             ic.refreshImageList(current_user);
 
             image_adapter.notifyDataSetChanged();
@@ -162,29 +198,5 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
 
             }
         }
-//        if (requestCode == MY_WRITE_EXTERNAL_REQUEST_CODE) {
-//
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//                Toast.makeText(this, "write permission granted", Toast.LENGTH_LONG).show();
-//
-//            } else {
-//
-//                Toast.makeText(this, "write permission denied", Toast.LENGTH_LONG).show();
-//
-//            }
-//        }
-//        if (requestCode == MY_READ_EXTERNAL_REQUEST_CODE) {
-//
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//                Toast.makeText(this, "read permission granted", Toast.LENGTH_LONG).show();
-//
-//            } else {
-//
-//                Toast.makeText(this, "read permission denied", Toast.LENGTH_LONG).show();
-//
-//            }
-//        }
     }
 }

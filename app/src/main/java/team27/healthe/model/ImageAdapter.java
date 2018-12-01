@@ -18,15 +18,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import team27.healthe.R;
+import team27.healthe.controllers.BodyLocationListener;
 
 public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHolder> {
     private ArrayList<String> image_list;
     private Context context;
+    private BodyLocationListener bl;
+//    private RecyclerViewClickListener listener;
 //    private ImageController ic;
 
-    public ImageAdapter(Context c, ArrayList<String> image_list){
+    public ImageAdapter(Context c, ArrayList<String> image_list, BodyLocationListener bl){
         this.context = c;
         this.image_list = image_list;
+        this.bl = bl;
 //        this.ic = new ImageController(c, "body_locations");
     }
 
@@ -60,13 +64,25 @@ public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHo
         return image_list.size();
     }
 
-    public class ImageViewHolder extends RecyclerView.ViewHolder{
+    public class ImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private TextView title;
         private ImageView img;
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.title);
             img = (ImageView) itemView.findViewById(R.id.img);
+            itemView.setOnClickListener(this);
+//            img.setOnClickListener(new View.OnClickListener(){
+//                @Override
+//                public void onClick(View v){
+//                    bl.recyclerViewClicked(v, this.get);
+//                }
+//            });
+        }
+        @Override
+        public void onClick(View v){
+            System.out.println("DEBUG----CLICKED");
+            bl.recyclerViewClicked(v, this.getLayoutPosition());
         }
     }
 

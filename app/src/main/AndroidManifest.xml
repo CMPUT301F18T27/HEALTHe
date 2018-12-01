@@ -126,8 +126,7 @@
         <activity
             android:name=".ui.SelectBodyLocationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_select_body_location"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:label="@string/title_activity_select_body_location"></activity>
     </application>
 
 </manifest>

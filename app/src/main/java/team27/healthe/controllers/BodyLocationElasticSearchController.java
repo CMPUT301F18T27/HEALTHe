@@ -15,7 +15,8 @@ import team27.healthe.model.Problem;
 public class BodyLocationElasticSearchController extends ElasticSearchController {
 
     /**
-     * Add problem to elastic search database using problem id as the id in elastic search
+     * Add body location to elastic search database using the associated photo's filename
+     * as the id in elastic search
      * @param bl (BodyLocation Class)
      */
     public static BodyLocation addBodyLocation(BodyLocation bl) {
@@ -46,9 +47,9 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
     }
 
     /**
-     * Get the problem from a given problem id
+     * Get the bodylocation from a given body location id (filename)
      * @param bl_id (String)
-     * @return Problem (Class)
+     * @return BodyLocation (Class)
      */
     public static BodyLocation getBodyLocation(String bl_id) {
         verifyClient();
@@ -67,20 +68,21 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
         return null;
     }
 
-    /**
-     * Removes a specified problem for the given user (corresponding to user_id)
-     * @param bl_id (Integer)
-     */
-    public static void removeBodyLocation(String bl_id){
-        verifyClient();
-        try{
-            client.execute(new Delete.Builder(bl_id)
-                    .index(test_index)
-                    .type(body_location_type)
-                    .build());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
+    //Functionality not specified
+//    /**
+//     * Removes a specified body location for the given user (corresponding to user_id)
+//     * @param bl_id (Integer)
+//     */
+//    public static void removeBodyLocation(String bl_id){
+//        verifyClient();
+//        try{
+//            client.execute(new Delete.Builder(bl_id)
+//                    .index(test_index)
+//                    .type(body_location_type)
+//                    .build());
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//    }
 }

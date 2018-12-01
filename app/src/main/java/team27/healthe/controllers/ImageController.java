@@ -1,9 +1,10 @@
-package team27.healthe.model;
+package team27.healthe.controllers;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
@@ -14,11 +15,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.ElasticSearchController;
+import team27.healthe.model.ImageAdapter;
+import team27.healthe.model.Patient;
+import team27.healthe.model.User;
 
 public class ImageController {
     File file;
     ArrayList<String> image_list;
     UserElasticSearchController uesc;
+    ImageAdapter ia;
 
     public ImageController(Context c, String name){
         uesc = new UserElasticSearchController();
@@ -33,13 +39,48 @@ public class ImageController {
 
     }
 
+    public String getAbsolutePath(String name){
+        File tmp = new File(file+File.separator+name);
+        return tmp.getAbsolutePath();
+    }
+
     public ArrayList<String> getImageList(){
 
         return image_list;
     }
 
-    public void refreshImageList(String current_user){
-        Patient cur_user = (Patient) uesc.getUser(current_user);
+    /**
+     *
+     * @param current_user
+     */
+
+    // Async class for getting user from elastic search server
+    private class getUserAsync extends AsyncTask<String, Void, User> {
+
+        @Override
+        protected User doInBackground(String... user_ids) {
+            team27.healthe.model.ElasticSearchController es_controller = new ElasticSearchController();
+
+            for (String user_id: user_ids) {
+                User user = es_controller.getUser(user_id);
+                return user;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            refresh((Patient)user);
+            ia.notifyDataSetChanged();
+        }
+    }
+
+    public void refresh(Patient cur_user){
+        if (cur_user == null){
+            System.out.println("ERROR-- NO USER");
+            return;
+        }
         image_list.clear();
         if (file.isDirectory()){
             File[] array_files = file.listFiles();
@@ -61,19 +102,19 @@ public class ImageController {
         }
     }
 
+    public void refreshImageList(String current_user){
+        new getUserAsync().execute(current_user);
+//        Patient cur_user = (Patient) uesc.getUser(current_user);
+
+    }
+
     public File getImageFile(String name){
-//        File image_file = null;
-////        try {
-////            image_file = File.createTempFile(name, ".jpg", file);
-//        image_file = new File(file, name);
-//        return image_file;
         File image_file = null;
         try{
             image_file = File.createTempFile(name, ".jpg", file);
         } catch (java.io.IOException e){
             e.printStackTrace();
         }
-//        cur_image_path = image_file.getAbsolutePath();
         return image_file;
     }
 
@@ -105,14 +146,10 @@ public class ImageController {
             System.out.println("ERROR: file already exists for renaming");
         }
         else{
-//            File new_file = null;
-//            try{
-//                new_file = File.createTempFile(name, ".jpg", file);
-//            } catch (java.io.IOException e){
-//                e.printStackTrace();
-//            }
             file.renameTo(file2);
         }
     }
-
+    public void setImageAdapter(ImageAdapter ia){
+        this.ia = ia;
+    }
 }

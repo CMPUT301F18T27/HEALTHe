@@ -51,4 +51,6 @@
     <string name="title_activity_geo_location">GeoLocationActivity</string>
     <string name="title_activity_all_geo_locations">AllGeoLocationsActivity</string>
     <string name="date_picker_title">Enter Date:</string>
+    <string name="title_activity_edit_body_locations">Edit Body Locations</string>
+    <string name="title_activity_select_body_location">Select Body Location</string>
 </resources>
