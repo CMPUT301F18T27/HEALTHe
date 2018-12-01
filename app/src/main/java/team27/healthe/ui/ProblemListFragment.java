@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +22,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.vision.text.Line;
 import com.google.gson.Gson;
 
 import java.text.ParseException;
@@ -32,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
@@ -150,7 +154,7 @@ public class ProblemListFragment extends Fragment {
         // Add a TextView for problem title
         final EditText title_text = new EditText(getContext());
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method

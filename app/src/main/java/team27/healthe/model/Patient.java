@@ -50,9 +50,9 @@ public class Patient extends User {
      * Returns the number of problems in the user's problem list
      * @return size (Integer)
      */
-    public Integer getProblemCount() {return problems.size();}
+    public int getProblemCount() {return problems.size();}
 
-    public Integer getBodyLocationCount(){return body_locations.size();}
+    public int getBodyLocationCount(){return body_locations.size();}
 
     public void addBodyLocation(String body_location_id){
         body_locations.add(body_location_id);

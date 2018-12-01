@@ -61,13 +61,14 @@ public class RecordListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_list);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         listView = (ListView) findViewById(R.id.record_list);
+
         records = new ArrayList<>();
         adapter = new RecordListAdapter(this, records);
         listView.setAdapter(adapter);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         getFromIntent();
         getRecords();
@@ -104,7 +105,6 @@ public class RecordListActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public void viewRecord(Record record) {
         Gson gson = new Gson();
@@ -363,7 +363,9 @@ public class RecordListActivity extends AppCompatActivity {
         if (network_info != null && network_info.isConnected()) {
             getRecordsES();
         } else {
-            records = file_controller.loadRecordsFromFile(getApplicationContext());
+            for (Record record : file_controller.loadRecordsFromFile(getApplicationContext())) {
+                records.add(record);
+            }
             adapter.refresh(records);
         }
     }
