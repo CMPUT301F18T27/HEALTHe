@@ -95,7 +95,26 @@ public class HomeActivity extends AppCompatActivity {
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                Toast.makeText(getApplicationContext(), "You searched " + s, Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+                builder.setTitle("Search")
+                        .setMessage("What would you like to search for?")
+                        .setPositiveButton("General", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // continue with delete
+                            }
+                        })
+                        .setNegativeButton("Body Location", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setNeutralButton("Geo Location", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        })
+                        .show();
                 return false;
             }
 
@@ -301,7 +320,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
   
-   private void editBodyLocations(){
+    private void editBodyLocations(){
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
         intent.putExtra("current_user", current_user.getUserid());
         startActivity(intent);
