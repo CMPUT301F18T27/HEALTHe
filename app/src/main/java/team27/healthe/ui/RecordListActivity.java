@@ -162,7 +162,7 @@ public class RecordListActivity extends AppCompatActivity {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Edit Problem");
+        dialog.setTitle("Add Record");
         //dialog.setMessage("");
 
 

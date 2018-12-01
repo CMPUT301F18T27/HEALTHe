@@ -124,6 +124,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
 
     private void setMarkers() {
         boolean set_camera = false;
+        markers = new ArrayList<>();
         LatLngBounds.Builder latlng_builder = new LatLngBounds.Builder();
         for (Record record: records) {
             GeoLocation geo_loc = record.getGeoLocation();
