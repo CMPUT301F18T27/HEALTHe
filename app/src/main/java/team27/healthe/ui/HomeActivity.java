@@ -292,6 +292,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void editBodyLocations(){
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
+        intent.putExtra("current_user", current_user.getUserid());
         startActivity(intent);
     }
     private void updateElasticSearch(){

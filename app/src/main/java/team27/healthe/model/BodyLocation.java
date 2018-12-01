@@ -11,23 +11,23 @@ public class BodyLocation {
 //    Point location;
     float x_location;
     float y_location;
-    String patient_id;
-    String body_location_id;
-    String body_string;
+    String patient_id;//associated patient
+    String body_location_id;//for elasticsearch
+    String body_string;//for search/titles
     Uri uri;
 
     public BodyLocation(float x, float y){
 //        location = new Point(x, y);
         x_location = x;
         y_location = y;
-        body_string = getLocationName();
+        body_string = "";
     }
 
     public BodyLocation(){
 //        location = new Point(0,0);
         x_location = 0;
         y_location = 0;
-        body_string = "default-nochoice";//replace hardcoded value
+        body_string = "";//replace hardcoded value
     }
 
     public void setPoint(float x, float y){

@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.BodyLocationElasticSearchController;
+import team27.healthe.model.BodyLocation;
 import team27.healthe.model.ImageAdapter;
 import team27.healthe.model.ImageController;
 
@@ -35,10 +37,17 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
     private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
+    String current_user;
+    BodyLocationElasticSearchController blesc;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        blesc = new BodyLocationElasticSearchController();
+        Intent intent = getIntent();
+        current_user = "";
+        if (intent.hasExtra("current_user")){
+            current_user = intent.getStringExtra("current_user");
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA)
@@ -54,13 +63,14 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
 
 
         ic = new ImageController(getApplicationContext(), "body_locations");
-        ArrayList<String> image_list = ic.getImageList();
+        ic.refreshImageList(current_user);
+        final ArrayList<String> image_list = ic.getImageList();
 
         setContentView(R.layout.activity_edit_body_locations);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.body_locations_list);
+        final RecyclerView recyclerView = (RecyclerView)findViewById(R.id.body_locations_list);
         recyclerView.setHasFixedSize(true);
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),2);
@@ -80,6 +90,13 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
             }
         });
+        recyclerView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                int index = recyclerView.indexOfChild(view);
+                editLocation(image_list.get(index));
+            }
+        });
     }
 
 
@@ -92,20 +109,36 @@ public class ViewBodyLocationsActivity extends AppCompatActivity {
         }
     }
 
+    private void editLocation(String file_name){
+        Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
+        BodyLocation bl = blesc.getBodyLocation(file_name);
+        if (bl != null){
+            select_location.putExtra("x_loc", bl.getX());
+            select_location.putExtra("y_loc", bl.getY());
+        }
+        else {
+            System.out.println("ERROR--body location was null from elasticsearch");
+        }
+
+        select_location.putExtra("file_name",file_name);
+        select_location.putExtra("current_user", current_user);
+    }
+
     @Override
     protected void onActivityResult(int request, int result, Intent intent){
         if(request == REQUEST_IMAGE_CAPTURE && result == RESULT_OK){
-            System.out.println("awdawdawdaw");
             Bundle bundle = intent.getExtras();
             Bitmap image = (Bitmap) bundle.get("data");
             String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String file_name = ic.saveImage(image, ts);
             Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
             select_location.putExtra("file_name",file_name);
+            select_location.putExtra("current_user", current_user);
             startActivity(select_location);
 //            Bundle b = new Bundle();
 //            b.putExtras
-            ic.refreshImageList();
+            ic.refreshImageList(current_user);
+
             image_adapter.notifyDataSetChanged();
 
         }

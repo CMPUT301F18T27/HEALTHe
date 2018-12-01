@@ -35,7 +35,7 @@ public class ElasticSearchController {
     private static String problem_type = "problem";
     private static String record_type = "record";
     private static String image_type = "img";
-    private static String body_location_type = "body_location";
+
 
     public ElasticSearchController() {
         verifyClient();

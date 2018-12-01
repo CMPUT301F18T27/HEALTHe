@@ -13,57 +13,39 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import team27.healthe.controllers.UserElasticSearchController;
+
 public class ImageController {
     File file;
     ArrayList<String> image_list;
+    UserElasticSearchController uesc;
 
     public ImageController(Context c, String name){
-
+        uesc = new UserElasticSearchController();
         file = new File(c.getExternalFilesDir(Environment.DIRECTORY_PICTURES) +
-                File.separator + "body_locations");
-//        file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);//+
-               // File.separator + "body_locations");
+                File.separator + name);
 
         if (!file.exists()){
             file.mkdirs();
         }
-//        file = new File(c.getFilesDir(), name);
-//        file = c.getFilesDir();
-//        if(!file.exists()){
-//            try{
-//                file.mkdir();
-//            } catch (Exception e){
-//                e.printStackTrace();
-//            }
-//        }
-//        System.out.println(file.isDirectory());
-//        System.out.println("DEBUG---"+file.getAbsolutePath());
+
         image_list = new ArrayList<>();
-        refreshImageList();
-//        file = c.getFilesDir(name, Context.MODE_PRIVATE);
+
     }
 
     public ArrayList<String> getImageList(){
-//        image_list.clear();
-//        if (file.isDirectory()){
-//            File[] array_files = file.listFiles();
-//            for (File f: array_files){
-//                image_list.add(f.getAbsolutePath());
-//            }
-//        }
+
         return image_list;
     }
 
-//    public Bitmap getBmp(int i){
-//        Bitmap bmp = new
-//    }
-    public void refreshImageList(){
+    public void refreshImageList(String current_user){
+        Patient cur_user = (Patient) uesc.getUser(current_user);
         image_list.clear();
         if (file.isDirectory()){
             File[] array_files = file.listFiles();
             if (array_files != null){
                 for (File f: array_files){
-                    if(f.getName().startsWith("bloc_")){
+                    if(cur_user.getBodyLocations().contains(f.getName())){
                         image_list.add(f.getAbsolutePath());
                     }
                     else{

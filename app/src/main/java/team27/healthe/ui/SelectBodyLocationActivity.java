@@ -32,6 +32,8 @@ import android.widget.Toast;
 import java.io.File;
 
 import team27.healthe.R;
+import team27.healthe.controllers.BodyLocationElasticSearchController;
+import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.ImageController;
@@ -46,6 +48,8 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
     ElasticSearchController esc;
     ImageController ic;
     String file_name;
+    String current_user;
+    File image_file;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,23 +59,29 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         file_name = intent.getStringExtra("file_name");
         float x_location = 0;
         float y_location = 0;
+        current_user = "";
         if (intent.hasExtra("x_loc") && intent.hasExtra("y_loc")){
             x_location = intent.getFloatExtra("x_loc", 0);
             y_location = intent.getFloatExtra("y_loc", 0);
         }
+        if (intent.hasExtra("current_user")){
+            current_user = intent.getStringExtra("current_user");
+        }
+
         setContentView(R.layout.activity_select_body_location);
 
         ImageView imageView = (ImageView) findViewById(R.id.view_select_body_location);
 
         System.out.println("loading: "+file_name);
 
+        //test values
         x_location = 50;
         y_location = 50;
-        File imgFile = new File(file_name);
+        image_file = new File(file_name);
 
-        if(imgFile.exists()){
+        if(image_file.exists()){
 
-            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            Bitmap myBitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
 
             if(x_location != 0 && y_location != 0) {
                 Bitmap temp_bmp = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(),Bitmap.Config.RGB_565);
@@ -158,8 +168,13 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Adding Body Location", Toast.LENGTH_SHORT).show();
-
+                BodyLocationElasticSearchController blesc = new BodyLocationElasticSearchController();
+                PhotoElasticSearchController pesc = new PhotoElasticSearchController();
                 bl.setLocation(bloc_text.getText().toString());
+                bl.setPatientId(current_user);
+                bl.setBodyLocationId(image_file.getName());
+                blesc.addBodyLocation(bl);
+                pesc.addPhoto(image_file, image_file.getName());
                 System.out.println("FILENAME: "+file_name+"\nbody location text: "+bl.getLocationName());
                 finish();
 
@@ -173,18 +188,6 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         dialog.show();
 
         System.out.println("DEBUG-----"+bl.getLocationName());
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 
