@@ -34,11 +34,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
+import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
@@ -139,6 +141,25 @@ public class RecordListActivity extends AppCompatActivity {
 
 
     public void addRecord() {
+        /** Added to ensure that the user has at least 1 body location photo when creating
+         * a new record
+        **/
+        try{
+            Patient current_patient = (Patient)current_user;
+            if((current_patient.getBodyLocationCount() == 0)){
+                Toast.makeText(getApplicationContext(),
+                        "We require a body location photo to add records.",
+                        Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
+                intent.putExtra("current_user", current_user.getUserid());
+                intent.putExtra("auto_photo", true);
+                startActivity(intent);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println("ERROR---failure forcing user to take body location photo");
+        }
+
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Record");

@@ -177,6 +177,10 @@ public class HomeActivity extends AppCompatActivity {
             intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
             startActivity(intent);
         }
+      
+      else if (id == R.id.action_body_locations) {
+            editBodyLocations();
+        }
 
 
 
@@ -314,6 +318,12 @@ public class HomeActivity extends AppCompatActivity {
                 });
         dialog.show();
 
+    }
+  
+    private void editBodyLocations(){
+        Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
+        intent.putExtra("current_user", current_user.getUserid());
+        startActivity(intent);
     }
 
     private void updateElasticSearch(){

@@ -29,6 +29,7 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="action_settings">Logout</string>
     <string name="action_edit">Edit Profile</string>
+    <string name="string_action_body_locations">Body Locations</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="home_phone">Phone number:</string>
     <string name="profile_loading">Loading...</string>
@@ -50,4 +51,6 @@
     <string name="title_activity_geo_location">GeoLocationActivity</string>
     <string name="title_activity_all_geo_locations">AllGeoLocationsActivity</string>
     <string name="date_picker_title">Enter Date:</string>
+    <string name="title_activity_edit_body_locations">Edit Body Locations</string>
+    <string name="title_activity_select_body_location">Select Body Location</string>
 </resources>
