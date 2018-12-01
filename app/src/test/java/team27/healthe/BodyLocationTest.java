@@ -37,7 +37,7 @@ public class BodyLocationTest {
     @Test
     public void testLocationName(){
         // TESTING SETTERS AND GETTERS FOR LOCATION NAME
-        assertEquals(null, l.getLocationName());
+        assertEquals("", l.getLocationName());
         String newName = "Hand";
         l.setLocation(newName);
         assertEquals(newName, l.getLocationName());
@@ -46,7 +46,7 @@ public class BodyLocationTest {
     @Test
     public void testPatientId(){
         // TESTING SETTERS AND GETTERS FOR PATIENT ID
-        assertEquals("", l.getPatientId());
+        assertEquals(null, l.getPatientId());
         String newPatientId = "2674";
         l.setPatientId(newPatientId);
         assertEquals(newPatientId, l.getPatientId());

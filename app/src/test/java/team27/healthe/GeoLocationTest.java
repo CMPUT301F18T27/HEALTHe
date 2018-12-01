@@ -47,12 +47,12 @@ public class GeoLocationTest {
 
         // TESTING SETTERS AND GETTERS FOR LATLONG
         assertEquals(latlng, g.getLatLng());
-        LatLng newLatLng = new LatLng(92.4576, 12.2864);
+        LatLng newLatLng = new LatLng(24.65, 12.2864);
         g.setLatLng(newLatLng);
         assertEquals(newLatLng, g.getLatLng());
 
         assertEquals(newLatLng, g.getLatLng());
-        double newLat = 123.658;
+        double newLat = 86.23;
         double newLon = 152.6423;
         g.setLatLng(newLat, newLon);
 

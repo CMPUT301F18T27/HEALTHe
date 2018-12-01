@@ -43,7 +43,7 @@ public class RecordTest {
         assertEquals(new ArrayList<String>(), r2.getCommentList());
         assertNull(r2.getBodyLocation());
         assertNull(r2.getGeoLocation());
-        assertNull(r2.getPhotos());
+        assertEquals(new ArrayList<>(), r2.getPhotos());
     }
 
     @Test
