@@ -8,21 +8,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,14 +31,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.LocalFileController;
+import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.ProblemsAdapter;
@@ -312,7 +307,7 @@ public class ProblemListFragment extends Fragment {
             file_controller.saveUserInFile(current_user, getContext());
         }
     }
-    
+
 
     private class DeleteProblem extends AsyncTask<Problem, Void, Void> {
 

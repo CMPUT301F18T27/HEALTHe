@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -20,24 +16,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.vision.barcode.Barcode;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.google.gson.Gson;
 import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.concurrent.FutureTask;
-
 import team27.healthe.R;
-import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.LocalFileController;
-import team27.healthe.model.Patient;
+import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {

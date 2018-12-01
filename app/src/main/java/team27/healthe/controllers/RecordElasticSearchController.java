@@ -19,6 +19,7 @@ public class RecordElasticSearchController extends ElasticSearchController{
      */
     public static Record addRecord(Record r) {
         verifyClient();
+        boolean re_save = false;
 
         Gson gson = new Gson();
         String record_json = gson.toJson(r);
@@ -26,6 +27,7 @@ public class RecordElasticSearchController extends ElasticSearchController{
         Index index;
         if (r.getRecordID().equals("")) {
             index = new Index.Builder(record_json).index(test_index).type(record_type).build();
+            re_save = true;
         }
         else {
             index = new Index.Builder(record_json).index(test_index).type(record_type).id(r.getRecordID()).build();
@@ -34,6 +36,9 @@ public class RecordElasticSearchController extends ElasticSearchController{
         try {
             DocumentResult result = client.execute(index);
             r.setRecordID(result.getId());
+            if (re_save) {
+                addRecord(r);
+            }
             return r;
         }
         catch (Exception e) {
@@ -72,8 +77,8 @@ public class RecordElasticSearchController extends ElasticSearchController{
         verifyClient();
         try{
             client.execute(new Delete.Builder(record_id)
-                    .index("record")
-                    .type("record")
+                    .index(test_index)
+                    .type(record_type)
                     .build());
         } catch (Exception e){
             e.printStackTrace();
