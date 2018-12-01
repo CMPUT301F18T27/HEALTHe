@@ -3,6 +3,7 @@ package team27.healthe.ui;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,6 +22,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.model.CommentListAdapter;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Record;
@@ -118,10 +120,24 @@ public class CommentActivity extends AppCompatActivity {
         ArrayList<String> comments = record.getCommentList();
         adapter.refresh(comments);
 
+        new UpdateRecord().execute(record);
+
         Gson gson = new Gson();
         Intent returnIntent = new Intent();
         returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
         setResult(RESULT_OK,returnIntent);
+    }
+
+    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Record... records) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+            for (Record record: records) {
+                es_controller.addRecord(record);
+            }
+            return null;
+        }
     }
 
 }

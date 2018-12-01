@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.GeoLocation;
@@ -91,6 +93,9 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
             }else {
                 record.getGeoLocation().setLatLng(marker.getPosition());
             }
+
+            new UpdateRecord().execute(record);
+
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
@@ -127,6 +132,18 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
         this.current_user = es_controller.jsonToUser(user_json);
         this.record = gson.fromJson(record_json, Record.class);
 
+    }
+
+    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Record... records) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+            for (Record record: records) {
+                es_controller.addRecord(record);
+            }
+            return null;
+        }
     }
 
     @Override
