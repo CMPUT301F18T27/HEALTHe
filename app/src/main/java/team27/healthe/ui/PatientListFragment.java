@@ -72,7 +72,7 @@ public class PatientListFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_patient_list, container, false);
@@ -92,6 +92,7 @@ public class PatientListFragment extends Fragment {
                 Gson gson = new Gson();
                 Intent intent = new Intent(getContext(), ProblemActivity.class);
                 intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(patient));
+                intent.putExtra(ProblemActivity.VIEWING_USER_MESSAGE, gson.toJson(current_user));
                 startActivity(intent);
             }
         });

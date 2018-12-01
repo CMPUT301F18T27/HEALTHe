@@ -30,6 +30,7 @@ import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Problem;
@@ -61,6 +62,8 @@ public class ProblemInfoActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_problem_info, menu);
+        MenuItem edit_item = menu.findItem(R.id.action_problem_edit);
+        edit_item.setVisible(!(current_user instanceof CareProvider));
         return true;
     }
 

@@ -39,6 +39,7 @@ import team27.healthe.R;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
@@ -70,6 +71,8 @@ public class RecordActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_record, menu);
+        MenuItem edit_item = menu.findItem(R.id.action_edit_record);
+        edit_item.setVisible(!(current_user instanceof CareProvider));
         return true;
     }
 

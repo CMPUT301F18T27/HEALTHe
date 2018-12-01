@@ -12,7 +12,9 @@ import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.User;
 
 public class ProblemActivity extends AppCompatActivity {
+    public static final String VIEWING_USER_MESSAGE = "team27.healthe.VIEWING_USER";
     private User current_user;
+    private User viewing_user;
     private ProblemListFragment problem_fragment;
 
 
@@ -27,7 +29,7 @@ public class ProblemActivity extends AppCompatActivity {
         getUser(getIntent());
 
         if (savedInstanceState == null) {
-            problem_fragment = ProblemListFragment.newInstance(current_user);
+            problem_fragment = ProblemListFragment.newInstance(current_user, viewing_user);
             getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, problem_fragment).commit();
         }
     }
@@ -56,7 +58,10 @@ public class ProblemActivity extends AppCompatActivity {
     private void getUser(Intent intent) {
         ElasticSearchController es_controller = new ElasticSearchController();
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        String viewing_user_json = intent.getStringExtra(VIEWING_USER_MESSAGE);
         this.current_user = es_controller.jsonToUser(user_json);
+        this.viewing_user = es_controller.jsonToUser(viewing_user_json);
+
     }
 
 }

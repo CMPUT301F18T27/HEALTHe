@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import team27.healthe.R;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
@@ -108,6 +109,10 @@ public class SlideshowActivity extends AppCompatActivity {
     private void setImage() {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         TextView no_photos_text = (TextView) findViewById(R.id.noPhotosTextView);
+        Button add_photo_button = (Button) findViewById(R.id.button21);
+        if (current_user instanceof CareProvider) {
+            add_photo_button.setVisibility(add_photo_button.INVISIBLE);
+        }
 
         if (image_files.isEmpty()) {
             image_view.setVisibility(View.INVISIBLE);

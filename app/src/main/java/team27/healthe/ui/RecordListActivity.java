@@ -38,6 +38,7 @@ import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
@@ -80,6 +81,9 @@ public class RecordListActivity extends AppCompatActivity {
                 addRecord();
             }
         });
+        if (current_user instanceof CareProvider) {
+            fab.hide();
+        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -93,7 +97,9 @@ public class RecordListActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Record record = (Record) listView.getItemAtPosition(position);
-                deleteRecord(record);
+                if (current_user instanceof Patient) {
+                    deleteRecord(record);
+                }
                 return true;
             }
         });

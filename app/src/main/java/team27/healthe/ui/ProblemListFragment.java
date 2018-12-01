@@ -36,6 +36,7 @@ import java.util.Date;
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
@@ -46,6 +47,7 @@ import team27.healthe.model.User;
 public class ProblemListFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_USER = "param1";
+    private static final String ARG_VIEWING = "param2";
 
     // TODO: Rename and change types of parameters
     public static ListView listView;
@@ -54,17 +56,19 @@ public class ProblemListFragment extends Fragment {
     public static String FILENAME = "problems.sav";
     public static LocalFileController file_controller = new LocalFileController();
     private Patient current_user;
+    private User viewing_user;
 
     public ProblemListFragment() {
         // Required empty public constructor
     }
 
-    public static ProblemListFragment newInstance(User user) {
+    public static ProblemListFragment newInstance(User current_user, User viewing_user) {
         Gson gson = new Gson();
 
         ProblemListFragment fragment = new ProblemListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER, gson.toJson(user));
+        args.putString(ARG_USER, gson.toJson(current_user));
+        args.putString(ARG_VIEWING, gson.toJson(viewing_user));
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,6 +80,7 @@ public class ProblemListFragment extends Fragment {
 
         if (getArguments() != null) {
             this.current_user = (Patient)es_controller.jsonToUser(getArguments().getString(ARG_USER));
+            this.viewing_user = es_controller.jsonToUser(getArguments().getString(ARG_VIEWING));
         }
     }
 
@@ -100,6 +105,9 @@ public class ProblemListFragment extends Fragment {
                 addProblem();
             }
         });
+        if (viewing_user instanceof CareProvider) {
+            fab.hide();
+        }
 
         listView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
             @Override
@@ -108,7 +116,7 @@ public class ProblemListFragment extends Fragment {
 
                 Gson gson = new Gson();
                 Intent intent = new Intent(getContext(), ProblemInfoActivity.class);
-                intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+                intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(viewing_user));
                 intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE,gson.toJson(problem));
                 intent.putExtra(ProblemInfoActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
                 startActivity(intent);
