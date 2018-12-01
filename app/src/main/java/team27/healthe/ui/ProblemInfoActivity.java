@@ -38,11 +38,9 @@ import team27.healthe.model.User;
 
 public class ProblemInfoActivity extends AppCompatActivity {
     public static final String PROBLEM_MESSAGE = "team27.healthe.PROBLEM";
-    public static final String PROBLEMS_MESSAGE = "team27.healthe.PROBLEMS";
 
     private User current_user;
     private Problem problem;
-    private ArrayList<Problem> problems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,11 +87,9 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         String problem_json = intent.getStringExtra(PROBLEM_MESSAGE);
-        String problems_json = intent.getStringExtra(PROBLEMS_MESSAGE);
 
         this.current_user = es_controller.jsonToUser(user_json);
         this.problem = gson.fromJson(problem_json, Problem.class);
-        this.problems = gson.fromJson(problems_json, new TypeToken<ArrayList<Problem>>(){}.getType());
     }
 
     private void setTextViews() {
@@ -115,7 +111,6 @@ public class ProblemInfoActivity extends AppCompatActivity {
     }
 
     private void editProblem() {
-        problems.remove(problem);
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Problem");
         //dialog.setMessage("");
@@ -177,10 +172,9 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
 
                 new UpdateProblem().execute(problem);
-                problems.add(problem);
 
                 LocalFileController file_controller = new LocalFileController();
-                file_controller.saveProblemsInFile(problems, getApplicationContext());
+                file_controller.replaceProblemInFile(problem, getApplicationContext());
                 setTextViews();
 
             }

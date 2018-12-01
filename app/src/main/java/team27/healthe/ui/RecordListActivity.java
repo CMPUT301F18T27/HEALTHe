@@ -132,7 +132,6 @@ public class RecordListActivity extends AppCompatActivity {
                             new UpdateProblem().execute(current_problem);
                         }
 
-                        //TODO: Delete records and photos associated with problem
 
                     }
                 })

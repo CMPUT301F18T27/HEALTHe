@@ -53,7 +53,6 @@ public class ProblemListFragment extends Fragment {
     public static ListView listView;
     private ProblemsAdapter adapter;
     public static ArrayList<Problem> problems;
-    public static String FILENAME = "problems.sav";
     public static LocalFileController file_controller = new LocalFileController();
     private Patient current_user;
     private User viewing_user;
@@ -118,7 +117,6 @@ public class ProblemListFragment extends Fragment {
                 Intent intent = new Intent(getContext(), ProblemInfoActivity.class);
                 intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(viewing_user));
                 intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE,gson.toJson(problem));
-                intent.putExtra(ProblemInfoActivity.PROBLEMS_MESSAGE, gson.toJson(problems));
                 startActivity(intent);
             }
         });

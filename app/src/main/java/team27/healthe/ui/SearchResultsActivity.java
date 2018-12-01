@@ -66,8 +66,18 @@ public class SearchResultsActivity extends AppCompatActivity {
 
         if (hit_map.containsKey("problem_id")) {
             Problem problem = gson.fromJson(json_string, Problem.class);
+            Intent intent = new Intent(this, ProblemInfoActivity.class);
+            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+            intent.putExtra(ProblemInfoActivity.PROBLEM_MESSAGE, gson.toJson(problem));
+            startActivity(intent);
+
+
         } else {
             Record record = gson.fromJson(json_string, Record.class);
+            Intent intent = new Intent(this, RecordActivity.class);
+            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+            intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
+            startActivity(intent);
         }
 
 
