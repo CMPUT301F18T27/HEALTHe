@@ -20,12 +20,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,7 +31,7 @@ import java.util.Date;
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.LocalFileController;
+import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.User;
 
@@ -110,6 +107,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         Gson gson = new Gson();
         Intent intent = new Intent(this, RecordListActivity.class);
         intent.putExtra(PROBLEM_MESSAGE, gson.toJson(problem));
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         startActivity(intent);
     }
 

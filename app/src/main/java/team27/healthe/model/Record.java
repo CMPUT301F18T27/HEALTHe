@@ -65,7 +65,7 @@ public class Record {
         title = ttl;
         rdate = date;
         description = desc;
-        commentList = null;
+        commentList = new ArrayList<>();
         bodyLocation = null;
         geoLocation = null;
         photos = new ArrayList();

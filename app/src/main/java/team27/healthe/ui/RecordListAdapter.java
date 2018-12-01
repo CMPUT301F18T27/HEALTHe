@@ -14,7 +14,7 @@ import team27.healthe.model.Record;
 
 public class RecordListAdapter extends ArrayAdapter<Record> {
     private final Activity context;
-    private final ArrayList<Record> records;
+    private ArrayList<Record> records;
 
     //Constructor
     public RecordListAdapter(Activity context, ArrayList<Record> records) {
@@ -43,8 +43,7 @@ public class RecordListAdapter extends ArrayAdapter<Record> {
 
     // Recreates the ListView when changes have been made to the list of records
     public void refresh(ArrayList<Record> records) {
-        this.clear();
-        this.addAll(records);
+        this.records = records;
         notifyDataSetChanged();
     }
 }
