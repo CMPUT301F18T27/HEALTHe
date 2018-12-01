@@ -26,12 +26,11 @@ import com.google.gson.Gson;
 import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import team27.healthe.R;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.LocalFileController;
+import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.PatientListAdapter;
 import team27.healthe.model.User;

@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,7 +24,6 @@ import java.util.ArrayList;
 import team27.healthe.R;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.GeoLocation;
-import team27.healthe.model.LocalFileController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
@@ -128,6 +124,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
 
     private void setMarkers() {
         boolean set_camera = false;
+        markers = new ArrayList<>();
         LatLngBounds.Builder latlng_builder = new LatLngBounds.Builder();
         for (Record record: records) {
             GeoLocation geo_loc = record.getGeoLocation();

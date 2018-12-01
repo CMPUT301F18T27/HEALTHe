@@ -4,7 +4,7 @@
     tools:context="team27.healthe.ui.ProblemInfoActivity">
     <item
         android:id="@+id/action_problem_edit"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="Delete Problem"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:title="Edit Problem"
         app:showAsAction="ifRoom" />
 </menu>

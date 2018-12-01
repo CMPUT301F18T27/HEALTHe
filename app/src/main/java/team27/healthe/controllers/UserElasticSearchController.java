@@ -68,4 +68,17 @@ public class UserElasticSearchController extends ElasticSearchController {
         }
         return null;
     }
+
+    public User jsonToUser(String user_json) {
+        Gson gson = new Gson();
+
+        Map source_map = gson.fromJson(user_json, Map.class);
+        String user_type = source_map.get("user_type").toString();
+
+        if (user_type.equals("patient")) {
+            return gson.fromJson(user_json,Patient.class);
+        } else {
+            return gson.fromJson(user_json,CareProvider.class);
+        }
+    }
 }

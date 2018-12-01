@@ -99,7 +99,6 @@ public class ProfileFragment extends Fragment {
         TextView email_textview = (TextView) view.findViewById(R.id.profileEmailText);
         TextView number_textview = (TextView) view.findViewById(R.id.profilePhoneText);
         TextView type_textview = (TextView) view.findViewById(R.id.profileAccountType);
-        TextView count_textview = (TextView) view.findViewById(R.id.profileCount);
 
         userid_textview.setText(this.user.getUserid());
         email_textview.setText(this.user.getEmail());
@@ -107,10 +106,8 @@ public class ProfileFragment extends Fragment {
 
         if (user instanceof Patient) {
             type_textview.setText("Patient");
-            count_textview.setText("Problem count: " + ((Patient)user).getProblemCount().toString());
         } else {
             type_textview.setText("Care Provider");
-            count_textview.setText("Patient count: " + ((CareProvider)user).getPatientCount().toString());
         }
 
         ImageView image_email = (ImageView) view.findViewById(R.id.imageView6);

@@ -19,6 +19,7 @@ public class ProblemElasticSearchController extends ElasticSearchController {
      */
     public static Problem addProblem(Problem p) {
         verifyClient();
+        boolean re_save = false;
 
         Gson gson = new Gson();
         String problem_json = gson.toJson(p);
@@ -26,6 +27,7 @@ public class ProblemElasticSearchController extends ElasticSearchController {
         Index index;
         if (p.getProblemID().equals("")) {
             index = new Index.Builder(problem_json).index(test_index).type(problem_type).build();
+            re_save = true;
         }
         else {
             index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
@@ -33,7 +35,11 @@ public class ProblemElasticSearchController extends ElasticSearchController {
 
         try {
             DocumentResult result = client.execute(index);
+            String id = result.getId();
             p.setProblemID(result.getId());
+            if (re_save) {
+                addProblem(p);
+            }
             return p;
         }
         catch (Exception e) {
@@ -72,8 +78,8 @@ public class ProblemElasticSearchController extends ElasticSearchController {
         verifyClient();
         try{
             client.execute(new Delete.Builder(problem_id)
-                    .index("problem")
-                    .type("problem")
+                    .index(test_index)
+                    .type(problem_type)
                     .build());
         } catch (Exception e){
             e.printStackTrace();
