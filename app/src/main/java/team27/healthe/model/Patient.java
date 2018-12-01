@@ -9,11 +9,13 @@ import java.util.Collection;
  */
 public class Patient extends User {
     private ArrayList<String> problems;
+    private ArrayList<String> body_locations;
     private String user_type = "patient";
 
     public Patient(String userID, String email, String phone){
         super(userID, email, phone);
         this.problems = new ArrayList();
+        this.body_locations = new ArrayList<>();
     }
 
     public Collection<String> getProblemList() {
@@ -49,5 +51,15 @@ public class Patient extends User {
      * @return size (Integer)
      */
     public Integer getProblemCount() {return problems.size();}
+
+    public Integer getBodyLocationCount(){return body_locations.size();}
+
+    public void addBodyLocation(String body_location_id){
+        body_locations.add(body_location_id);
+    }
+    public ArrayList<String> getBodyLocations(){
+        return body_locations;
+    }
+
 
 }

@@ -57,15 +57,19 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         if (id == null) {
             index = new Index.Builder(photo_json).index(test_index).type(photo_type).build();
         } else {
+            System.out.println(id);
             index = new Index.Builder(photo_json).index(test_index).type(photo_type).id(id).build();
         }
 
 
         try {
             DocumentResult result = client.execute(index);
+            System.out.println("here in try");
             return result.getId();
         }
         catch (Exception e) {
+            System.out.println("here in catch");
+            e.printStackTrace();
             Log.i("Error", e.toString());
         }
         return null;
