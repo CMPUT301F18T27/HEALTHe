@@ -32,7 +32,7 @@ public class GeoLocationTest {
         GeoLocation g = new GeoLocation(latlng);
 
         // TESTING SETTERS AND GETTERS FOR NAME
-        assertEquals(g.getName(), "");
+        assertEquals(null, g.getName());
         String name = "New GeoLocation";
         g.setName(name);
         assertEquals(name, g.getName());
@@ -43,15 +43,15 @@ public class GeoLocationTest {
         double lon = 63.6786;
         double lat = 38.1235;
         LatLng latlng = new LatLng(lat,lon);
-        GeoLocation g = new GeoLocation(lon, lat);
+        GeoLocation g = new GeoLocation(lat, lon);
 
         // TESTING SETTERS AND GETTERS FOR LATLONG
-        assertEquals(g.getLatLng(), latlng);
+        assertEquals(latlng, g.getLatLng());
         LatLng newLatLng = new LatLng(92.4576, 12.2864);
         g.setLatLng(newLatLng);
         assertEquals(newLatLng, g.getLatLng());
 
-        assertEquals(g.getLatLng(), latlng);
+        assertEquals(newLatLng, g.getLatLng());
         double newLat = 123.658;
         double newLon = 152.6423;
         g.setLatLng(newLat, newLon);

@@ -25,7 +25,7 @@ public class BodyLocationTest {
     public void testNewBodyLocationConstructor(){
         assertEquals(l.getX(), x, 0.001);
         assertEquals(l.getY(), y, 0.001);
-        assertEquals(l.getLocationName(), "");
+        assertEquals("", l.getLocationName());
 
         BodyLocation new_l = new BodyLocation();
         assertEquals(new_l.getX(), 0, 0.001);
@@ -37,7 +37,7 @@ public class BodyLocationTest {
     @Test
     public void testLocationName(){
         // TESTING SETTERS AND GETTERS FOR LOCATION NAME
-        assertEquals(l.getLocationName(), "");
+        assertEquals(null, l.getLocationName());
         String newName = "Hand";
         l.setLocation(newName);
         assertEquals(newName, l.getLocationName());
@@ -46,7 +46,7 @@ public class BodyLocationTest {
     @Test
     public void testPatientId(){
         // TESTING SETTERS AND GETTERS FOR PATIENT ID
-        assertEquals(l.getPatientId(), "");
+        assertEquals("", l.getPatientId());
         String newPatientId = "2674";
         l.setPatientId(newPatientId);
         assertEquals(newPatientId, l.getPatientId());
@@ -55,7 +55,7 @@ public class BodyLocationTest {
     @Test
     public void testBodyLocationId(){
         // TESTING SETTERS AND GETTERS FOR BODY LOCATION ID
-        assertEquals(l.getBodyLocationId(), "");
+        assertEquals(null, l.getBodyLocationId());
         String newBodyId = "2w461";
         l.setBodyLocationId(newBodyId);
         assertEquals(newBodyId, l.getBodyLocationId());

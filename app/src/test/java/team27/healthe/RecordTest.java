@@ -38,8 +38,9 @@ public class RecordTest {
 
         Record r2 = new Record(title, rdate, descr);
         assertEquals(title, r2.getTitle());
-        assertNull(r2.getDescription());
-        assertNull(r2.getCommentList());
+        assertEquals(rdate, r2.getRdate());
+        assertEquals(descr, r2.getDescription());
+        assertEquals(new ArrayList<String>(), r2.getCommentList());
         assertNull(r2.getBodyLocation());
         assertNull(r2.getGeoLocation());
         assertNull(r2.getPhotos());
