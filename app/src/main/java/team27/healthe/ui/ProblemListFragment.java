@@ -135,9 +135,6 @@ public class ProblemListFragment extends Fragment {
         adapter = new ProblemsAdapter(getContext(), problems);
         listView.setAdapter(adapter);
         getProblems();
-        if (problems.size() == 0) { // This check is because elastic search is down so often
-            loadLocalProblems();
-        }
     }
 
     public void addProblem() {
@@ -412,6 +409,7 @@ public class ProblemListFragment extends Fragment {
     }
 
     private void getProblemsES() {
+        Integer count = problems.size();
         for (String problem_id : current_user.getProblemList()) {
             new getProblemAsync().execute(problem_id);
         }

@@ -108,9 +108,6 @@ public class RecordListActivity extends AppCompatActivity {
         adapter = new RecordListAdapter(this, records);
         listView.setAdapter(adapter);
         getRecords();
-        if (records.size() == 0) {
-            getLocalRecords();
-        }
     }
 
     public void viewRecord(Record record) {
