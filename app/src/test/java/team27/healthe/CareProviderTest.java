@@ -1,7 +1,6 @@
 package team27.healthe;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +20,7 @@ public class CareProviderTest {
 
         assertEquals(userId, cp.getUserid());
         assertEquals(email, cp.getEmail());
-        assertEquals(phone, cp.getPhone_number());
+        assertEquals(phone, cp.getPhoneNumber());
     }
 
     @Test

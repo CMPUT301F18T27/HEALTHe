@@ -15,6 +15,10 @@ import team27.healthe.model.CareProvider;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
+/**
+ * Class for add/edit/delete operations for User objects from the Elasticsearch server
+ * @author [fill in]
+ */
 public class UserElasticSearchController extends ElasticSearchController {
     /**
      * Add user to elastic search database using userid as the id in elastic search

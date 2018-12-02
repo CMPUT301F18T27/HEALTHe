@@ -98,7 +98,7 @@ public class ProfileFragment extends Fragment {
 
         userid_textview.setText(this.user.getUserid());
         email_textview.setText(this.user.getEmail());
-        number_textview.setText(this.user.getPhone_number());
+        number_textview.setText(this.user.getPhoneNumber());
 
         if (user instanceof Patient) {
             type_textview.setText("Patient");

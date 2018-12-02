@@ -11,6 +11,10 @@ import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.Problem;
 
+/**
+ * Class for add/edit/delete operations for Problem objects from the Elasticsearch server
+ * @author [fill in]
+ */
 public class ProblemElasticSearchController extends ElasticSearchController {
 
     /**

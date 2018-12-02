@@ -11,6 +11,9 @@ import java.util.ArrayList;
 
 import team27.healthe.R;
 
+/**
+ * @author [fill in]
+ */
 public class CommentListAdapter extends ArrayAdapter<String> {
     private final Activity context;
     private ArrayList<String> comments; //Array of patient ids

@@ -28,8 +28,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.elasticsearch.search.SearchHits;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +39,6 @@ import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
-import team27.healthe.model.Photo;
-import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class HomeActivity extends AppCompatActivity {
@@ -279,7 +275,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Add another TextView for phone number
         final EditText phone_text = new EditText(this);
-        phone_text.setText(current_user.getPhone_number());
+        phone_text.setText(current_user.getPhoneNumber());
         phone_text.setInputType(InputType.TYPE_CLASS_PHONE);
         layout.addView(phone_text); // Another add method
 
@@ -290,7 +286,7 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Updating profile...", Toast.LENGTH_SHORT).show();
 
                 current_user.setEmail(email_text.getText().toString());
-                current_user.setPhone_number(phone_text.getText().toString());
+                current_user.setPhoneNumber(phone_text.getText().toString());
 
                 List<Fragment> allFragments = getSupportFragmentManager().getFragments();
                 Fragment fragment  = (ProfileFragment)allFragments.get(0);

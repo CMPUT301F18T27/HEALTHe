@@ -26,12 +26,12 @@ import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.BodyLocationListener;
 import team27.healthe.model.BodyLocation;
-import team27.healthe.controllers.ImageAdapter;
+import team27.healthe.controllers.BodyLocationImageAdapter;
 import team27.healthe.controllers.ImageController;
 
 public class ViewBodyLocationsActivity extends AppCompatActivity implements BodyLocationListener {
     ImageController ic;
-    ImageAdapter image_adapter;
+    BodyLocationImageAdapter image_adapter;
     ArrayList<String> image_list;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
@@ -87,7 +87,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),2);
         recyclerView.setLayoutManager(layoutManager);
-        image_adapter = new ImageAdapter(getApplicationContext(), image_list, this);
+        image_adapter = new BodyLocationImageAdapter(getApplicationContext(), image_list, this);
         ic.setImageAdapter(image_adapter);
         recyclerView.setAdapter(image_adapter);
 

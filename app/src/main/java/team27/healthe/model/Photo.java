@@ -2,10 +2,17 @@ package team27.healthe.model;
 
 import org.elasticsearch.common.UUID;
 
+/**
+ * Class for representing record images
+ * @author [fill in]
+ */
 public class Photo {
     private String id;
     private BodyLocation body_location;
 
+    /**
+     * TODO: explain
+     */
     public Photo () {
         id = UUID.randomUUID().toString();
         body_location = null;

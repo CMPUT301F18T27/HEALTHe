@@ -1,7 +1,5 @@
 package team27.healthe.controllers;
 
-import android.os.AsyncTask;
-
 import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.GeoDistanceFilterBuilder;
@@ -12,8 +10,6 @@ import org.elasticsearch.search.sort.SortOrder;
 
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
-import team27.healthe.model.Problem;
-import team27.healthe.model.User;
 
 // For performing searches with elastic search
 public class ElasticSearchSearchController extends ElasticSearchController {

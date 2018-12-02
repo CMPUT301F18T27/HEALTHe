@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * adapter for filling in list view with problem information (and allow selection)
+ * @author [fill in]
+ */
 public class ProblemsAdapter extends ArrayAdapter<Problem> {
     private Context context;
     private ArrayList<Problem> recordedProblems;

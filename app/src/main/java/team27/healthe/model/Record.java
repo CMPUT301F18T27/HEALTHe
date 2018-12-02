@@ -1,21 +1,13 @@
 package team27.healthe.model;
 
-import android.content.Context;
-import android.media.Image;
-
 import org.elasticsearch.common.UUID;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-
-import team27.healthe.R;
-
 /**
  * Represents a record (associated with a problem)
  * @author [fill in]
+ * @author Chris
  */
 public class Record {
     private String title;

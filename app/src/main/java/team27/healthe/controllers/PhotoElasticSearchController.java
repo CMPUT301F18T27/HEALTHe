@@ -23,6 +23,10 @@ import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.ElasticSearchPhoto;
 
+/**
+ * Class for add/edit/delete operations for Photo objects from the Elasticsearch server
+ * @author [fill in]
+ */
 public class PhotoElasticSearchController extends ElasticSearchController{
 
     public boolean getPhoto(String id) {
