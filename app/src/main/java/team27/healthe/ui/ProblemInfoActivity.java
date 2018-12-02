@@ -172,7 +172,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
                 new UpdateProblem().execute(problem);
 
                 LocalFileController file_controller = new LocalFileController();
-                file_controller.replaceProblemInFile(problem, getApplicationContext());
+                file_controller.saveProblemInFile(problem, getApplicationContext());
                 setTextViews();
 
             }

@@ -282,13 +282,8 @@ public class ProblemListFragment extends Fragment {
 
             for (Problem problem : problems) {
 
-                Problem new_problem = es_controller.addProblem(problem);
-
-                if (new_problem == null) {
-                    return problem;
-                } else {
-                    return new_problem;
-                }
+                es_controller.addProblem(problem);
+                return problem;
 
             }
             return null;
@@ -379,7 +374,7 @@ public class ProblemListFragment extends Fragment {
         if (network_info != null && network_info.isConnected()) {
             getProblemsES();
         } else {
-            for (Problem problem : file_controller.loadProblemsFromFile(getContext())) {
+            for (Problem problem : file_controller.loadProblemsFromFile(current_user, getContext())) {
                 problems.add(problem);
             }
             adapter.refresh(problems);

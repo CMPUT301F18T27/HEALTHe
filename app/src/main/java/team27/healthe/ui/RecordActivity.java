@@ -179,7 +179,7 @@ public class RecordActivity extends AppCompatActivity {
                 new UpdateRecord().execute(record);
 
                 LocalFileController file_controller = new LocalFileController();
-                file_controller.replaceRecordInFile(record, getApplicationContext());
+                file_controller.saveRecordInFile(record, getApplicationContext());
                 setTextViews();
 
             }

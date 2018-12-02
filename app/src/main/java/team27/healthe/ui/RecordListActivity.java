@@ -126,7 +126,7 @@ public class RecordListActivity extends AppCompatActivity {
 
                         if (record.getRecordID() != null) {
                             current_problem.removeRecord(record.getRecordID());
-                            file_controller.replaceProblemInFile(current_problem, getApplicationContext());
+                            file_controller.saveProblemInFile(current_problem, getApplicationContext());
                             new UpdateProblem().execute(current_problem);
                         }
 
@@ -254,13 +254,8 @@ public class RecordListActivity extends AppCompatActivity {
 
             for (Record record : records) {
 
-                Record new_record = es_controller.addRecord(record);
-
-                if (new_record == null) {
-                    return record;
-                } else {
-                    return new_record;
-                }
+                es_controller.addRecord(record);
+                return record;
 
             }
             return null;
@@ -281,7 +276,7 @@ public class RecordListActivity extends AppCompatActivity {
                 //TODO: Add problem to es server and user once online again
             }
             file_controller.saveRecordInFile(record, getApplicationContext());
-            file_controller.replaceProblemInFile(current_problem, getApplicationContext());
+            file_controller.saveProblemInFile(current_problem, getApplicationContext());
         }
     }
 
@@ -361,7 +356,7 @@ public class RecordListActivity extends AppCompatActivity {
         if (network_info != null && network_info.isConnected()) {
             getRecordsES();
         } else {
-            for (Record record : file_controller.loadRecordsFromFile(getApplicationContext())) {
+            for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
                 records.add(record);
             }
             adapter.refresh(records);

@@ -1,4 +1,4 @@
-package team27.healthe.model;
+package team27.healthe.controllers;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
@@ -14,6 +14,8 @@ import java.util.Map;
 
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
+import team27.healthe.model.Problem;
+import team27.healthe.model.Record;
 
 public class SearchResultsAdapter extends ArrayAdapter<String> {
 

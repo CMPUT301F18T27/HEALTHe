@@ -292,7 +292,7 @@ public class PatientListFragment extends Fragment {
             new getPatientsAsync().execute(new ArrayList<String>(current_user.getPatients()));
         } else {
             LocalFileController fs_controller = new LocalFileController();
-            this.patients = fs_controller.loadPatientsFromFile(getContext());
+            this.patients = fs_controller.loadPatientsFromFile(current_user, getContext());
         }
     }
 
