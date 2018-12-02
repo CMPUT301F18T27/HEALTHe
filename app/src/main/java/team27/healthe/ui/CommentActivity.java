@@ -28,6 +28,7 @@ import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.CommentListAdapter;
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.Comment;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -115,24 +116,18 @@ public class CommentActivity extends AppCompatActivity {
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        /*
-        //Add title for email input
-        final TextView patient_id = new TextView(getActivity());
-        patient_id.setHint("Patient ID");
-        layout.addView(patient_id);
-        */
 
-        // Add a TextView for email
-        final EditText patient_text = new EditText(this);
-        patient_text.setHint("Comment");
-        patient_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        layout.addView(patient_text);
+        // Add a TextView for comment
+        final EditText comment_text = new EditText(this);
+        comment_text.setHint("Comment");
+        comment_text.setInputType(InputType.TYPE_CLASS_TEXT);
+        layout.addView(comment_text);
 
         dialog.setView(layout);
 
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                saveComment(current_user.getUserid() + ":\n" + patient_text.getText().toString());
+                saveComment(comment_text.getText().toString());
 
             }
         })
@@ -144,9 +139,11 @@ public class CommentActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void saveComment(String comment) {
+    private void saveComment(String comment_text) {
+        Comment comment = new Comment(comment_text, current_user.getUserid());
+
         this.record.addCommment(comment);
-        ArrayList<String> comments = record.getCommentList();
+        ArrayList<Comment> comments = record.getCommentList();
         adapter.refresh(comments);
 
         LocalFileController file_controller = new LocalFileController();

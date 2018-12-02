@@ -356,14 +356,11 @@ public class ProblemListFragment extends Fragment {
             super.onPostExecute(problem);
             if (problem != null) {
                 problems.add(problem);
-                if (problems.size() == current_user.getProblemList().size()) {
-                    adapter.refresh(problems);
-                }
+                adapter.refresh(problems);
+
 
                 LocalFileController localFileController = new LocalFileController();
                 localFileController.saveProblemInFile(problem, getContext());
-            } else {
-                adapter.refresh(problems);
             }
         }
     }

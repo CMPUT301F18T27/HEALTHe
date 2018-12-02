@@ -10,9 +10,15 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/textCommentList"
+        android:id="@+id/textCommentAuthor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="viewStart"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

@@ -14,7 +14,7 @@ public class Record {
     private Date rdate;
     private String description;
 
-    private ArrayList<String> commentList;
+    private ArrayList<Comment> commentList;
     private String body_location_s; // @TODO: is this necessary?
     private BodyLocation bodyLocation;
     private String geo_location_s; // @TODO: is this necessary?
@@ -22,7 +22,7 @@ public class Record {
     private ArrayList<Photo> photos;
     private String record_id;
 
-    public Record(String ttl, Date date, String desc, ArrayList<String> comments,
+    public Record(String ttl, Date date, String desc, ArrayList<Comment> comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Photo> images) {
 
         // Note: either need to pass in context or add this file to the record activity
@@ -40,7 +40,7 @@ public class Record {
     }
 
     //Temp constructor for testing, ignore it
-    public Record(ArrayList<String> comments) {
+    public Record(ArrayList<Comment> comments) {
         // Note: either need to pass in context or add this file to the record activity
         // Not sure how this is used right now
         // body_location_s = c.getString(R.string.def_body_location_s);
@@ -90,15 +90,15 @@ public class Record {
         this.description = description;
     }
 
-    public ArrayList<String> getCommentList() {
+    public ArrayList<Comment> getCommentList() {
         return commentList;
     }
 
-    public void setCommentList(ArrayList<String> comments) {
+    public void setCommentList(ArrayList<Comment> comments) {
         this.commentList = comments;
     }
 
-    public void addCommment(String comment) { this.commentList.add(comment); }
+    public void addCommment(Comment comment) { this.commentList.add(comment); }
 
     public BodyLocation getBodyLocation() {
         return bodyLocation;
