@@ -62,6 +62,10 @@ public class OfflineController {
         writeToFile(DELETE + SPLITTER + PHOTO + SPLITTER + gson.toJson(photo) + "\n", context);
     }
 
+    public static void clearTasks(Context context) {
+        clearFile(context);
+    }
+
     public static boolean hasTasks(Context context) {
         try {
             FileInputStream fis = context.openFileInput(FILENAME);

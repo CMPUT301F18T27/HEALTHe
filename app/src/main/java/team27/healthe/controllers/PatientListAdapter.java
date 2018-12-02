@@ -53,7 +53,8 @@ public class PatientListAdapter extends ArrayAdapter<String> {
      * @param patients (ArrayList<String> - patient ids)
      */
     public void refresh(ArrayList<String> patients) {
-        this.patients = patients;
+        this.patients.clear();
+        this.patients.addAll(patients);
         notifyDataSetChanged();
     }
 }

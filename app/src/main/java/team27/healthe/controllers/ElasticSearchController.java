@@ -13,6 +13,7 @@ public abstract class ElasticSearchController {
     /**
      * elasticsearch server connection information
      */
+    protected static String backup_node = "http://es2.softwareprocess.ca:8080";
     protected static String node = "http://cmput301.softwareprocess.es:8080";
     protected static String index = "cmput301f18t27";
     protected static String test_index = "cmput301f18t27test";

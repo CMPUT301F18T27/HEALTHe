@@ -252,7 +252,10 @@ public class HomeActivity extends AppCompatActivity {
 
     private void logout() {
         LocalFileController file_controller = new LocalFileController();
+        OfflineController offline_controller = new OfflineController();
         file_controller.clearUserFile(this);
+        offline_controller.clearTasks(this);
+
         finish();
     }
 

@@ -64,7 +64,6 @@ public class RecordActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        checkTasks();
         getRecord();
     }
 
@@ -233,24 +232,27 @@ public class RecordActivity extends AppCompatActivity {
 
     }
 
+    private void getLocalRecord() {
+        LocalFileController file_controller = new LocalFileController();
+        Record temp_record = file_controller.loadRecordFromFile(record.getRecordID(), getApplicationContext());
+        if (temp_record != null) {
+            this.record = temp_record;
+            setTextViews();
+        }
+    }
 
-    private void checkTasks() {
+    private void getRecord() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
             if (controller.hasTasks(this)) {
                 new PerformTasks().execute(true);
             }
+            else {
+                new getRecordAsync().execute(record.getRecordID());
+            }
+        } else {
+            getLocalRecord();
         }
-    }
-
-    private void getRecord() {
-        LocalFileController file_controller = new LocalFileController();
-        Record temp_record = file_controller.loadRecordFromFile(record.getRecordID(), getApplicationContext());
-        if (temp_record != null) {
-            this.record = temp_record;
-        }
-
-        //TODO: get record from ES if online
     }
 
     private boolean isNetworkConnected() {
@@ -261,6 +263,32 @@ public class RecordActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    // Async class for getting records from elastic search server
+    private class getRecordAsync extends AsyncTask<String, Void, Record> {
+
+        @Override
+        protected Record doInBackground(String... record_ids) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+
+            for (String record_id : record_ids) {
+                return es_controller.getRecord(record_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record es_record) {
+            super.onPostExecute(es_record);
+            if (es_record != null) {
+                record = es_record;
+                setTextViews();
+
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveRecordInFile(record, getApplicationContext());
+            }
+        }
     }
 
 
