@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -34,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.RecordListAdapter;
@@ -64,13 +66,7 @@ public class RecordListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         listView = (ListView) findViewById(R.id.record_list);
-
-        records = new ArrayList<>();
-        adapter = new RecordListAdapter(this, records);
-        listView.setAdapter(adapter);
-
         getFromIntent();
-        getRecords();
 
         // clicking the add button takes you to an alert dialog to choose the
         // type of record to add
@@ -105,6 +101,16 @@ public class RecordListActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        records = new ArrayList<>();
+        adapter = new RecordListAdapter(this, records);
+        listView.setAdapter(adapter);
+        getRecords();
+    }
+
     public void viewRecord(Record record) {
         Gson gson = new Gson();
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
@@ -120,16 +126,13 @@ public class RecordListActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         records.remove(record);
-                        file_controller.saveRecordsInFile(records, getApplicationContext());
                         adapter.refresh(records);
 
                         new DeleteRecord().execute(record);
 
-                        if (record.getRecordID() != null) {
-                            current_problem.removeRecord(record.getRecordID());
-                            file_controller.saveProblemInFile(current_problem, getApplicationContext());
-                            new UpdateProblem().execute(current_problem);
-                        }
+                        current_problem.removeRecord(record.getRecordID());
+                        file_controller.saveProblemInFile(current_problem, getApplicationContext());
+                        new UpdateProblem().execute(current_problem);
 
 
                     }
@@ -167,7 +170,7 @@ public class RecordListActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Record");
-        //dialog.setMessage("");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(this);
@@ -193,8 +196,12 @@ public class RecordListActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final TextView date_text = new TextView(this);
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(formatter.format(new Date()));
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,10 +238,20 @@ public class RecordListActivity extends AppCompatActivity {
                 }
 
                 if (validProblemInputs(title, date, desc)) {
-                    Toast.makeText(getApplicationContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-                    Record record = new Record(title, date, desc);;
+                    Toast.makeText(getApplicationContext(), "Adding record...", Toast.LENGTH_SHORT).show();
+                    Record record = new Record(title, date, desc);
 
                     new AddRecordES().execute(record);
+
+                    records.add(record);
+                    adapter.refresh(records);
+
+                    current_problem.addRecord(record.getRecordID());
+                    new UpdateProblem().execute(current_problem);
+
+                    file_controller.saveRecordInFile(record, getApplicationContext());
+                    file_controller.saveProblemInFile(current_problem, getApplicationContext());
+
                     dialog.dismiss(); //Dismiss once everything is OK.
                 }
             }
@@ -254,10 +271,10 @@ public class RecordListActivity extends AppCompatActivity {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
 
             for (Record record : records) {
-
-                es_controller.addRecord(record);
-                return record;
-
+                if (!es_controller.addRecord(record)) {
+                    return record;
+                }
+                return null;
             }
             return null;
         }
@@ -265,19 +282,10 @@ public class RecordListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Record record) {
             super.onPostExecute(record);
-            if (!record.getRecordID().equals("")) {
-                current_problem.addRecord(record.getRecordID());
-                new UpdateProblem().execute(current_problem);
-                records.add(record);
-                adapter.refresh(records);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
             }
-            else {
-                records.add(record);
-                adapter.refresh(records);
-                //TODO: Add problem to es server and user once online again
-            }
-            file_controller.saveRecordInFile(record, getApplicationContext());
-            file_controller.saveProblemInFile(current_problem, getApplicationContext());
         }
     }
 
@@ -287,9 +295,21 @@ public class RecordListActivity extends AppCompatActivity {
         protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for(Record record:records) {
-                es_controller.removeRecord(record.getRecordID());
+                if(!es_controller.removeRecord(record.getRecordID())) {
+                    return record;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.deleteRecord(record, getApplicationContext());
+            }
         }
     }
 
@@ -314,23 +334,53 @@ public class RecordListActivity extends AppCompatActivity {
                 records.add(record);
                 adapter.refresh(records);
 
-
-                //TODO: fix saving
                 LocalFileController localFileController = new LocalFileController();
-                localFileController.saveRecordsInFile(records, getApplicationContext());
+                localFileController.saveRecordInFile(record, getApplicationContext());
             }
         }
     }
 
-    private class UpdateProblem extends AsyncTask<Problem, Void, Void> {
+    private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
-        protected Void doInBackground(Problem... problems) {
+        protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for (Problem problem : problems) {
-                es_controller.addProblem(problem);
+                if (!es_controller.addProblem(problem)) {
+                    return problem;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if (problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            getRecordsES();
         }
     }
 
@@ -351,17 +401,34 @@ public class RecordListActivity extends AppCompatActivity {
     }
 
     private void getRecords() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+            else {
+                getRecordsES();
+            }
+        } else {
+            getLocalRecords();
+        }
+    }
+
+    private void getLocalRecords() {
+        for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
+            records.add(record);
+        }
+        adapter.refresh(records);
+    }
+
+    private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
 
         if (network_info != null && network_info.isConnected()) {
-            getRecordsES();
-        } else {
-            for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
-                records.add(record);
-            }
-            adapter.refresh(records);
+            return true;
         }
+        return false;
     }
 
     public boolean validProblemInputs(String title, Date date, String desc) {

@@ -10,11 +10,10 @@ import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.BodyLocation;
-import team27.healthe.model.Problem;
 
 /**
- * Interface for add/edit/delete for BodyLocation objects from the Elasticsearch server
- * @author cdodic
+ * Class for add/edit/delete operations for BodyLocation objects from the Elasticsearch server
+ * @author Chris
  */
 public class BodyLocationElasticSearchController extends ElasticSearchController {
 
@@ -73,7 +72,7 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
     }
 
     /**
-     * Removes a specified body location for the given user (corresponding to user_id)
+     * Removes a specified body location from the given body location id (bl_id)
      * @param bl_id (Integer)
      */
     public static void removeBodyLocation(String bl_id){

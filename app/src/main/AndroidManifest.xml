@@ -111,8 +111,10 @@
             android:name=".ui.AllGeoLocationsActivity"
             android:label="@string/title_activity_all_geo_locations"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ui.SlideshowActivity" />
-        android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.SlideshowActivity"
+            android:label="Photos"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ViewBodyLocationsActivity"
             android:label="@string/title_activity_edit_body_locations"
@@ -126,7 +128,9 @@
             android:name=".ui.SelectBodyLocationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_select_body_location" />
-        <activity android:name=".ui.SearchResultsActivity"></activity>
+        <activity
+            android:name=".ui.SearchResultsActivity"
+            android:label="Search Results"/>
     </application>
 
 </manifest>

@@ -6,6 +6,7 @@ import java.util.Collection;
 /**
  * Represents a patient
  * @author [fill in]
+ * @author Chris
  */
 public class Patient extends User {
     private ArrayList<String> problems;
@@ -48,10 +49,14 @@ public class Patient extends User {
 
     /**
      * Returns the number of problems in the user's problem list
-     * @return size (Integer)
+     * @return size (int)
      */
     public int getProblemCount() {return problems.size();}
 
+    /**
+     * Returns number of body location (body location photos) this patient has associated with them
+     * @return size (int)
+     */
     public int getBodyLocationCount(){return body_locations.size();}
 
     public void addBodyLocation(String body_location_id){

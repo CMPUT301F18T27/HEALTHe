@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /** Represents the CareProvider (User-subclass)
+ * @author Chris
  * @author [fill in]
  */
 public class CareProvider extends User {

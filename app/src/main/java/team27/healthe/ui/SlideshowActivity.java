@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -20,6 +23,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
@@ -46,34 +51,37 @@ public class SlideshowActivity extends AppCompatActivity {
 
         getItems(getIntent());
         getFiles();
-
         setImage();
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkTasks();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PHOTO_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                boolean success = data.getBooleanExtra(PhotoActivity.SUCCESS_MESSAGE, false);
-                if (success) {
-                    String id = data.getStringExtra(PhotoActivity.PHOTO_ID_MESSAGE);
-                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
-                    if (photo_file.exists()) {
-                        image_files.add(photo_file);
-                    }
-                    Photo photo = new Photo(id);
+                Gson gson = new Gson();
+
+                Photo photo = gson.fromJson(data.getStringExtra(PhotoActivity.PHOTO_ID_MESSAGE), Photo.class);
+                File photo_file = new File(getMediaDirectory().getPath() + File.separator + photo.getId() + ".jpg");
+                if (photo_file.exists()) {
+                    image_files.add(photo_file);
+
                     record.addPhoto(photo);
                     new UpdateRecord().execute(record);
+
+                    LocalFileController file_controller = new LocalFileController();
+                    file_controller.saveRecordInFile(record, this);
+
                     setIntent();
-                }else {
-                    String file_name = data.getStringExtra(PhotoActivity.FILENAME_MESSAGE);
-                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + file_name + ".jpg");
-                    if (photo_file.exists()) {
-                        image_files.add(photo_file);
-                    }
+
+                    updateButtons();
                 }
-                updateButtons();
             }
         }
     }
@@ -102,6 +110,26 @@ public class SlideshowActivity extends AppCompatActivity {
                 else {
                     new GetPhoto().execute(photo);
                 }
+            }
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
             }
         }
     }
@@ -177,13 +205,38 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
             }
             return null;
         }
@@ -235,7 +288,6 @@ public class SlideshowActivity extends AppCompatActivity {
     }
 
     public void onClickAddPhoto(View view) {
-        //TODO: prevent adding more than 10 images
         if (record.getPhotos().size() <= 10) {
             Gson gson = new Gson();
             Intent intent = new Intent(this, PhotoActivity.class);

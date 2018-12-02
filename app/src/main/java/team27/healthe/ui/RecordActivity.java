@@ -6,6 +6,9 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +32,7 @@ import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -55,6 +59,12 @@ public class RecordActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getRecord();
     }
 
     @Override
@@ -89,7 +99,6 @@ public class RecordActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String record_json = data.getStringExtra(RECORD_MESSAGE);
                 this.record = gson.fromJson(record_json, Record.class);
-                //TODO: Save record to es server
             }
         }
     }
@@ -119,7 +128,7 @@ public class RecordActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Record");
-        //dialog.setMessage("");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(this);
@@ -146,8 +155,12 @@ public class RecordActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final TextView date_text = new TextView(this);
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(formatter.format(record.getRdate()));
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,39 +206,125 @@ public class RecordActivity extends AppCompatActivity {
 
     }
 
-        private void showDateTimePicker(final TextView date_textview) {
-            //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
-            final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-            final Calendar date;
-            final Calendar currentDate = Calendar.getInstance();
-            date = Calendar.getInstance();
-            final Context context = this;
-            new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
-                @Override
-                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                    date.set(year, monthOfYear, dayOfMonth);
-                    new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                            date.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                            date.set(Calendar.MINUTE, minute);
-                            Date new_date = date.getTime();
-                            record.setRdate(new_date);
-                            date_textview.setText(formatter.format(new_date));
-                        }
-                    }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
-                }
-            }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+    private void showDateTimePicker(final TextView date_textview) {
+        //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        final Calendar date;
+        final Calendar currentDate = Calendar.getInstance();
+        date = Calendar.getInstance();
+        final Context context = this;
+        new DatePickerDialog(context, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                date.set(year, monthOfYear, dayOfMonth);
+                new TimePickerDialog(context, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        date.set(Calendar.MINUTE, minute);
+                        Date new_date = date.getTime();
+                        record.setRdate(new_date);
+                        date_textview.setText(formatter.format(new_date));
+                    }
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
 
+    }
+
+    private void getLocalRecord() {
+        LocalFileController file_controller = new LocalFileController();
+        Record temp_record = file_controller.loadRecordFromFile(record.getRecordID(), getApplicationContext());
+        if (temp_record != null) {
+            this.record = temp_record;
+            setTextViews();
         }
+    }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private void getRecord() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+            else {
+                new getRecordAsync().execute(record.getRecordID());
+            }
+        } else {
+            getLocalRecord();
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+    // Async class for getting records from elastic search server
+    private class getRecordAsync extends AsyncTask<String, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(String... record_ids) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+
+            for (String record_id : record_ids) {
+                return es_controller.getRecord(record_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record es_record) {
+            super.onPostExecute(es_record);
+            if (es_record != null) {
+                record = es_record;
+                setTextViews();
+
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveRecordInFile(record, getApplicationContext());
+            }
+        }
+    }
+
+
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
+
+        @Override
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record){
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
             }
             return null;
         }

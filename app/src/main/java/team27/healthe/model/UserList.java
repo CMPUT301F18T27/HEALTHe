@@ -3,6 +3,9 @@ package team27.healthe.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * @author [fill in]
+ */
 public class UserList {
     private Collection<User> users;
 

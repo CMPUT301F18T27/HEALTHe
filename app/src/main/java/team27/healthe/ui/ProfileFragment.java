@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
@@ -98,7 +99,7 @@ public class ProfileFragment extends Fragment {
 
         userid_textview.setText(this.user.getUserid());
         email_textview.setText(this.user.getEmail());
-        number_textview.setText(this.user.getPhone_number());
+        number_textview.setText(this.user.getPhoneNumber());
 
         if (user instanceof Patient) {
             type_textview.setText("Patient");
@@ -137,7 +138,9 @@ public class ProfileFragment extends Fragment {
         @Override
         protected void onPostExecute(User user) {
             super.onPostExecute(user);
-            updateUser(user);
+            if (user != null) {
+                updateUser(user);
+            }
         }
     }
 

@@ -1,6 +1,9 @@
 package team27.healthe.model;
 
-// Class for holding a base64 string of a photo for insertion into elastic search
+/**
+ * Class for holding a base64 string of a photo for insertion into elastic search
+ * @author [fill in]
+ */
 public class ElasticSearchPhoto {
     private String base64image;
 

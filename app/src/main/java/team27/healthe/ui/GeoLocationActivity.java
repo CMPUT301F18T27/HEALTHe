@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +25,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -93,6 +98,9 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
 
             new UpdateRecord().execute(record);
 
+            LocalFileController file_controller = new LocalFileController();
+            file_controller.saveRecordInFile(record, this);
+
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
@@ -108,6 +116,7 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         map.setMyLocationEnabled(true);
+                        map.getUiSettings().setMyLocationButtonEnabled(true);
                     }
                 }
             }
@@ -131,15 +140,60 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
         }
     }
 
@@ -147,6 +201,8 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
     public void onResume() {
         mapView.onResume();
         super.onResume();
+        checkTasks();
+
     }
 
 

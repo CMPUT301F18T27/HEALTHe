@@ -28,11 +28,17 @@ import com.notbytes.barcode_reader.BarcodeReaderActivity;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.controllers.PatientListAdapter;
+import team27.healthe.model.Photo;
+import team27.healthe.model.Problem;
+import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class PatientListFragment extends Fragment {
@@ -46,6 +52,7 @@ public class PatientListFragment extends Fragment {
     private CareProvider current_user;
     private PatientListAdapter adapter;
     private ArrayList<Patient> patients;
+    private ArrayList<String> patient_ids;
 
     public PatientListFragment() {
         // Required empty public constructor
@@ -77,9 +84,9 @@ public class PatientListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_patient_list, container, false);
 
-        adapter = new PatientListAdapter(getActivity(), new ArrayList<String>(current_user.getPatients()));
+        this.patient_ids = new ArrayList<String>(current_user.getPatients());
 
-        getPatients();
+        adapter = new PatientListAdapter(getActivity(), patient_ids);
 
         final ListView list_view = (ListView) view.findViewById(R.id.patientListView);
         list_view.setAdapter(adapter);
@@ -94,6 +101,7 @@ public class PatientListFragment extends Fragment {
                 intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(patient));
                 intent.putExtra(ProblemActivity.VIEWING_USER_MESSAGE, gson.toJson(current_user));
                 startActivity(intent);
+
             }
         });
         list_view.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener() {
@@ -101,9 +109,13 @@ public class PatientListFragment extends Fragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 String user_id = (String) list_view.getItemAtPosition(position);
 
-                Intent intent = new Intent(getContext(), ProfileActivity.class);
-                intent.putExtra(LoginActivity.USER_MESSAGE, user_id);
-                startActivity(intent);
+                if (isNetworkConnected()) {
+                    Intent intent = new Intent(getContext(), ProfileActivity.class);
+                    intent.putExtra(LoginActivity.USER_MESSAGE, user_id);
+                    startActivity(intent);
+                }else {
+                    Toast.makeText(getContext(), "You must be online to view profile info", Toast.LENGTH_SHORT).show();
+                }
                 return true;
             }
         });
@@ -130,6 +142,12 @@ public class PatientListFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getPatients();
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == BARCODE_READER_ACTIVITY_REQUEST) {
@@ -153,7 +171,10 @@ public class PatientListFragment extends Fragment {
     }
 
     private void addPatient() {
-        // TODO: Do not allow editing of profile while offline
+        if (!isNetworkConnected()) {
+            Toast.makeText(getContext(), "You must be online to add a patient", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
         dialog.setTitle("Add Patient");
@@ -219,11 +240,20 @@ public class PatientListFragment extends Fragment {
         }
     }
 
+    // Get everything for a patient
+    private void getAllForPatient(Patient patient) {
+        for (String problem_id : patient.getProblemList()) {
+            new GetProblem().execute(problem_id);
+        }
+    }
+
 
 
     private void updateUser(User user) {
         if(user != null) {
             if (user instanceof Patient) {
+                getAllForPatient((Patient) user);
+
                 current_user.addPatient(user.getUserid());
                 adapter.refresh(new ArrayList<String>(current_user.getPatients()));
                 this.patients.add((Patient) user);
@@ -270,7 +300,9 @@ public class PatientListFragment extends Fragment {
                 ArrayList<Patient> patients = new ArrayList();
                 for(String user_id:user_ids) {
                     User user = es_controller.getUser(user_id);
-                    patients.add((Patient) user);
+                    if (user != null) {
+                        patients.add((Patient) user);
+                    }
                 }
                 return patients;
             }
@@ -285,22 +317,106 @@ public class PatientListFragment extends Fragment {
     }
 
     private void getPatients() {
-        ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
-
-        if (network_info != null && network_info.isConnected()) {
+        if (isNetworkConnected()) {
             new getPatientsAsync().execute(new ArrayList<String>(current_user.getPatients()));
         } else {
             LocalFileController fs_controller = new LocalFileController();
-            this.patients = fs_controller.loadPatientsFromFile(current_user, getContext());
+            updatePatients(fs_controller.loadPatientsFromFile(current_user, getContext()));
         }
     }
 
     private void updatePatients(ArrayList<Patient> patients) {
         this.patients = patients;
 
+        patient_ids.clear();
+        for (Patient patient: patients) {
+            patient_ids.add(patient.getUserid());
+        }
+        adapter.notifyDataSetChanged();
+
+
         LocalFileController fs_controller = new LocalFileController();
         fs_controller.savePatientsInFile(this.patients, getContext());
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+    // Async class for getting problems from elastic search server
+    private class GetProblem extends AsyncTask<String, Void, Problem> {
+
+        @Override
+        protected Problem doInBackground(String... problem_ids) {
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
+
+            for (String problem_id: problem_ids) {
+                return es_controller.getProblem(problem_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if (problem != null) {
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveProblemInFile(problem, getContext());
+
+                for (String record_id : problem.getRecords()) {
+                    new GetRecord().execute(record_id);
+                }
+            }
+        }
+    }
+
+
+    // Async class for getting records from elastic search server
+    private class GetRecord extends AsyncTask<String, Void, Record> {
+
+        @Override
+        protected Record doInBackground(String... record_ids) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+
+            for (String record_id : record_ids) {
+                return es_controller.getRecord(record_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveRecordInFile(record, getContext());
+
+                for (Photo photo : record.getPhotos()) {
+                    new GetPhoto().execute(photo);
+                }
+            }
+        }
+    }
+
+
+    // Async class for retrieving photos from elastic search
+    private class GetPhoto extends AsyncTask<Photo, Void, String> {
+
+        @Override
+        protected String doInBackground(Photo... photos) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (Photo photo : photos) {
+                photo_controller.getPhoto(photo.getId());
+            }
+            return null;
+        }
     }
 
 }

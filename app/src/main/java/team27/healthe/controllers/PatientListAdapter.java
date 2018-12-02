@@ -10,11 +10,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import team27.healthe.R;
-import team27.healthe.model.Patient;
 
+/**
+ * adapter for filling in list view with patient information (and allow selection)
+ * @author [fill in]
+ */
 public class PatientListAdapter extends ArrayAdapter<String> {
     private final Activity context;
-    private final ArrayList<String> patients; //Array of patient ids
+    private ArrayList<String> patients; //Array of patient ids
 
     //Constructor
     public PatientListAdapter(Activity context, ArrayList<String> patients) {
@@ -23,7 +26,13 @@ public class PatientListAdapter extends ArrayAdapter<String> {
         this.patients = patients;
     }
 
-    // Called for each row/item in the ListView
+    /**
+     * Called for each row/item in the ListView
+     * @param position (patient at current position)
+     * @param view (list row)
+     * @param parent (list's parent)
+     * @return list_row (View)
+     */
     public View getView (int position, View view, ViewGroup parent) {
         String patient_id = getItem(position); // get patient at current position
 
@@ -39,10 +48,13 @@ public class PatientListAdapter extends ArrayAdapter<String> {
         return list_row; // return the view(row)
     }
 
-    // Recreates the ListView when changes have been made to the list of emotions
-    public void refresh(ArrayList<String> patients) {
-        this.clear();
-        this.addAll(patients);
+    /**
+     * Recreates the ListView when changes have been made to the list of patients
+     * @param patients (ArrayList<String> - patient ids)
+     */
+    public void refresh(ArrayList<String> new_patients) {
+        this.patients.clear();
+        this.patients.addAll(new_patients);
         notifyDataSetChanged();
     }
 }

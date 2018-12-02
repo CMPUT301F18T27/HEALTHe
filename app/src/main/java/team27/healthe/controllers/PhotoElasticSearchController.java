@@ -23,6 +23,10 @@ import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.ElasticSearchPhoto;
 
+/**
+ * Class for add/edit/delete operations for Photo objects from the Elasticsearch server
+ * @author [fill in]
+ */
 public class PhotoElasticSearchController extends ElasticSearchController{
 
     public boolean getPhoto(String id) {
@@ -46,44 +50,37 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         return false;
     }
 
-    public String addPhoto(File photo, String id) {
+    public boolean addPhoto(File photo, String id) {
         verifyClient();
 
         Gson gson = new Gson();
         ElasticSearchPhoto es_photo = new ElasticSearchPhoto(encodeFileToBase64(photo));
         String photo_json = gson.toJson(es_photo);
 
-        Index index;
-        if (id == null) {
-            index = new Index.Builder(photo_json).index(test_index).type(photo_type).build();
-        } else {
-            System.out.println(id);
-            index = new Index.Builder(photo_json).index(test_index).type(photo_type).id(id).build();
-        }
-
+        Index index = new Index.Builder(photo_json).index(test_index).type(photo_type).id(id).build();
 
         try {
             DocumentResult result = client.execute(index);
-            System.out.println("here in try");
-            return result.getId();
+            return result.isSucceeded();
         }
         catch (Exception e) {
-            System.out.println("here in catch");
             e.printStackTrace();
-            Log.i("Error", e.toString());
+            return false;
         }
-        return null;
+
     }
 
-    public void deletePhoto(String id) {
+    public boolean deletePhoto(String id) {
         verifyClient();
         try{
-            client.execute(new Delete.Builder(id)
+            DocumentResult result = client.execute(new Delete.Builder(id)
                     .index(index)
                     .type(photo_type)
                     .build());
+            return result.isSucceeded();
         } catch (Exception e){
             e.printStackTrace();
+            return false;
         }
     }
 

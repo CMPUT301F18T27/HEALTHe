@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -14,15 +17,19 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.CommentListAdapter;
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.Comment;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -48,13 +55,24 @@ public class CommentActivity extends AppCompatActivity {
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Comment comment = (Comment) list_view.getItemAtPosition(position);
+
+                if (isNetworkConnected()) {
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent.putExtra(LoginActivity.USER_MESSAGE, comment.getCommenter());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "You must be online to view profile info", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
         list_view.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-               return true;
+                Comment comment = (Comment) list_view.getItemAtPosition(position);
+                deleteComment(comment);
+                return true;
             }
         });
 
@@ -67,6 +85,12 @@ public class CommentActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkTasks();
+    }
+
     private void getItems(Intent intent) {
         Gson gson = new Gson();
         String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
@@ -77,6 +101,26 @@ public class CommentActivity extends AppCompatActivity {
         this.current_user = es_controller.jsonToUser(user_json);
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
+    }
+
     private void addComment() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Comment");
@@ -84,24 +128,18 @@ public class CommentActivity extends AppCompatActivity {
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
-        /*
-        //Add title for email input
-        final TextView patient_id = new TextView(getActivity());
-        patient_id.setHint("Patient ID");
-        layout.addView(patient_id);
-        */
 
-        // Add a TextView for email
-        final EditText patient_text = new EditText(this);
-        patient_text.setHint("Comment");
-        patient_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        layout.addView(patient_text);
+        // Add a TextView for comment
+        final EditText comment_text = new EditText(this);
+        comment_text.setHint("Comment");
+        comment_text.setInputType(InputType.TYPE_CLASS_TEXT);
+        layout.addView(comment_text);
 
         dialog.setView(layout);
 
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                saveComment(current_user.getUserid() + ":\n" + patient_text.getText().toString());
+                saveComment(comment_text.getText().toString());
 
             }
         })
@@ -113,10 +151,51 @@ public class CommentActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void saveComment(String comment) {
+    private void deleteComment(final Comment comment) {
+        if (!comment.getCommenter().equals(current_user.getUserid())) {
+            Toast.makeText(this, "You may only delete your own comments", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Delete Comment");
+        dialog.setMessage("Are you sure you want to delete this comment?");
+
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                record.removeComment(comment);
+                ArrayList<Comment> comments = record.getCommentList();
+                adapter.refresh(comments);
+
+                LocalFileController file_controller = new LocalFileController();
+                file_controller.saveRecordInFile(record, getApplicationContext());
+
+                new UpdateRecord().execute(record);
+
+                Gson gson = new Gson();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
+                setResult(RESULT_OK,returnIntent);
+
+            }
+        })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                });
+        dialog.show();
+    }
+
+    private void saveComment(String comment_text) {
+        Comment comment = new Comment(comment_text, current_user.getUserid());
+
         this.record.addCommment(comment);
-        ArrayList<String> comments = record.getCommentList();
+        ArrayList<Comment> comments = record.getCommentList();
         adapter.refresh(comments);
+
+        LocalFileController file_controller = new LocalFileController();
+        file_controller.saveRecordInFile(record, this);
 
         new UpdateRecord().execute(record);
 
@@ -126,13 +205,38 @@ public class CommentActivity extends AppCompatActivity {
         setResult(RESULT_OK,returnIntent);
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
             }
             return null;
         }

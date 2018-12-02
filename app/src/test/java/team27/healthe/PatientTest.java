@@ -1,7 +1,6 @@
 package team27.healthe;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +8,6 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
-import team27.healthe.model.BodyLocation;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 
@@ -23,7 +21,7 @@ public class PatientTest {
 
         assertEquals(userId, p.getUserid());
         assertEquals(email, p.getEmail());
-        assertEquals(phone, p.getPhone_number());
+        assertEquals(phone, p.getPhoneNumber());
     }
 
     @Test

@@ -13,8 +13,6 @@ public class GeoLocation {
 
     private String name;
 
-    public GeoLocation() { }
-
     public GeoLocation(double lat, double lon) {
         geo_point = new GeoPoint(lat, lon);
     }

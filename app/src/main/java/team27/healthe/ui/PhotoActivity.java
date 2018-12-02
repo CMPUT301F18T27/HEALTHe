@@ -21,20 +21,23 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.elasticsearch.common.UUID;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.model.Photo;
 
 public class PhotoActivity extends AppCompatActivity {
     public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
-    public static final String SUCCESS_MESSAGE = "team27.healthe.SUCCESS";
-    public static final String FILENAME_MESSAGE = "team27.healthe.FILENAME";
     private static final Integer PHOTO_REQUEST_CODE = 100;
     private Uri photo_uri;
     private File photo_file;
+    private Photo model_photo = new Photo();
     private boolean has_photo = false;
     private boolean has_bodylocation = false;
     private boolean saving = false;
@@ -64,16 +67,8 @@ public class PhotoActivity extends AppCompatActivity {
     public void takePhoto(View view) {
         if(saving){return;} // If saving is in progress do nothing
 
-        boolean delete = false;
-        File temp_file = photo_file;
-        if (photo_file != null) {
-            delete = true;
-        }
-
         photo_file = getOutputMediaFile();
-        if (delete) {
-            temp_file.delete();
-        }
+
         if (photo_file != null) {
             photo_uri = Uri.fromFile(photo_file);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -190,56 +185,45 @@ public class PhotoActivity extends AppCompatActivity {
         return mediaStorageDir;
     }
 
-    private static File getOutputMediaFile(){
+    private File getOutputMediaFile(){
         File mediaStorageDir = getMediaDirectory();
         if (mediaStorageDir == null) {
             return null;
         }
 
-        Integer count = 0;
-        File filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
-        while (filename.exists()) {
-            count++;
-            filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
-        }
+        File filename = new File(mediaStorageDir.getPath() + File.separator + this.model_photo.getId() + ".jpg");
+
         return filename;
     }
 
-    private class AddPhoto extends AsyncTask<File, Void, String> {
+    private class AddPhoto extends AsyncTask<File, Void, Boolean> {
 
         @Override
-        protected String doInBackground(File... files) {
+        protected Boolean doInBackground(File... files) {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
             for (File file : files) {
-                return photo_controller.addPhoto(file, null);
+                String file_name = file.getName();
+                return photo_controller.addPhoto(file, file_name.substring(0, file_name.length() - 4));
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(String id) {
-            super.onPostExecute(id);
+        protected void onPostExecute(Boolean isSucceeded) {
+            super.onPostExecute(isSucceeded);
+            if (!isSucceeded) {
+                OfflineController controller = new OfflineController();
+                controller.addPhoto(photo_file, getApplicationContext());
+            }
+
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             setResult(RESULT_OK,returnIntent);
-            if (id != null) {
-                Toast.makeText(getApplicationContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
-                updateFilename(id);
-                returnIntent.putExtra(PHOTO_ID_MESSAGE,id);
-                returnIntent.putExtra(SUCCESS_MESSAGE, true);
-                finish();
-            } else {
-                returnIntent.putExtra(FILENAME_MESSAGE,photo_file.getName());
-                returnIntent.putExtra(SUCCESS_MESSAGE, false);
-                finish();
-            }
+            returnIntent.putExtra(PHOTO_ID_MESSAGE,gson.toJson(model_photo));
+            finish();
         }
     }
 
-    private void updateFilename(String id) {
-        File new_filename = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
-        photo_file.renameTo(new_filename);
-    }
 
 }

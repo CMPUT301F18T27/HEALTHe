@@ -11,13 +11,17 @@ import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.Record;
 
+/**
+ * Class for add/edit/delete operations for Record objects from the Elasticsearch server
+ * @author [fill in]
+ */
 public class RecordElasticSearchController extends ElasticSearchController{
 
     /**
      * Add record to elastic search database using record id as the id in elastic search
      * @param r (Record Class)
      */
-    public static void addRecord(Record r) {
+    public static boolean addRecord(Record r) {
         verifyClient();
 
         Gson gson = new Gson();
@@ -26,10 +30,12 @@ public class RecordElasticSearchController extends ElasticSearchController{
         Index index = new Index.Builder(record_json).index(test_index).type(record_type).id(r.getRecordID()).build();
 
         try {
-            client.execute(index);
+            DocumentResult result = client.execute(index);
+            return result.isSucceeded();
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
+            return false;
         }
     }
 
@@ -59,15 +65,17 @@ public class RecordElasticSearchController extends ElasticSearchController{
      * Removes a specified record for the problem (corresponding to user_id)
      * @param record_id (String)
      */
-    public static void removeRecord(String record_id){
+    public static boolean removeRecord(String record_id){
         verifyClient();
         try{
-            client.execute(new Delete.Builder(record_id)
+            DocumentResult result = client.execute(new Delete.Builder(record_id)
                     .index(test_index)
                     .type(record_type)
                     .build());
+            return result.isSucceeded();
         } catch (Exception e){
             e.printStackTrace();
+            return false;
         }
 
     }

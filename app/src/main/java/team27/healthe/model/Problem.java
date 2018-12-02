@@ -13,6 +13,7 @@ import java.util.Date;
 /**
  * Represents a Patient's problem and provides controls (accessing and editing info)
  * @author [fill in]
+ * @author Chris
  */
 public class Problem implements Comparable<Problem> {
     private String title;

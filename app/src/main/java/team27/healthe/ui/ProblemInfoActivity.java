@@ -6,6 +6,9 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -52,6 +56,13 @@ public class ProblemInfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkTasks();
+        getProblem();
     }
 
     @Override
@@ -111,7 +122,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
     private void editProblem() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Problem");
-        //dialog.setMessage("");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(this);
@@ -138,8 +149,12 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final TextView date_text = new TextView(this);
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(problem.getPdateAsString());
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -211,13 +226,43 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
     }
 
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void getProblem() {
+        LocalFileController file_controller = new LocalFileController();
+        Problem temp_problem = file_controller.loadProblemFromFile(problem.getProblemID(), getApplicationContext());
+        if (temp_problem != null) {
+            this.problem = temp_problem;
+        }
+    }
+
     private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
         protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.addProblem(problem);
+                if(!es_controller.addProblem(problem)) {
+                    return problem;
+                }
+                return null;
             }
             return null;
         }
@@ -225,6 +270,24 @@ public class ProblemInfoActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
+            if (problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getApplicationContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
         }
     }
 

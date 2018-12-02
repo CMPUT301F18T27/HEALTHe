@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import android.os.Handler;
@@ -28,20 +31,17 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.elasticsearch.search.SearchHits;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
 import team27.healthe.controllers.ElasticSearchSearchController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
-import team27.healthe.model.Photo;
-import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class HomeActivity extends AppCompatActivity {
@@ -86,6 +86,13 @@ public class HomeActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadLocalUser();
+        checkTasks();
     }
 
 
@@ -245,13 +252,11 @@ public class HomeActivity extends AppCompatActivity {
 
     private void logout() {
         LocalFileController file_controller = new LocalFileController();
-        file_controller.clearUserFile(this);
+        file_controller.deleteAllFiles(this);
         finish();
     }
 
     private void editProfile() {
-        // TODO: Do not allow editing of profile while offline
-
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Profile");
         dialog.setMessage("");
@@ -280,7 +285,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Add another TextView for phone number
         final EditText phone_text = new EditText(this);
-        phone_text.setText(current_user.getPhone_number());
+        phone_text.setText(current_user.getPhoneNumber());
         phone_text.setInputType(InputType.TYPE_CLASS_PHONE);
         layout.addView(phone_text); // Another add method
 
@@ -291,9 +296,13 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Updating profile...", Toast.LENGTH_SHORT).show();
 
                 current_user.setEmail(email_text.getText().toString());
-                current_user.setPhone_number(phone_text.getText().toString());
+                current_user.setPhoneNumber(phone_text.getText().toString());
 
-                updateElasticSearch();
+                List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+                Fragment fragment  = (ProfileFragment)allFragments.get(0);
+                ((ProfileFragment) fragment).updateUser(current_user);
+
+                new UpdateUser().execute(current_user);
 
                 LocalFileController file_controller = new LocalFileController();
                 file_controller.saveUserInFile(current_user, getApplicationContext());
@@ -315,27 +324,27 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void updateElasticSearch(){
-        new UpdateUser().execute(current_user);
-    }
-
-    private class UpdateUser extends AsyncTask<User, Void, Void> {
+    private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
-        protected Void doInBackground(User... users) {
+        protected User doInBackground(User... users) {
             UserElasticSearchController es_controller = new UserElasticSearchController();
-            for(User user:users) {
-                es_controller.addUser(user);
+            for (User user : users) {
+                if(!es_controller.addUser(user)) {
+                    return user;
+                }
+                return null;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            List<Fragment> allFragments = getSupportFragmentManager().getFragments();
-            Fragment fragment  = (ProfileFragment)allFragments.get(0);
-            ((ProfileFragment) fragment).updateUser(current_user);
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            if(user != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addUser(user, getApplicationContext());
+            }
         }
     }
 
@@ -353,11 +362,13 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(SearchResult search) {
             super.onPostExecute(search);
-            if (search.isSucceeded()) {
-                ArrayList<String> hits = new ArrayList<>();
-                List<String> temp_hits = search.getSourceAsStringList();
-                hits.addAll(temp_hits);
-                startSearchActivity(hits);
+            if (search != null) {
+                if (search.isSucceeded()) {
+                    ArrayList<String> hits = new ArrayList<>();
+                    List<String> temp_hits = search.getSourceAsStringList();
+                    hits.addAll(temp_hits);
+                    startSearchActivity(hits);
+                }
             }
         }
     }
@@ -376,12 +387,28 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(SearchResult search) {
             super.onPostExecute(search);
-            if (search.isSucceeded()) {
-                ArrayList<String> hits = new ArrayList<>();
-                List<String> temp_hits = search.getSourceAsStringList();
-                hits.addAll(temp_hits);
-                startSearchActivity(hits);
+            if (search != null) {
+                if (search.isSucceeded()) {
+                    ArrayList<String> hits = new ArrayList<>();
+                    List<String> temp_hits = search.getSourceAsStringList();
+                    hits.addAll(temp_hits);
+                    startSearchActivity(hits);
+                }
             }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
         }
     }
 
@@ -391,6 +418,30 @@ public class HomeActivity extends AppCompatActivity {
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(SearchResultsActivity.SEARCH_MESSAGE, hits);
         startActivity(intent);
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void loadLocalUser() {
+        LocalFileController controller = new LocalFileController();
+        this.current_user = controller.loadUserFromFile(this);
+    }
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
     }
 
 }

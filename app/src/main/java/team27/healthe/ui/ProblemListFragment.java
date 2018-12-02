@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -34,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -48,7 +50,6 @@ public class ProblemListFragment extends Fragment {
     private static final String ARG_USER = "param1";
     private static final String ARG_VIEWING = "param2";
 
-    // TODO: Rename and change types of parameters
     public static ListView listView;
     private ProblemsAdapter adapter;
     public static ArrayList<Problem> problems;
@@ -90,12 +91,6 @@ public class ProblemListFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.problem_list);
 
-        problems = new ArrayList<>();
-        adapter = new ProblemsAdapter(getContext(), problems);
-        listView.setAdapter(adapter);
-
-        getProblems();
-
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,18 +119,29 @@ public class ProblemListFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Problem problem = (Problem) listView.getItemAtPosition(position);
-                editProblem(problem);
+                deleteProblem(problem);
                 return true;
             }
         });
         return view;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        problems = new ArrayList<>();
+        adapter = new ProblemsAdapter(getContext(), problems);
+        listView.setAdapter(adapter);
+        getProblems();
+    }
+
     public void addProblem() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Edit Problem");
-        //dialog.setMessage("");
+        dialog.setTitle("Add Problem");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(getContext());
@@ -149,7 +155,7 @@ public class ProblemListFragment extends Fragment {
         // Add a TextView for problem title
         final EditText title_text = new EditText(getContext());
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method
@@ -161,8 +167,12 @@ public class ProblemListFragment extends Fragment {
 
         // Add a TextView for date
         final TextView date_text = new TextView(getContext());
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(formatter.format(new Date()));
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,9 +211,19 @@ public class ProblemListFragment extends Fragment {
 
                 if (validProblemInputs(title, date, desc)) {
                     Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-                    Problem problem = new Problem(title, date, desc);;
+                    Problem problem = new Problem(title, date, desc);
 
                     new AddProblemES().execute(problem);
+
+                    current_user.addProblem(problem.getProblemID());
+                    new UpdateUser().execute(current_user);
+
+                    problems.add(problem);
+                    adapter.refresh(problems);
+
+                    file_controller.saveProblemInFile(problem, getContext());
+                    file_controller.saveUserInFile(current_user, getContext());
+
                     dialog.dismiss(); //Dismiss once everything is OK.
                 }
             }
@@ -242,7 +262,7 @@ public class ProblemListFragment extends Fragment {
 
     }
 
-    public void editProblem(final Problem prob) {
+    public void deleteProblem(final Problem prob) {
         //final Problem problem = prob;
         final AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Problem")
@@ -250,18 +270,13 @@ public class ProblemListFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         problems.remove(prob);
-                        file_controller.saveProblemsInFile(problems, getContext());
                         adapter.refresh(problems);
 
                         new DeleteProblem().execute(prob);
 
-                        if (prob.getProblemID() != null) {
-                            current_user.removeProblem(prob.getProblemID());
-                            file_controller.saveUserInFile(current_user, getContext());
-                            new UpdateUser().execute(current_user);
-                        }
-
-                        //TODO: Delete records and photos associated with problem
+                        current_user.removeProblem(prob.getProblemID());
+                        file_controller.saveUserInFile(current_user, getContext());
+                        new UpdateUser().execute(current_user);
 
                     }
                 })
@@ -281,10 +296,9 @@ public class ProblemListFragment extends Fragment {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (Problem problem : problems) {
-
-                es_controller.addProblem(problem);
-                return problem;
-
+                if (!es_controller.addProblem(problem)) {
+                    return problem;
+                }
             }
             return null;
         }
@@ -292,32 +306,35 @@ public class ProblemListFragment extends Fragment {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
-            if (!problem.getProblemID().equals("")) {
-                current_user.addProblem(problem.getProblemID());
-                new UpdateUser().execute(current_user);
-                problems.add(problem);
-                adapter.refresh(problems);
+            if(problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getContext());
             }
-            else {
-                problems.add(problem);
-                adapter.refresh(problems);
-                //TODO: Add problem to es server and user once online again
-            }
-            file_controller.saveProblemsInFile(problems, getContext());
-            file_controller.saveUserInFile(current_user, getContext());
         }
     }
 
 
-    private class DeleteProblem extends AsyncTask<Problem, Void, Void> {
+    private class DeleteProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
-        protected Void doInBackground(Problem... problems) {
+        protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.removeProblem(problem.getProblemID());
+                if (!es_controller.removeProblem(problem.getProblemID())) {
+                    return problem;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if(problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.deleteProblem(problem, getContext());
+            }
         }
     }
 
@@ -342,22 +359,53 @@ public class ProblemListFragment extends Fragment {
                 adapter.refresh(problems);
 
 
-                //TODO: fix saving
                 LocalFileController localFileController = new LocalFileController();
-                localFileController.saveProblemsInFile(problems, getContext());
+                localFileController.saveProblemInFile(problem, getContext());
             }
         }
     }
 
-    private class UpdateUser extends AsyncTask<User, Void, Void> {
+    private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
-        protected Void doInBackground(User... users) {
+        protected User doInBackground(User... users) {
             UserElasticSearchController es_controller = new UserElasticSearchController();
             for (User user : users) {
-                es_controller.addUser(user);
+                if(!es_controller.addUser(user)) {
+                    return user;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            if(user != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addUser(user, getContext());
+            }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getContext());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            getProblemsES();
         }
     }
 
@@ -368,17 +416,34 @@ public class ProblemListFragment extends Fragment {
     }
 
     private void getProblems() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(getContext())) {
+                new PerformTasks().execute(true);
+            }
+            else {
+                getProblemsES();
+            }
+        } else {
+            loadLocalProblems();
+        }
+    }
+
+    private void loadLocalProblems() {
+        for (Problem problem : file_controller.loadProblemsFromFile(current_user, getContext())) {
+            problems.add(problem);
+        }
+        adapter.refresh(problems);
+    }
+
+    private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
 
         if (network_info != null && network_info.isConnected()) {
-            getProblemsES();
-        } else {
-            for (Problem problem : file_controller.loadProblemsFromFile(current_user, getContext())) {
-                problems.add(problem);
-            }
-            adapter.refresh(problems);
+            return true;
         }
+        return false;
     }
 
     public void getAllGeoLocations() {
