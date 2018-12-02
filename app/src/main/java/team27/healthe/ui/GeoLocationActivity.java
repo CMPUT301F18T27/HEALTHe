@@ -22,6 +22,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -93,6 +95,9 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
 
             new UpdateRecord().execute(record);
 
+            LocalFileController file_controller = new LocalFileController();
+            file_controller.saveRecordInFile(record, this);
+
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
@@ -108,6 +113,7 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         map.setMyLocationEnabled(true);
+                        map.getUiSettings().setMyLocationButtonEnabled(true);
                     }
                 }
             }
@@ -131,15 +137,26 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
 
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
         }
     }
 

@@ -36,6 +36,7 @@ import java.util.List;
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
 import team27.healthe.controllers.ElasticSearchSearchController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
@@ -250,8 +251,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void editProfile() {
-        // TODO: Do not allow editing of profile while offline
-
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Profile");
         dialog.setMessage("");
@@ -293,7 +292,11 @@ public class HomeActivity extends AppCompatActivity {
                 current_user.setEmail(email_text.getText().toString());
                 current_user.setPhone_number(phone_text.getText().toString());
 
-                updateElasticSearch();
+                List<Fragment> allFragments = getSupportFragmentManager().getFragments();
+                Fragment fragment  = (ProfileFragment)allFragments.get(0);
+                ((ProfileFragment) fragment).updateUser(current_user);
+
+                new UpdateUser().execute(current_user);
 
                 LocalFileController file_controller = new LocalFileController();
                 file_controller.saveUserInFile(current_user, getApplicationContext());
@@ -315,27 +318,27 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void updateElasticSearch(){
-        new UpdateUser().execute(current_user);
-    }
-
-    private class UpdateUser extends AsyncTask<User, Void, Void> {
+    private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
-        protected Void doInBackground(User... users) {
+        protected User doInBackground(User... users) {
             UserElasticSearchController es_controller = new UserElasticSearchController();
-            for(User user:users) {
-                es_controller.addUser(user);
+            for (User user : users) {
+                if(!es_controller.addUser(user)) {
+                    return user;
+                }
+                return null;
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            List<Fragment> allFragments = getSupportFragmentManager().getFragments();
-            Fragment fragment  = (ProfileFragment)allFragments.get(0);
-            ((ProfileFragment) fragment).updateUser(current_user);
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            if(user != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addUser(user, getApplicationContext());
+            }
         }
     }
 

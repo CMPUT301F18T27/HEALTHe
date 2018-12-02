@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 import io.searchbox.client.JestResult;
+import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.CareProvider;
@@ -18,7 +19,7 @@ public class UserElasticSearchController extends ElasticSearchController {
      * Add user to elastic search database using userid as the id in elastic search
      * @param user (User class)
      */
-    public static void addUser(User user) {
+    public static boolean addUser(User user) {
         verifyClient();
 
         Gson gson = new Gson();
@@ -27,10 +28,12 @@ public class UserElasticSearchController extends ElasticSearchController {
         Index index = new Index.Builder(user_json).index(test_index).type(user_type).id(user.getUserid()).build();
 
         try {
-            client.execute(index);
+            DocumentResult result = client.execute(index);
+            return result.isSucceeded();
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
+            return false;
         }
     }
 

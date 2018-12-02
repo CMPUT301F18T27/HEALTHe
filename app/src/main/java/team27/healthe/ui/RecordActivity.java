@@ -29,6 +29,7 @@ import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -89,7 +90,6 @@ public class RecordActivity extends AppCompatActivity {
                 Gson gson = new Gson();
                 String record_json = data.getStringExtra(RECORD_MESSAGE);
                 this.record = gson.fromJson(record_json, Record.class);
-                //TODO: Save record to es server
             }
         }
     }
@@ -219,15 +219,27 @@ public class RecordActivity extends AppCompatActivity {
 
         }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record){
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
         }
     }
 

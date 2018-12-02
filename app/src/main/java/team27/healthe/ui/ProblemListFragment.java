@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -48,7 +49,6 @@ public class ProblemListFragment extends Fragment {
     private static final String ARG_USER = "param1";
     private static final String ARG_VIEWING = "param2";
 
-    // TODO: Rename and change types of parameters
     public static ListView listView;
     private ProblemsAdapter adapter;
     public static ArrayList<Problem> problems;
@@ -124,7 +124,7 @@ public class ProblemListFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Problem problem = (Problem) listView.getItemAtPosition(position);
-                editProblem(problem);
+                deleteProblem(problem);
                 return true;
             }
         });
@@ -201,9 +201,19 @@ public class ProblemListFragment extends Fragment {
 
                 if (validProblemInputs(title, date, desc)) {
                     Toast.makeText(getContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-                    Problem problem = new Problem(title, date, desc);;
+                    Problem problem = new Problem(title, date, desc);
 
                     new AddProblemES().execute(problem);
+
+                    current_user.addProblem(problem.getProblemID());
+                    new UpdateUser().execute(current_user);
+
+                    problems.add(problem);
+                    adapter.refresh(problems);
+
+                    file_controller.saveProblemInFile(problem, getContext());
+                    file_controller.saveUserInFile(current_user, getContext());
+
                     dialog.dismiss(); //Dismiss once everything is OK.
                 }
             }
@@ -242,7 +252,7 @@ public class ProblemListFragment extends Fragment {
 
     }
 
-    public void editProblem(final Problem prob) {
+    public void deleteProblem(final Problem prob) {
         //final Problem problem = prob;
         final AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setTitle("Delete Problem")
@@ -250,18 +260,13 @@ public class ProblemListFragment extends Fragment {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         problems.remove(prob);
-                        file_controller.saveProblemsInFile(problems, getContext());
                         adapter.refresh(problems);
 
                         new DeleteProblem().execute(prob);
 
-                        if (prob.getProblemID() != null) {
-                            current_user.removeProblem(prob.getProblemID());
-                            file_controller.saveUserInFile(current_user, getContext());
-                            new UpdateUser().execute(current_user);
-                        }
-
-                        //TODO: Delete records and photos associated with problem
+                        current_user.removeProblem(prob.getProblemID());
+                        file_controller.saveUserInFile(current_user, getContext());
+                        new UpdateUser().execute(current_user);
 
                     }
                 })
@@ -281,10 +286,9 @@ public class ProblemListFragment extends Fragment {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
 
             for (Problem problem : problems) {
-
-                es_controller.addProblem(problem);
-                return problem;
-
+                if (!es_controller.addProblem(problem)) {
+                    return problem;
+                }
             }
             return null;
         }
@@ -292,32 +296,35 @@ public class ProblemListFragment extends Fragment {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
-            if (!problem.getProblemID().equals("")) {
-                current_user.addProblem(problem.getProblemID());
-                new UpdateUser().execute(current_user);
-                problems.add(problem);
-                adapter.refresh(problems);
+            if(problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getContext());
             }
-            else {
-                problems.add(problem);
-                adapter.refresh(problems);
-                //TODO: Add problem to es server and user once online again
-            }
-            file_controller.saveProblemsInFile(problems, getContext());
-            file_controller.saveUserInFile(current_user, getContext());
         }
     }
 
 
-    private class DeleteProblem extends AsyncTask<Problem, Void, Void> {
+    private class DeleteProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
-        protected Void doInBackground(Problem... problems) {
+        protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.removeProblem(problem.getProblemID());
+                if (!es_controller.removeProblem(problem.getProblemID())) {
+                    return problem;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if(problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.deleteProblem(problem, getContext());
+            }
         }
     }
 
@@ -341,23 +348,33 @@ public class ProblemListFragment extends Fragment {
                 problems.add(problem);
                 adapter.refresh(problems);
 
-
-                //TODO: fix saving
                 LocalFileController localFileController = new LocalFileController();
-                localFileController.saveProblemsInFile(problems, getContext());
+                localFileController.saveProblemInFile(problem, getContext());
             }
         }
     }
 
-    private class UpdateUser extends AsyncTask<User, Void, Void> {
+    private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
-        protected Void doInBackground(User... users) {
+        protected User doInBackground(User... users) {
             UserElasticSearchController es_controller = new UserElasticSearchController();
             for (User user : users) {
-                es_controller.addUser(user);
+                if(!es_controller.addUser(user)) {
+                    return user;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            if(user != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addUser(user, getContext());
+            }
         }
     }
 

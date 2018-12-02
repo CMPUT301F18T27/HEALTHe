@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
@@ -119,16 +120,13 @@ public class RecordListActivity extends AppCompatActivity {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         records.remove(record);
-                        file_controller.saveRecordsInFile(records, getApplicationContext());
                         adapter.refresh(records);
 
                         new DeleteRecord().execute(record);
 
-                        if (record.getRecordID() != null) {
-                            current_problem.removeRecord(record.getRecordID());
-                            file_controller.saveProblemInFile(current_problem, getApplicationContext());
-                            new UpdateProblem().execute(current_problem);
-                        }
+                        current_problem.removeRecord(record.getRecordID());
+                        file_controller.saveProblemInFile(current_problem, getApplicationContext());
+                        new UpdateProblem().execute(current_problem);
 
 
                     }
@@ -230,10 +228,20 @@ public class RecordListActivity extends AppCompatActivity {
                 }
 
                 if (validProblemInputs(title, date, desc)) {
-                    Toast.makeText(getApplicationContext(), "Adding problem...", Toast.LENGTH_SHORT).show();
-                    Record record = new Record(title, date, desc);;
+                    Toast.makeText(getApplicationContext(), "Adding record...", Toast.LENGTH_SHORT).show();
+                    Record record = new Record(title, date, desc);
 
                     new AddRecordES().execute(record);
+
+                    records.add(record);
+                    adapter.refresh(records);
+
+                    current_problem.addRecord(record.getRecordID());
+                    new UpdateProblem().execute(current_problem);
+
+                    file_controller.saveRecordInFile(record, getApplicationContext());
+                    file_controller.saveProblemInFile(current_problem, getApplicationContext());
+
                     dialog.dismiss(); //Dismiss once everything is OK.
                 }
             }
@@ -253,10 +261,10 @@ public class RecordListActivity extends AppCompatActivity {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
 
             for (Record record : records) {
-
-                es_controller.addRecord(record);
-                return record;
-
+                if (!es_controller.addRecord(record)) {
+                    return record;
+                }
+                return null;
             }
             return null;
         }
@@ -264,19 +272,10 @@ public class RecordListActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Record record) {
             super.onPostExecute(record);
-            if (!record.getRecordID().equals("")) {
-                current_problem.addRecord(record.getRecordID());
-                new UpdateProblem().execute(current_problem);
-                records.add(record);
-                adapter.refresh(records);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
             }
-            else {
-                records.add(record);
-                adapter.refresh(records);
-                //TODO: Add problem to es server and user once online again
-            }
-            file_controller.saveRecordInFile(record, getApplicationContext());
-            file_controller.saveProblemInFile(current_problem, getApplicationContext());
         }
     }
 
@@ -286,9 +285,21 @@ public class RecordListActivity extends AppCompatActivity {
         protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for(Record record:records) {
-                es_controller.removeRecord(record.getRecordID());
+                if(!es_controller.removeRecord(record.getRecordID())) {
+                    return record;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.deleteRecord(record, getApplicationContext());
+            }
         }
     }
 
@@ -313,23 +324,33 @@ public class RecordListActivity extends AppCompatActivity {
                 records.add(record);
                 adapter.refresh(records);
 
-
-                //TODO: fix saving
                 LocalFileController localFileController = new LocalFileController();
-                localFileController.saveRecordsInFile(records, getApplicationContext());
+                localFileController.saveRecordInFile(record, getApplicationContext());
             }
         }
     }
 
-    private class UpdateProblem extends AsyncTask<Problem, Void, Void> {
+    private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
-        protected Void doInBackground(Problem... problems) {
+        protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for (Problem problem : problems) {
-                es_controller.addProblem(problem);
+                if (!es_controller.addProblem(problem)) {
+                    return problem;
+                }
+                return null;
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if (problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getApplicationContext());
+            }
         }
     }
 

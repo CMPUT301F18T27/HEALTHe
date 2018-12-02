@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
@@ -217,7 +218,10 @@ public class ProblemInfoActivity extends AppCompatActivity {
         protected Problem doInBackground(Problem... problems) {
             ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
             for(Problem problem:problems) {
-                es_controller.addProblem(problem);
+                if(!es_controller.addProblem(problem)) {
+                    return problem;
+                }
+                return null;
             }
             return null;
         }
@@ -225,6 +229,10 @@ public class ProblemInfoActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Problem problem) {
             super.onPostExecute(problem);
+            if (problem != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addProblem(problem, getApplicationContext());
+            }
         }
     }
 

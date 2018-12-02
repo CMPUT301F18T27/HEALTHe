@@ -153,7 +153,10 @@ public class PatientListFragment extends Fragment {
     }
 
     private void addPatient() {
-        // TODO: Do not allow editing of profile while offline
+        if (!isNetworkConnected()) {
+            Toast.makeText(getContext(), "You must be online to add a patient", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
         dialog.setTitle("Add Patient");
@@ -301,6 +304,16 @@ public class PatientListFragment extends Fragment {
 
         LocalFileController fs_controller = new LocalFileController();
         fs_controller.savePatientsInFile(this.patients, getContext());
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
     }
 
 }

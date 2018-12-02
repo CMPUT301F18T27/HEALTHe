@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
@@ -65,6 +67,10 @@ public class SlideshowActivity extends AppCompatActivity {
                     Photo photo = new Photo(id);
                     record.addPhoto(photo);
                     new UpdateRecord().execute(record);
+
+                    LocalFileController file_controller = new LocalFileController();
+                    file_controller.saveRecordInFile(record, this);
+
                     setIntent();
                 }else {
                     String file_name = data.getStringExtra(PhotoActivity.FILENAME_MESSAGE);
@@ -177,15 +183,26 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
         }
     }
 
@@ -235,7 +252,6 @@ public class SlideshowActivity extends AppCompatActivity {
     }
 
     public void onClickAddPhoto(View view) {
-        //TODO: prevent adding more than 10 images
         if (record.getPhotos().size() <= 10) {
             Gson gson = new Gson();
             Intent intent = new Intent(this, PhotoActivity.class);

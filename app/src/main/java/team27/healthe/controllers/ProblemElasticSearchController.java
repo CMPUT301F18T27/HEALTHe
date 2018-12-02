@@ -17,7 +17,7 @@ public class ProblemElasticSearchController extends ElasticSearchController {
      * Add problem to elastic search database using problem id as the id in elastic search
      * @param p (Problem Class)
      */
-    public static void addProblem(Problem p) {
+    public static boolean addProblem(Problem p) {
         verifyClient();
 
         Gson gson = new Gson();
@@ -26,10 +26,12 @@ public class ProblemElasticSearchController extends ElasticSearchController {
         Index index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
 
         try {
-            client.execute(index);
+            DocumentResult result = client.execute(index);
+            return result.isSucceeded();
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
+            return false;
         }
     }
 
@@ -59,15 +61,17 @@ public class ProblemElasticSearchController extends ElasticSearchController {
      * Removes a specified problem for the given user (corresponding to user_id)
      * @param problem_id (Integer)
      */
-    public static void removeProblem(String problem_id){
+    public static boolean removeProblem(String problem_id){
         verifyClient();
         try{
-            client.execute(new Delete.Builder(problem_id)
+            DocumentResult result = client.execute(new Delete.Builder(problem_id)
                     .index(test_index)
                     .type(problem_type)
                     .build());
+            return result.isSucceeded();
         } catch (Exception e){
             e.printStackTrace();
+            return false;
         }
 
     }

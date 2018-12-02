@@ -21,12 +21,15 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.elasticsearch.common.UUID;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import team27.healthe.R;
 import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.model.Photo;
 
 public class PhotoActivity extends AppCompatActivity {
     public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
@@ -35,6 +38,7 @@ public class PhotoActivity extends AppCompatActivity {
     private static final Integer PHOTO_REQUEST_CODE = 100;
     private Uri photo_uri;
     private File photo_file;
+    private String file_name = UUID.randomUUID().toString();
     private boolean has_photo = false;
     private boolean has_bodylocation = false;
     private boolean saving = false;
@@ -190,25 +194,21 @@ public class PhotoActivity extends AppCompatActivity {
         return mediaStorageDir;
     }
 
-    private static File getOutputMediaFile(){
+    private File getOutputMediaFile(){
         File mediaStorageDir = getMediaDirectory();
         if (mediaStorageDir == null) {
             return null;
         }
 
-        Integer count = 0;
-        File filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
-        while (filename.exists()) {
-            count++;
-            filename = new File(mediaStorageDir.getPath() + File.separator + "picture_" + count.toString() + ".jpg");
-        }
+        File filename = new File(mediaStorageDir.getPath() + File.separator + this.file_name + ".jpg");
+
         return filename;
     }
 
-    private class AddPhoto extends AsyncTask<File, Void, String> {
+    private class AddPhoto extends AsyncTask<File, Void, Boolean> {
 
         @Override
-        protected String doInBackground(File... files) {
+        protected Boolean doInBackground(File... files) {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
             for (File file : files) {
@@ -218,28 +218,18 @@ public class PhotoActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String id) {
-            super.onPostExecute(id);
+        protected void onPostExecute(Boolean isSucceeded) {
+            super.onPostExecute(isSucceeded);
+            //TODO: Check if photo uploaded successfully
+
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             setResult(RESULT_OK,returnIntent);
-            if (id != null) {
-                Toast.makeText(getApplicationContext(), "Photo uploaded successfully", Toast.LENGTH_SHORT).show();
-                updateFilename(id);
-                returnIntent.putExtra(PHOTO_ID_MESSAGE,id);
-                returnIntent.putExtra(SUCCESS_MESSAGE, true);
-                finish();
-            } else {
-                returnIntent.putExtra(FILENAME_MESSAGE,photo_file.getName());
-                returnIntent.putExtra(SUCCESS_MESSAGE, false);
-                finish();
-            }
+            returnIntent.putExtra(PHOTO_ID_MESSAGE,file_name);
+            returnIntent.putExtra(SUCCESS_MESSAGE, true);
+            finish();
         }
     }
 
-    private void updateFilename(String id) {
-        File new_filename = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
-        photo_file.renameTo(new_filename);
-    }
 
 }

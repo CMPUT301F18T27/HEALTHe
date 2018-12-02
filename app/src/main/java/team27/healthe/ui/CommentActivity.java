@@ -20,6 +20,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.CommentListAdapter;
 import team27.healthe.controllers.UserElasticSearchController;
@@ -118,6 +120,9 @@ public class CommentActivity extends AppCompatActivity {
         ArrayList<String> comments = record.getCommentList();
         adapter.refresh(comments);
 
+        LocalFileController file_controller = new LocalFileController();
+        file_controller.saveRecordInFile(record, this);
+
         new UpdateRecord().execute(record);
 
         Gson gson = new Gson();
@@ -126,15 +131,26 @@ public class CommentActivity extends AppCompatActivity {
         setResult(RESULT_OK,returnIntent);
     }
 
-    private class UpdateRecord extends AsyncTask<Record, Void, Void> {
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController es_controller = new RecordElasticSearchController();
             for (Record record: records) {
-                es_controller.addRecord(record);
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
+            }
         }
     }
 
