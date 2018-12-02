@@ -46,6 +46,7 @@ public class PatientListFragment extends Fragment {
     private CareProvider current_user;
     private PatientListAdapter adapter;
     private ArrayList<Patient> patients;
+    private ArrayList<String> patient_ids;
 
     public PatientListFragment() {
         // Required empty public constructor
@@ -77,9 +78,9 @@ public class PatientListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_patient_list, container, false);
 
-        adapter = new PatientListAdapter(getActivity(), new ArrayList<String>(current_user.getPatients()));
+        this.patient_ids = new ArrayList<String>(current_user.getPatients());
 
-        getPatients();
+        adapter = new PatientListAdapter(getActivity(), patient_ids);
 
         final ListView list_view = (ListView) view.findViewById(R.id.patientListView);
         list_view.setAdapter(adapter);
@@ -127,6 +128,12 @@ public class PatientListFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPatients();
     }
 
     @Override
@@ -273,7 +280,9 @@ public class PatientListFragment extends Fragment {
                 ArrayList<Patient> patients = new ArrayList();
                 for(String user_id:user_ids) {
                     User user = es_controller.getUser(user_id);
-                    patients.add((Patient) user);
+                    if (user != null) {
+                        patients.add((Patient) user);
+                    }
                 }
                 return patients;
             }
@@ -288,19 +297,22 @@ public class PatientListFragment extends Fragment {
     }
 
     private void getPatients() {
-        ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+        LocalFileController fs_controller = new LocalFileController();
+        this.patients = fs_controller.loadPatientsFromFile(current_user, getContext());
 
-        if (network_info != null && network_info.isConnected()) {
+        if (isNetworkConnected()) {
             new getPatientsAsync().execute(new ArrayList<String>(current_user.getPatients()));
-        } else {
-            LocalFileController fs_controller = new LocalFileController();
-            this.patients = fs_controller.loadPatientsFromFile(current_user, getContext());
+
         }
     }
 
     private void updatePatients(ArrayList<Patient> patients) {
         this.patients = patients;
+        patient_ids.clear();
+        for (Patient patient: patients) {
+            patient_ids.add(patient.getUserid());
+        }
+        adapter.refresh(patient_ids);
 
         LocalFileController fs_controller = new LocalFileController();
         fs_controller.savePatientsInFile(this.patients, getContext());

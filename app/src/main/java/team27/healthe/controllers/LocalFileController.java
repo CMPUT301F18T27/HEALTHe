@@ -145,7 +145,7 @@ public class LocalFileController {
         return problems;
     }
 
-    private static Problem loadProblemFromFile(String problem_id,  Context context) {
+    public static Problem loadProblemFromFile(String problem_id,  Context context) {
         try {
             Gson gson = new Gson();
             String problem_json = getStringFromFile(problem_id, context);
@@ -185,7 +185,7 @@ public class LocalFileController {
         return records;
     }
 
-    private static Record loadRecordFromFile(String record_id, Context context) {
+    public static Record loadRecordFromFile(String record_id, Context context) {
         try {
             Gson gson = new Gson();
             String record_json = getStringFromFile(record_id, context);

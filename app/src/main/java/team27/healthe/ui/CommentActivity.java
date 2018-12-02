@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -69,6 +72,12 @@ public class CommentActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkTasks();
+    }
+
     private void getItems(Intent intent) {
         Gson gson = new Gson();
         String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
@@ -77,6 +86,26 @@ public class CommentActivity extends AppCompatActivity {
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         UserElasticSearchController es_controller = new UserElasticSearchController();
         this.current_user = es_controller.jsonToUser(user_json);
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
     }
 
     private void addComment() {
@@ -151,6 +180,20 @@ public class CommentActivity extends AppCompatActivity {
                 OfflineController offline_controller = new OfflineController();
                 offline_controller.addRecord(record, getApplicationContext());
             }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
         }
     }
 

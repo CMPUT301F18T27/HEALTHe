@@ -12,8 +12,8 @@
     <string name="title_activity_profile">Profile Details</string>
     <string name="title_activity_problem_list">Problems</string>
     <string name="title_activity_problem">Problems</string>
-    <string name="title_activity_record_list">RecordListActivity</string>
-    <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_record_list">Records</string>
+    <string name="title_activity_record">Record Details</string>
     <string name="title_activity_search">SearchActivity</string>
     <string name="title_activity_signup">Account Creation</string>
     <string name="login_button">Login</string>
@@ -48,8 +48,8 @@
     <string name="title_activity_qrcode">QR Code</string>
     <string name="title_activity_problem_info">Problem Details</string>
     <string name="title_activity_photo">PhotoActivity</string>
-    <string name="title_activity_geo_location">GeoLocationActivity</string>
-    <string name="title_activity_all_geo_locations">AllGeoLocationsActivity</string>
+    <string name="title_activity_geo_location">Record Location</string>
+    <string name="title_activity_all_geo_locations">All Record Locations</string>
     <string name="date_picker_title">Enter Date:</string>
     <string name="title_activity_edit_body_locations">Edit Body Locations</string>
     <string name="title_activity_select_body_location">Select Body Location</string>

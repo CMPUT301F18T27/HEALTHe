@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import android.os.Handler;
@@ -83,6 +86,13 @@ public class HomeActivity extends AppCompatActivity {
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadLocalUser();
+        checkTasks();
     }
 
 
@@ -352,11 +362,13 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(SearchResult search) {
             super.onPostExecute(search);
-            if (search.isSucceeded()) {
-                ArrayList<String> hits = new ArrayList<>();
-                List<String> temp_hits = search.getSourceAsStringList();
-                hits.addAll(temp_hits);
-                startSearchActivity(hits);
+            if (search != null) {
+                if (search.isSucceeded()) {
+                    ArrayList<String> hits = new ArrayList<>();
+                    List<String> temp_hits = search.getSourceAsStringList();
+                    hits.addAll(temp_hits);
+                    startSearchActivity(hits);
+                }
             }
         }
     }
@@ -375,12 +387,28 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(SearchResult search) {
             super.onPostExecute(search);
-            if (search.isSucceeded()) {
-                ArrayList<String> hits = new ArrayList<>();
-                List<String> temp_hits = search.getSourceAsStringList();
-                hits.addAll(temp_hits);
-                startSearchActivity(hits);
+            if (search != null) {
+                if (search.isSucceeded()) {
+                    ArrayList<String> hits = new ArrayList<>();
+                    List<String> temp_hits = search.getSourceAsStringList();
+                    hits.addAll(temp_hits);
+                    startSearchActivity(hits);
+                }
             }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
         }
     }
 
@@ -390,6 +418,30 @@ public class HomeActivity extends AppCompatActivity {
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(SearchResultsActivity.SEARCH_MESSAGE, hits);
         startActivity(intent);
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void loadLocalUser() {
+        LocalFileController controller = new LocalFileController();
+        this.current_user = controller.loadUserFromFile(this);
+    }
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
     }
 
 }

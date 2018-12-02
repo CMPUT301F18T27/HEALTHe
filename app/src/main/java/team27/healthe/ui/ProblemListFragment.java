@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -90,12 +91,6 @@ public class ProblemListFragment extends Fragment {
 
         listView = (ListView) view.findViewById(R.id.problem_list);
 
-        problems = new ArrayList<>();
-        adapter = new ProblemsAdapter(getContext(), problems);
-        listView.setAdapter(adapter);
-
-        getProblems();
-
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,11 +126,25 @@ public class ProblemListFragment extends Fragment {
         return view;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        problems = new ArrayList<>();
+        adapter = new ProblemsAdapter(getContext(), problems);
+        listView.setAdapter(adapter);
+        getProblems();
+        if (problems.size() == 0) { // This check is because elastic search is down so often
+            loadLocalProblems();
+        }
+    }
+
     public void addProblem() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
-        dialog.setTitle("Edit Problem");
-        //dialog.setMessage("");
+        dialog.setTitle("Add Problem");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(getContext());
@@ -149,7 +158,7 @@ public class ProblemListFragment extends Fragment {
         // Add a TextView for problem title
         final EditText title_text = new EditText(getContext());
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method
@@ -161,8 +170,12 @@ public class ProblemListFragment extends Fragment {
 
         // Add a TextView for date
         final TextView date_text = new TextView(getContext());
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(formatter.format(new Date()));
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -378,6 +391,26 @@ public class ProblemListFragment extends Fragment {
         }
     }
 
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getContext());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            getProblemsES();
+        }
+    }
+
     private void getProblemsES() {
         for (String problem_id : current_user.getProblemList()) {
             new getProblemAsync().execute(problem_id);
@@ -385,17 +418,34 @@ public class ProblemListFragment extends Fragment {
     }
 
     private void getProblems() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(getContext())) {
+                new PerformTasks().execute(true);
+            }
+            else {
+                getProblemsES();
+            }
+        } else {
+            loadLocalProblems();
+        }
+    }
+
+    private void loadLocalProblems() {
+        for (Problem problem : file_controller.loadProblemsFromFile(current_user, getContext())) {
+            problems.add(problem);
+        }
+        adapter.refresh(problems);
+    }
+
+    private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
 
         if (network_info != null && network_info.isConnected()) {
-            getProblemsES();
-        } else {
-            for (Problem problem : file_controller.loadProblemsFromFile(current_user, getContext())) {
-                problems.add(problem);
-            }
-            adapter.refresh(problems);
+            return true;
         }
+        return false;
     }
 
     public void getAllGeoLocations() {

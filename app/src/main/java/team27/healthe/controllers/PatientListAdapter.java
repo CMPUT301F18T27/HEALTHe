@@ -17,7 +17,7 @@ import team27.healthe.R;
  */
 public class PatientListAdapter extends ArrayAdapter<String> {
     private final Activity context;
-    private final ArrayList<String> patients; //Array of patient ids
+    private ArrayList<String> patients; //Array of patient ids
 
     //Constructor
     public PatientListAdapter(Activity context, ArrayList<String> patients) {
@@ -53,8 +53,7 @@ public class PatientListAdapter extends ArrayAdapter<String> {
      * @param patients (ArrayList<String> - patient ids)
      */
     public void refresh(ArrayList<String> patients) {
-        this.clear();
-        this.addAll(patients);
+        this.patients = patients;
         notifyDataSetChanged();
     }
 }

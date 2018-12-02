@@ -6,6 +6,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -64,13 +65,7 @@ public class RecordListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         listView = (ListView) findViewById(R.id.record_list);
-
-        records = new ArrayList<>();
-        adapter = new RecordListAdapter(this, records);
-        listView.setAdapter(adapter);
-
         getFromIntent();
-        getRecords();
 
         // clicking the add button takes you to an alert dialog to choose the
         // type of record to add
@@ -103,6 +98,19 @@ public class RecordListActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        records = new ArrayList<>();
+        adapter = new RecordListAdapter(this, records);
+        listView.setAdapter(adapter);
+        getRecords();
+        if (records.size() == 0) {
+            getLocalRecords();
+        }
     }
 
     public void viewRecord(Record record) {
@@ -164,7 +172,7 @@ public class RecordListActivity extends AppCompatActivity {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Record");
-        //dialog.setMessage("");
+        dialog.setMessage("");
 
 
         LinearLayout layout = new LinearLayout(this);
@@ -190,8 +198,12 @@ public class RecordListActivity extends AppCompatActivity {
 
         // Add a TextView for date
         final TextView date_text = new TextView(this);
+        ViewGroup.LayoutParams date_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) date_params).setMargins(0,0,0,64);
         date_text.setTextSize(18);
         date_text.setText(formatter.format(new Date()));
+        date_text.setLayoutParams(date_params);
+        date_text.setTextColor(Color.BLACK);
         layout.addView(date_text); // Another add method
         date_text.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -354,6 +366,26 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            getRecordsES();
+        }
+    }
+
     private void getFromIntent() {
         Gson gson = new Gson();
         UserElasticSearchController es_controller = new UserElasticSearchController();
@@ -371,17 +403,34 @@ public class RecordListActivity extends AppCompatActivity {
     }
 
     private void getRecords() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+            else {
+                getRecordsES();
+            }
+        } else {
+            getLocalRecords();
+        }
+    }
+
+    private void getLocalRecords() {
+        for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
+            records.add(record);
+        }
+        adapter.refresh(records);
+    }
+
+    private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
 
         if (network_info != null && network_info.isConnected()) {
-            getRecordsES();
-        } else {
-            for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
-                records.add(record);
-            }
-            adapter.refresh(records);
+            return true;
         }
+        return false;
     }
 
     public boolean validProblemInputs(String title, Date date, String desc) {

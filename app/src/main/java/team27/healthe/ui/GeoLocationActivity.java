@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -160,10 +163,46 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
         }
     }
 
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
+            }
+        }
+    }
+
     @Override
     public void onResume() {
         mapView.onResume();
         super.onResume();
+        checkTasks();
+
     }
 
 

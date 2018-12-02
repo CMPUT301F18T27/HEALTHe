@@ -1,8 +1,11 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -48,9 +51,14 @@ public class SlideshowActivity extends AppCompatActivity {
 
         getItems(getIntent());
         getFiles();
-
         setImage();
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkTasks();
     }
 
     @Override
@@ -108,6 +116,26 @@ public class SlideshowActivity extends AppCompatActivity {
                 else {
                     new GetPhoto().execute(photo);
                 }
+            }
+        }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
+
+        if (network_info != null && network_info.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    private void checkTasks() {
+        if (isNetworkConnected()) {
+            OfflineController controller = new OfflineController();
+            if (controller.hasTasks(this)) {
+                new PerformTasks().execute(true);
             }
         }
     }
@@ -203,6 +231,20 @@ public class SlideshowActivity extends AppCompatActivity {
                 OfflineController offline_controller = new OfflineController();
                 offline_controller.addRecord(record, getApplicationContext());
             }
+        }
+    }
+
+    private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            OfflineController controller = new OfflineController();
+            for(Boolean bool:booleans) {
+                if (bool) {
+                    controller.performTasks(getApplicationContext());
+                }
+            }
+            return null;
         }
     }
 
