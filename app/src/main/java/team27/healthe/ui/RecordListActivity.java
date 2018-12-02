@@ -36,6 +36,7 @@ import java.util.Date;
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.controllers.RecordListAdapter;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
