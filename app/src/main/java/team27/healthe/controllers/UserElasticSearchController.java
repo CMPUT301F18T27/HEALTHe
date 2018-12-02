@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import java.util.Map;
 
 import io.searchbox.client.JestResult;
+import io.searchbox.core.Delete;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.CareProvider;
@@ -80,5 +81,22 @@ public class UserElasticSearchController extends ElasticSearchController {
         } else {
             return gson.fromJson(user_json,CareProvider.class);
         }
+    }
+
+    /**
+     * Removes a specified user
+     * @param user_id (Integer)
+     */
+    public static void removeUser(String user_id){
+        verifyClient();
+        try{
+            client.execute(new Delete.Builder(user_id)
+                    .index(test_index)
+                    .type(user_type)
+                    .build());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }
