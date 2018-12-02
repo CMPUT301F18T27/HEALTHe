@@ -1,8 +1,10 @@
 package team27.healthe.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,9 +21,20 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.gson.Gson;
 import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import team27.healthe.R;
+import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
+import team27.healthe.model.CareProvider;
+import team27.healthe.model.Patient;
+import team27.healthe.model.Photo;
+import team27.healthe.model.Problem;
+import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 public class LoginActivity extends AppCompatActivity {
@@ -48,6 +61,14 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 201);
+        }
+
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 200);
+        }
 
     }
 
@@ -92,6 +113,8 @@ public class LoginActivity extends AppCompatActivity {
     // Called after user is retrieved from the elastic search server
     private void handleLogin(User user, Boolean save_in_file){
         if (user != null) {
+            getAllForUser(user);
+
             Gson gson = new Gson();
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
             intent.putExtra(USER_MESSAGE, gson.toJson(user));
@@ -134,6 +157,109 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for getting user from elastic search server
+    private class GetPatients extends AsyncTask<Collection<String>, Void, ArrayList<Patient>> {
+
+        @Override
+        protected ArrayList<Patient> doInBackground(Collection<String>... patient_id_lists) {
+            UserElasticSearchController es_controller = new UserElasticSearchController();
+
+            for (Collection<String> patient_ids: patient_id_lists) {
+                ArrayList<Patient> patients = new ArrayList<>();
+                for (String patient_id : patient_ids) {
+                    User user = es_controller.getUser(patient_id);
+                    if (user != null) {
+                        if (user instanceof Patient) {
+                            patients.add((Patient) user);
+                        }
+                    }
+                }
+                return patients;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<Patient> patients) {
+            super.onPostExecute(patients);
+            LocalFileController controller = new LocalFileController();
+            controller.savePatientsInFile(patients, getApplicationContext());
+            for (Patient patient : patients) {
+                getAllForPatient(patient);
+            }
+        }
+    }
+
+    // Async class for getting problems from elastic search server
+    private class GetProblem extends AsyncTask<String, Void, Problem> {
+
+        @Override
+        protected Problem doInBackground(String... problem_ids) {
+            ProblemElasticSearchController es_controller = new ProblemElasticSearchController();
+
+            for (String problem_id: problem_ids) {
+                return es_controller.getProblem(problem_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Problem problem) {
+            super.onPostExecute(problem);
+            if (problem != null) {
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveProblemInFile(problem, getApplicationContext());
+
+                for (String record_id : problem.getRecords()) {
+                    new GetRecord().execute(record_id);
+                }
+            }
+        }
+    }
+
+
+    // Async class for getting records from elastic search server
+    private class GetRecord extends AsyncTask<String, Void, Record> {
+
+        @Override
+        protected Record doInBackground(String... record_ids) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+
+            for (String record_id : record_ids) {
+                return es_controller.getRecord(record_id);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Record record) {
+            super.onPostExecute(record);
+            if (record != null) {
+                LocalFileController localFileController = new LocalFileController();
+                localFileController.saveRecordInFile(record, getApplicationContext());
+
+                for (Photo photo : record.getPhotos()) {
+                    new GetPhoto().execute(photo);
+                }
+            }
+        }
+    }
+
+
+    // Async class for retrieving photos from elastic search
+    private class GetPhoto extends AsyncTask<Photo, Void, String> {
+
+        @Override
+        protected String doInBackground(Photo... photos) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (Photo photo : photos) {
+                photo_controller.getPhoto(photo.getId());
+            }
+            return null;
+        }
+    }
+
     private void loadFromFile() {
         LocalFileController file_controller = new LocalFileController();
         User user = file_controller.loadUserFromFile(this);
@@ -146,6 +272,27 @@ public class LoginActivity extends AppCompatActivity {
         // https://github.com/avaneeshkumarmaurya/Barcode-Reader
         Intent launchIntent = BarcodeReaderActivity.getLaunchIntent(this, true, false);
         startActivityForResult(launchIntent, BARCODE_READER_ACTIVITY_REQUEST);
+    }
+
+    // Save everything for user in elastic search locally
+    private void getAllForUser(User user) {
+        if (user instanceof Patient) {
+            getAllForPatient((Patient) user);
+        } else {
+            getAllForCareProvider((CareProvider) user);
+        }
+    }
+
+    // Get everything for a patient
+    private void getAllForPatient(Patient patient) {
+        for (String problem_id : patient.getProblemList()) {
+            new GetProblem().execute(problem_id);
+        }
+    }
+
+    // Get everything for a Care Provider
+    private void getAllForCareProvider(CareProvider care_provider) {
+        new GetPatients().execute(care_provider.getPatients());
     }
 
 }

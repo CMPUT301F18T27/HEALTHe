@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -54,13 +55,24 @@ public class CommentActivity extends AppCompatActivity {
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Comment comment = (Comment) list_view.getItemAtPosition(position);
+
+                if (isNetworkConnected()) {
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent.putExtra(LoginActivity.USER_MESSAGE, comment.getCommenter());
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "You must be online to view profile info", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
         list_view.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-               return true;
+                Comment comment = (Comment) list_view.getItemAtPosition(position);
+                deleteComment(comment);
+                return true;
             }
         });
 
@@ -128,6 +140,42 @@ public class CommentActivity extends AppCompatActivity {
         dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 saveComment(comment_text.getText().toString());
+
+            }
+        })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                });
+        dialog.show();
+    }
+
+    private void deleteComment(final Comment comment) {
+        if (!comment.getCommenter().equals(current_user.getUserid())) {
+            Toast.makeText(this, "You may only delete your own comments", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Delete Comment");
+        dialog.setMessage("Are you sure you want to delete this comment?");
+
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                record.removeComment(comment);
+                ArrayList<Comment> comments = record.getCommentList();
+                adapter.refresh(comments);
+
+                LocalFileController file_controller = new LocalFileController();
+                file_controller.saveRecordInFile(record, getApplicationContext());
+
+                new UpdateRecord().execute(record);
+
+                Gson gson = new Gson();
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
+                setResult(RESULT_OK,returnIntent);
 
             }
         })

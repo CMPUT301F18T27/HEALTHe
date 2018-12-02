@@ -36,7 +36,7 @@ public abstract class ElasticSearchController {
         public static void verifyClient() {
             // Code from LonelyTwitter
             if (client == null) {
-                DroidClientConfig.Builder builder = new DroidClientConfig.Builder(node);
+                DroidClientConfig.Builder builder = new DroidClientConfig.Builder(backup_node);
                 DroidClientConfig config = builder.build();
 
                 JestClientFactory factory = new JestClientFactory();

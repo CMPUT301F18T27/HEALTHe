@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -213,8 +214,15 @@ public class LocalFileController {
         }
     }
 
-    public static void deleteAllFiles() {
-        //TODO: find and delete all .sav files in local directory
+    public void deleteAllFiles(Context context) {
+        String path = context.getFilesDir().getAbsolutePath(); // Path to local files directory
+        File directory = new File(path);
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (file.isFile() && file.getName().endsWith(FILE_TYPE)) {
+                file.delete();
+            }
+        }
     }
 
     private static void saveStringInFile(String string_to_save ,String filename, Context context) {

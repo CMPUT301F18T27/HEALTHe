@@ -52,9 +52,9 @@ public class PatientListAdapter extends ArrayAdapter<String> {
      * Recreates the ListView when changes have been made to the list of patients
      * @param patients (ArrayList<String> - patient ids)
      */
-    public void refresh(ArrayList<String> patients) {
+    public void refresh(ArrayList<String> new_patients) {
         this.patients.clear();
-        this.patients.addAll(patients);
+        this.patients.addAll(new_patients);
         notifyDataSetChanged();
     }
 }

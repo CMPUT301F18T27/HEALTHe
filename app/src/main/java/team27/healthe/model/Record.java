@@ -100,6 +100,8 @@ public class Record {
 
     public void addCommment(Comment comment) { this.commentList.add(comment); }
 
+    public void removeComment(Comment comment) {this.commentList.remove(comment);}
+
     public BodyLocation getBodyLocation() {
         return bodyLocation;
     }
