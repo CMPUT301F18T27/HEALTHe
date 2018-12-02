@@ -68,6 +68,9 @@ public class Problem implements Comparable<Problem> {
     }
 
     public String getTitle() {
+        if (title == null) {
+            return "";
+        }
         return title;
     }
 
