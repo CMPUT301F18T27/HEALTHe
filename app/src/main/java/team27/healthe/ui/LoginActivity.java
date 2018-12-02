@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
 import team27.healthe.R;
-import team27.healthe.model.ElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.User;
 
@@ -118,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         protected User doInBackground(String... user_ids) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (String user_id: user_ids) {
                 User user = es_controller.getUser(user_id);

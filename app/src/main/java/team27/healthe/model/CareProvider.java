@@ -7,7 +7,10 @@ import java.util.Collection;
  * @author [fill in]
  */
 public class CareProvider extends User {
-    private Collection<String> patients; // Collection of patient ids
+    /**
+     * Patients associated with the CareProvider (patient ids)
+     */
+    private Collection<String> patients;
     private String user_type = "care-provider"; //For identification in elastic search
 
     public CareProvider(String userID, String email, String phone){
@@ -36,7 +39,7 @@ public class CareProvider extends User {
      * Gets the number of patients the care-provider has
      * @return no. patients (Integer)
      */
-    public Integer getPatientCount() {return patients.size();}
+    public int getPatientCount() {return patients.size();}
 
 
     /**

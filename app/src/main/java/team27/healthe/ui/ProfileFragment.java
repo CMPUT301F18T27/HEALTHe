@@ -1,11 +1,8 @@
 package team27.healthe.ui;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +12,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
-import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -66,7 +62,7 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         if (getArguments().containsKey(ARG_USER_ID)) {
             this.userid = getArguments().getString(ARG_USER_ID);
@@ -128,7 +124,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected User doInBackground(String... user_ids) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (String user_id: user_ids) {
                 User user = es_controller.getUser(user_id);

@@ -8,18 +8,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import io.searchbox.core.SearchResult;
 import team27.healthe.R;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
-import team27.healthe.model.SearchResultsAdapter;
+import team27.healthe.controllers.SearchResultsAdapter;
 import team27.healthe.model.User;
 
 public class SearchResultsActivity extends AppCompatActivity {

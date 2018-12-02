@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
@@ -21,14 +19,8 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 import java.text.SimpleDateFormat;
@@ -37,11 +29,9 @@ import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.LocalFileController;
-import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -105,7 +95,7 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     private void getItems(Intent intent) {
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);

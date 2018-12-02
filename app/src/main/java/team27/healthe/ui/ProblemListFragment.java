@@ -37,11 +37,10 @@ import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
-import team27.healthe.model.ProblemsAdapter;
+import team27.healthe.controllers.ProblemsAdapter;
 import team27.healthe.model.User;
 
 public class ProblemListFragment extends Fragment {
@@ -75,7 +74,7 @@ public class ProblemListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         if (getArguments() != null) {
             this.current_user = (Patient)es_controller.jsonToUser(getArguments().getString(ARG_USER));
@@ -150,7 +149,7 @@ public class ProblemListFragment extends Fragment {
         // Add a TextView for problem title
         final EditText title_text = new EditText(getContext());
         title_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
         title_text.setLayoutParams(params);
         layout.addView(title_text); // Notice this is an add method

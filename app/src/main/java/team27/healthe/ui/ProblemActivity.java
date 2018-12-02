@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import team27.healthe.R;
-import team27.healthe.model.ElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.User;
 
 public class ProblemActivity extends AppCompatActivity {
@@ -56,7 +56,7 @@ public class ProblemActivity extends AppCompatActivity {
     }
 
     private void getUser(Intent intent) {
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         String viewing_user_json = intent.getStringExtra(VIEWING_USER_MESSAGE);
         this.current_user = es_controller.jsonToUser(user_json);

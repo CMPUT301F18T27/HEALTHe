@@ -26,7 +26,7 @@ import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.BodyLocationListener;
 import team27.healthe.model.BodyLocation;
-import team27.healthe.model.ImageAdapter;
+import team27.healthe.controllers.ImageAdapter;
 import team27.healthe.controllers.ImageController;
 
 public class ViewBodyLocationsActivity extends AppCompatActivity implements BodyLocationListener {

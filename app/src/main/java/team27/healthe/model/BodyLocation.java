@@ -1,30 +1,40 @@
 package team27.healthe.model;
 
 
-/** Represents body location screen
+/** Represents body location image
  * @author Chris
  *
  */
 public class BodyLocation {
-//    Point location;
+    /**
+     * selected location on body location image (coordinates on image)
+     */
     float x_location;
     float y_location;
-    String patient_id;//associated patient
-    String body_location_id;//for elasticsearch
-    String body_string;//for search/titles
+    /**
+     * id of associated patient (body locations are unique to a patient)
+     */
+    String patient_id;
+    /**
+     * identifier for this object (used as id in elasticsearch as well as filename)
+     */
+    String body_location_id;
+    /**
+     * title for this photo (given by user)
+     * used for searching
+     */
+    String body_string;
 
     public BodyLocation(float x, float y){
-//        location = new Point(x, y);
         x_location = x;
         y_location = y;
         body_string = "";
     }
 
     public BodyLocation(){
-//        location = new Point(0,0);
         x_location = 0;
         y_location = 0;
-        body_string = "";//replace hardcoded value
+        body_string = "";
     }
 
     public void setPoint(float x, float y){
@@ -39,10 +49,6 @@ public class BodyLocation {
         return y_location;
     }
 
-    /**
-     *
-     * @return location name string (for display purposes) based on location
-     */
     public String getLocationName(){
 
         return body_string;

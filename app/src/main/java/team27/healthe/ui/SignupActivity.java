@@ -8,8 +8,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import team27.healthe.R;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -78,7 +78,7 @@ public class SignupActivity extends AppCompatActivity {
 
         @Override
         protected User doInBackground(User... users) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (User user : users) {
                 if (es_controller.getUser(user.getUserid()) != null) { // If account already exists

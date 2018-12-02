@@ -32,13 +32,12 @@ import org.elasticsearch.search.SearchHits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
 import team27.healthe.controllers.ElasticSearchSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Photo;
@@ -233,7 +232,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void getUserFromIntent() {
         Intent intent = getIntent();
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         this.current_user = es_controller.jsonToUser(user_json);
 
@@ -324,7 +323,7 @@ public class HomeActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(User... users) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
             for(User user:users) {
                 es_controller.addUser(user);
             }

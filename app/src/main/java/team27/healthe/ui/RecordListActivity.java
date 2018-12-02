@@ -34,12 +34,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
-import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
@@ -61,13 +59,14 @@ public class RecordListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_list);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         listView = (ListView) findViewById(R.id.record_list);
+
         records = new ArrayList<>();
         adapter = new RecordListAdapter(this, records);
         listView.setAdapter(adapter);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         getFromIntent();
         getRecords();
@@ -104,7 +103,6 @@ public class RecordListActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public void viewRecord(Record record) {
         Gson gson = new Gson();
@@ -363,7 +361,9 @@ public class RecordListActivity extends AppCompatActivity {
         if (network_info != null && network_info.isConnected()) {
             getRecordsES();
         } else {
-            records = file_controller.loadRecordsFromFile(getApplicationContext());
+            for (Record record : file_controller.loadRecordsFromFile(getApplicationContext())) {
+                records.add(record);
+            }
             adapter.refresh(records);
         }
     }

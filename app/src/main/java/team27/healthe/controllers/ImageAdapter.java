@@ -1,8 +1,7 @@
-package team27.healthe.model;
+package team27.healthe.controllers;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,14 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
 import com.squareup.picasso.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import team27.healthe.R;
-import team27.healthe.controllers.BodyLocationListener;
 
 public class ImageAdapter extends RecyclerView.Adapter <ImageAdapter.ImageViewHolder> {
     private ArrayList<String> image_list;

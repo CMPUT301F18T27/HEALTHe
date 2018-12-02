@@ -22,7 +22,8 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 
 import team27.healthe.R;
-import team27.healthe.model.ElasticSearchController;
+import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.GeoLocation;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
@@ -75,7 +76,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
     }
 
     private void getItems(Intent intent) {
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
@@ -99,7 +100,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
 
         @Override
         protected ArrayList<Record> doInBackground(ArrayList<String>... record_id_list) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
 
             for (ArrayList<String>record_ids : record_id_list) {
                 ArrayList<Record> es_records = new ArrayList<>();

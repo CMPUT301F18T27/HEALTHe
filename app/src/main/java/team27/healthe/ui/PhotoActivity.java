@@ -1,7 +1,6 @@
 package team27.healthe.ui;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,12 +13,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -27,15 +23,10 @@ import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.PhotoElasticSearchController;
-import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.Problem;
 
 public class PhotoActivity extends AppCompatActivity {
     public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
