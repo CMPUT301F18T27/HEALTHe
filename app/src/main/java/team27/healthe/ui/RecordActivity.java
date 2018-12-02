@@ -249,6 +249,8 @@ public class RecordActivity extends AppCompatActivity {
         if (temp_record != null) {
             this.record = temp_record;
         }
+
+        //TODO: get record from ES if online
     }
 
     private boolean isNetworkConnected() {

@@ -331,10 +331,14 @@ public class RecordListActivity extends AppCompatActivity {
             super.onPostExecute(record);
             if (record != null) {
                 records.add(record);
-                adapter.refresh(records);
+                if (records.size() == current_problem.getRecords().size()) {
+                    adapter.refresh(records);
+                }
 
                 LocalFileController localFileController = new LocalFileController();
                 localFileController.saveRecordInFile(record, getApplicationContext());
+            } else {
+                adapter.refresh(records);
             }
         }
     }

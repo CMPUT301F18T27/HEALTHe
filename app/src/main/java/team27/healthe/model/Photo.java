@@ -4,7 +4,7 @@ import org.elasticsearch.common.UUID;
 
 /**
  * Class for representing record images
- * @author [fill in]
+ * @author Chase
  */
 public class Photo {
     private String id;

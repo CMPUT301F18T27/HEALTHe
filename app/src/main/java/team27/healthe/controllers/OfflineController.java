@@ -6,11 +6,11 @@ import android.util.Log;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import team27.healthe.model.Photo;
 import team27.healthe.model.Problem;
@@ -52,7 +52,7 @@ public class OfflineController {
         writeToFile(DELETE + SPLITTER + RECORD + SPLITTER + gson.toJson(record) + "\n", context);
     }
 
-    public static void addPhoto(Photo photo, Context context) {
+    public static void addPhoto(File photo, Context context) {
         Gson gson = new Gson();
         writeToFile(ADD + SPLITTER + PHOTO + SPLITTER + gson.toJson(photo) + "\n", context);
     }
@@ -78,7 +78,7 @@ public class OfflineController {
         }
     }
 
-    public static void performTasks(Context context) {
+    public void performTasks(Context context) {
         ArrayList<String> task_strings = getTaskStrings(context);
         for (String task: task_strings) {
             String [] parts = task.split(SPLITTER, 3);
@@ -110,7 +110,7 @@ public class OfflineController {
         }
     }
 
-    private static void performTask(String operation, String type, String object, Context context) {
+    private void performTask(String operation, String type, String object, Context context) {
         Gson gson = new Gson();
         UserElasticSearchController es_controller = new UserElasticSearchController();
         boolean success = false;
@@ -127,7 +127,12 @@ public class OfflineController {
                         success = RecordElasticSearchController.addRecord(gson.fromJson(object, Record.class));
                         break;
                     case PHOTO:
-                        //TODO: handle photos
+                        PhotoElasticSearchController photo_controlller = new PhotoElasticSearchController();
+
+                        File photo_file = gson.fromJson(object, File.class);
+                        String id = photo_file.getName().substring(0, photo_file.getName().length() - 4);
+
+                        success = photo_controlller.addPhoto(photo_file, id);
                         break;
                 }
             } else {
@@ -139,7 +144,13 @@ public class OfflineController {
                         success = RecordElasticSearchController.removeRecord(gson.fromJson(object, Record.class).getRecordID());
                         break;
                     case PHOTO:
-                        //TODO: handle photos
+                        //TODO: object will likely be id not file
+                        PhotoElasticSearchController photo_controlller = new PhotoElasticSearchController();
+
+                        File photo_file = gson.fromJson(object, File.class);
+                        String id = photo_file.getName().substring(0, photo_file.getName().length() - 4);
+
+                        success = photo_controlller.deletePhoto(id);
                         break;
                 }
             }

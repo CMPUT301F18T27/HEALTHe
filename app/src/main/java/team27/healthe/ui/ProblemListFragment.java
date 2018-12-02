@@ -356,10 +356,14 @@ public class ProblemListFragment extends Fragment {
             super.onPostExecute(problem);
             if (problem != null) {
                 problems.add(problem);
-                adapter.refresh(problems);
+                if (problems.size() == current_user.getProblemList().size()) {
+                    adapter.refresh(problems);
+                }
 
                 LocalFileController localFileController = new LocalFileController();
                 localFileController.saveProblemInFile(problem, getContext());
+            } else {
+                adapter.refresh(problems);
             }
         }
     }
@@ -409,7 +413,6 @@ public class ProblemListFragment extends Fragment {
     }
 
     private void getProblemsES() {
-        Integer count = problems.size();
         for (String problem_id : current_user.getProblemList()) {
             new getProblemAsync().execute(problem_id);
         }

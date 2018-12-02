@@ -28,17 +28,16 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import team27.healthe.R;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.model.Photo;
 
 public class PhotoActivity extends AppCompatActivity {
     public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
-    public static final String SUCCESS_MESSAGE = "team27.healthe.SUCCESS";
-    public static final String FILENAME_MESSAGE = "team27.healthe.FILENAME";
     private static final Integer PHOTO_REQUEST_CODE = 100;
     private Uri photo_uri;
     private File photo_file;
-    private String file_name = UUID.randomUUID().toString();
+    private Photo model_photo = new Photo();
     private boolean has_photo = false;
     private boolean has_bodylocation = false;
     private boolean saving = false;
@@ -68,16 +67,8 @@ public class PhotoActivity extends AppCompatActivity {
     public void takePhoto(View view) {
         if(saving){return;} // If saving is in progress do nothing
 
-        boolean delete = false;
-        File temp_file = photo_file;
-        if (photo_file != null) {
-            delete = true;
-        }
-
         photo_file = getOutputMediaFile();
-        if (delete) {
-            temp_file.delete();
-        }
+
         if (photo_file != null) {
             photo_uri = Uri.fromFile(photo_file);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -200,7 +191,7 @@ public class PhotoActivity extends AppCompatActivity {
             return null;
         }
 
-        File filename = new File(mediaStorageDir.getPath() + File.separator + this.file_name + ".jpg");
+        File filename = new File(mediaStorageDir.getPath() + File.separator + this.model_photo.getId() + ".jpg");
 
         return filename;
     }
@@ -212,7 +203,8 @@ public class PhotoActivity extends AppCompatActivity {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
             for (File file : files) {
-                return photo_controller.addPhoto(file, null);
+                String file_name = file.getName();
+                return photo_controller.addPhoto(file, file_name.substring(0, file_name.length() - 4));
             }
             return null;
         }
@@ -220,13 +212,15 @@ public class PhotoActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean isSucceeded) {
             super.onPostExecute(isSucceeded);
-            //TODO: Check if photo uploaded successfully
+            if (!isSucceeded) {
+                OfflineController controller = new OfflineController();
+                controller.addPhoto(photo_file, getApplicationContext());
+            }
 
             Gson gson = new Gson();
             Intent returnIntent = new Intent();
             setResult(RESULT_OK,returnIntent);
-            returnIntent.putExtra(PHOTO_ID_MESSAGE,file_name);
-            returnIntent.putExtra(SUCCESS_MESSAGE, true);
+            returnIntent.putExtra(PHOTO_ID_MESSAGE,gson.toJson(model_photo));
             finish();
         }
     }

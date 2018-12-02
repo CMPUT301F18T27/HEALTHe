@@ -65,14 +65,13 @@ public class SlideshowActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PHOTO_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                boolean success = data.getBooleanExtra(PhotoActivity.SUCCESS_MESSAGE, false);
-                if (success) {
-                    String id = data.getStringExtra(PhotoActivity.PHOTO_ID_MESSAGE);
-                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + id + ".jpg");
-                    if (photo_file.exists()) {
-                        image_files.add(photo_file);
-                    }
-                    Photo photo = new Photo(id);
+                Gson gson = new Gson();
+
+                Photo photo = gson.fromJson(data.getStringExtra(PhotoActivity.PHOTO_ID_MESSAGE), Photo.class);
+                File photo_file = new File(getMediaDirectory().getPath() + File.separator + photo.getId() + ".jpg");
+                if (photo_file.exists()) {
+                    image_files.add(photo_file);
+
                     record.addPhoto(photo);
                     new UpdateRecord().execute(record);
 
@@ -80,14 +79,9 @@ public class SlideshowActivity extends AppCompatActivity {
                     file_controller.saveRecordInFile(record, this);
 
                     setIntent();
-                }else {
-                    String file_name = data.getStringExtra(PhotoActivity.FILENAME_MESSAGE);
-                    File photo_file = new File(getMediaDirectory().getPath() + File.separator + file_name + ".jpg");
-                    if (photo_file.exists()) {
-                        image_files.add(photo_file);
-                    }
+
+                    updateButtons();
                 }
-                updateButtons();
             }
         }
     }
