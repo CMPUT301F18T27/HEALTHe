@@ -116,7 +116,7 @@ public class HomeActivity extends AppCompatActivity {
                         .setNeutralButton("Geo Location", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-
+                                new SearchGeoLocation().execute(s);
                             }
                         })
                         .show();
@@ -167,25 +167,8 @@ public class HomeActivity extends AppCompatActivity {
         else if (id == R.id.action_map_view) {
             problem_list_fragment.getAllGeoLocations();
         }
-
-        else if (id == R.id.action_test) {
-            ArrayList<String> comment_list = new ArrayList<String>();
-            comment_list.add("Test 123");
-            comment_list.add("Suck this!");
-            Record record = new Record(comment_list);
-            Photo photo2 = new Photo("AWdj5Gbf8OXLMedoUnvl");
-            Photo photo = new Photo("AWdjxIfb8OXLMedoUnvX");
-            record.addPhoto(photo);
-            record.addPhoto(photo2);
-
-            Gson gson = new Gson();
-            Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
-            intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-            intent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
-            startActivity(intent);
-        }
       
-      else if (id == R.id.action_body_locations) {
+        else if (id == R.id.action_body_locations) {
             editBodyLocations();
         }
 
@@ -364,6 +347,29 @@ public class HomeActivity extends AppCompatActivity {
             ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
             for(String term:terms) {
                 return es_controller.searchGeneral(term);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(SearchResult search) {
+            super.onPostExecute(search);
+            if (search.isSucceeded()) {
+                ArrayList<String> hits = new ArrayList<>();
+                List<String> temp_hits = search.getSourceAsStringList();
+                hits.addAll(temp_hits);
+                startSearchActivity(hits);
+            }
+        }
+    }
+
+    private class SearchGeoLocation extends AsyncTask<String, Void, SearchResult> {
+
+        @Override
+        protected SearchResult doInBackground(String... terms) {
+            ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
+            for(String term:terms) {
+                return es_controller.searchGeoLocation(53.5, -113.5, 100.0);
             }
             return null;
         }

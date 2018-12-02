@@ -2,7 +2,7 @@ package team27.healthe.model;
 
 /**
  * Represents a comment (made on a record)
- * @author [fill in]
+ * @author Chase
  */
 public class Comment {
     private String text;

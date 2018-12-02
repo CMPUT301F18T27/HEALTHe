@@ -1,5 +1,7 @@
 package team27.healthe.model;
 
+import org.elasticsearch.common.UUID;
+
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,7 +27,7 @@ public class Problem implements Comparable<Problem> {
         this.pdate = new Date();
         this.description = "";
         this.records = new ArrayList<>();
-        this.problem_id = "";
+        this.problem_id = UUID.randomUUID().toString();
         this.patient_id = "";
     }
 
@@ -34,7 +36,7 @@ public class Problem implements Comparable<Problem> {
         pdate = date;
         description = desc;
         records = new ArrayList<>();
-        this.problem_id = "";
+        this.problem_id = UUID.randomUUID().toString();
         this.patient_id = "";
     }
 
@@ -44,7 +46,7 @@ public class Problem implements Comparable<Problem> {
         description = desc;
         records = new ArrayList<>();
         patient_id = p_id;
-        this.problem_id = "";
+        this.problem_id = UUID.randomUUID().toString();
     }
 
     public Problem(String ttl, Date date, String desc, Collection<String> recs) {
@@ -52,7 +54,7 @@ public class Problem implements Comparable<Problem> {
         pdate = date;
         description = desc;
         records = recs;
-        this.problem_id = "";
+        this.problem_id = UUID.randomUUID().toString();
         this.patient_id = "";
     }
 
@@ -61,7 +63,7 @@ public class Problem implements Comparable<Problem> {
         pdate = new Date();
         description = desc;
         records = recs;
-        this.problem_id = "";
+        this.problem_id = UUID.randomUUID().toString();
         this.patient_id = "";
     }
 

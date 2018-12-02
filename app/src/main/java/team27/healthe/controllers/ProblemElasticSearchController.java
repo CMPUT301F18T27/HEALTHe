@@ -17,34 +17,19 @@ public class ProblemElasticSearchController extends ElasticSearchController {
      * Add problem to elastic search database using problem id as the id in elastic search
      * @param p (Problem Class)
      */
-    public static Problem addProblem(Problem p) {
+    public static void addProblem(Problem p) {
         verifyClient();
-        boolean re_save = false;
 
         Gson gson = new Gson();
         String problem_json = gson.toJson(p);
 
-        Index index;
-        if (p.getProblemID().equals("")) {
-            index = new Index.Builder(problem_json).index(test_index).type(problem_type).build();
-            re_save = true;
-        }
-        else {
-            index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
-        }
+        Index index = new Index.Builder(problem_json).index(test_index).type(problem_type).id(p.getProblemID()).build();
 
         try {
-            DocumentResult result = client.execute(index);
-            String id = result.getId();
-            p.setProblemID(result.getId());
-            if (re_save) {
-                addProblem(p);
-            }
-            return p;
+            client.execute(index);
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
-            return null;
         }
     }
 

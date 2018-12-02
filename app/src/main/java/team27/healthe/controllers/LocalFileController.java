@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
@@ -22,23 +23,15 @@ import team27.healthe.model.User;
  * @author Chase
  */
 public class LocalFileController {
-    private static final String PROBLEM_FILENAME = "problems.sav";
-    private static final String USER_FILENAME = "user.sav";
-    private static final String PATIENTS_FILENAME = "patients.sav";
-    private static final String RECORD_FILENAME = "records.sav";
+    private static final String USER_FILENAME = "user";
+    private static final String FILE_TYPE = ".sav";
 
     /**
      * Empties the contents of the local file
      * @param context (Context)
      */
     public static void clearUserFile(Context context) {
-        try {
-            FileOutputStream fos = context.openFileOutput(USER_FILENAME, context.MODE_PRIVATE);
-            fos.write("".getBytes());
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        saveStringInFile("", USER_FILENAME, context);
     }
 
     /**
@@ -47,67 +40,8 @@ public class LocalFileController {
      * @param context (Context class)
      */
     public static void saveUserInFile(User user, Context context) {
-        try {
-            Gson gson = new Gson();
-
-            FileOutputStream fos = context.openFileOutput(USER_FILENAME, Context.MODE_PRIVATE);
-            fos.write(gson.toJson(user).getBytes());
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Stores a list of patient objects to local file
-     * @param patients (ArrayList class)
-     * @param context (Context class)
-     */
-    public static void savePatientsInFile(ArrayList<Patient> patients, Context context) {
-        try {
-            Gson gson = new Gson();
-
-            FileOutputStream fos = context.openFileOutput(PATIENTS_FILENAME, Context.MODE_PRIVATE);
-            fos.write("".getBytes());
-            fos.close();
-
-            fos = context.openFileOutput(PATIENTS_FILENAME, Context.MODE_APPEND);
-
-            for (User user: patients) {
-                fos.write((gson.toJson(user)+ "\n").getBytes());
-            }
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * Collects patients from local file from the given context
-     * @param context (Context class)
-     * @return patients (ArrayList class)
-     */
-    public ArrayList<Patient> loadPatientsFromFile(Context context) {
-        try {
-            FileInputStream fis = context.openFileInput(PATIENTS_FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-            team27.healthe.model.ElasticSearchController es_controller = new team27.healthe.model.ElasticSearchController();
-            ArrayList<Patient> patients = new ArrayList<>();
-            String user_json = in.readLine();
-
-            while (user_json != null) {
-                patients.add((Patient) es_controller.jsonToUser(user_json));
-                user_json = in.readLine();
-            }
-            fis.close();
-            return patients;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        Gson gson = new Gson();
+        saveStringInFile(gson.toJson(user), USER_FILENAME, context);
     }
 
     /**
@@ -117,14 +51,10 @@ public class LocalFileController {
      */
     public User loadUserFromFile(Context context) {
         try {
-            FileInputStream fis = context.openFileInput(USER_FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-            String user_json = in.readLine();
+            String user_json = getStringFromFile(USER_FILENAME, context);
 
             if (user_json != null) {
-                team27.healthe.model.ElasticSearchController es_controller = new ElasticSearchController();
-                fis.close();
+                UserElasticSearchController es_controller = new UserElasticSearchController();
                 return es_controller.jsonToUser(user_json);
             }
 
@@ -135,20 +65,58 @@ public class LocalFileController {
     }
 
     /**
-     * Add problem to local file
-     * @param p (Problem class)
+     * Stores a list of patient objects to local file
+     * @param patients (ArrayList class)
      * @param context (Context class)
      */
-    public static void saveProblemInFile(Problem p, Context context) {
-        try {
-            Gson gson = new Gson();
+    public static void savePatientsInFile(ArrayList<Patient> patients, Context context) {
+        for (Patient patient: patients) {
+            savePatientInFile(patient, context);
+        }
+    }
 
-            FileOutputStream fos = context.openFileOutput(PROBLEM_FILENAME, Context.MODE_APPEND);
-            fos.write((gson.toJson(p) + "\n").getBytes());
-            fos.close();
+    private static void savePatientInFile(Patient patient, Context context){
+        Gson gson = new Gson();
+        saveStringInFile(gson.toJson(patient), patient.getUserid(), context);
+    }
+
+
+    /**
+     * Collects patients from local file from the given context
+     * @param context (Context class)
+     * @return patients (ArrayList class)
+     */
+    public ArrayList<Patient> loadPatientsFromFile(CareProvider care_provider, Context context) {
+        ArrayList<Patient> patients = new ArrayList<>();
+        for (String patient_id: care_provider.getPatients()) {
+            Patient patient = loadPatientFromFile(patient_id, context);
+            if (patient != null) {
+                patients.add(patient);
+            }
+        }
+        return patients;
+    }
+
+    private static Patient loadPatientFromFile (String patient_id, Context context) {
+        try {
+            UserElasticSearchController es_controller = new UserElasticSearchController();
+            String user_json = getStringFromFile(patient_id, context);
+            return (Patient) es_controller.jsonToUser(user_json);
+
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
+    }
+
+    /**
+     * Add problem to local file
+     * @param problem (Problem class)
+     * @param context (Context class)
+     */
+    public static void saveProblemInFile(Problem problem, Context context) {
+        Gson gson = new Gson();
+        saveStringInFile(gson.toJson(problem), problem.getProblemID(), context);
     }
 
     /**
@@ -157,17 +125,8 @@ public class LocalFileController {
      * @param context (Context class)
      */
     public static void saveProblemsInFile(ArrayList<Problem> problems, Context context) {
-        try {
-            Gson gson = new Gson();
-            FileOutputStream fos = context.openFileOutput(PROBLEM_FILENAME, Context.MODE_PRIVATE);
-
-            for (Problem problem:problems) {
-                fos.write((gson.toJson(problem) + "\n").getBytes());
-            }
-            fos.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (Problem problem: problems) {
+            saveProblemInFile(problem, context);
         }
     }
 
@@ -176,55 +135,27 @@ public class LocalFileController {
      * @param context (Context class)
      * @return Problem (class)
      */
-    public static ArrayList<Problem> loadProblemsFromFile(Context context) {
-        try {
-            FileInputStream fis = context.openFileInput(PROBLEM_FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-            Gson gson = new Gson();
-            ArrayList<Problem> problems = new ArrayList<>();
-            String problem_json = in.readLine();
-
-            while (problem_json != null) {
-                problems.add(gson.fromJson(problem_json,Problem.class));
-                problem_json = in.readLine();
+    public static ArrayList<Problem> loadProblemsFromFile(Patient patient, Context context) {
+        ArrayList<Problem> problems = new ArrayList<>();
+        for (String problem_id: patient.getProblemList()) {
+            Problem problem = loadProblemFromFile(problem_id, context);
+            if (problem != null) {
+                problems.add(problem);
             }
-            fis.close();
-            return problems;
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return null;
+        return problems;
     }
 
-    public static void replaceProblemInFile(Problem replace_problem, Context context){
+    private static Problem loadProblemFromFile(String problem_id,  Context context) {
         try {
-            FileInputStream fis = context.openFileInput(PROBLEM_FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
             Gson gson = new Gson();
-            ArrayList<Problem> problems = new ArrayList<>();
-            String problem_json = in.readLine();
+            String problem_json = getStringFromFile(problem_id, context);
 
-            while (problem_json != null) {
-                problems.add(gson.fromJson(problem_json,Problem.class));
-                problem_json = in.readLine();
-            }
-            fis.close();
-
-            for (Problem problem:problems) {
-                if (problem.getProblemID().equals(replace_problem.getProblemID())) {
-                    problems.remove(problem);
-                    problems.add(replace_problem);
-                    break;
-                }
-            }
-
-            saveProblemsInFile(problems, context);
+            return gson.fromJson(problem_json, Problem.class);
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -234,79 +165,64 @@ public class LocalFileController {
      * @param context (Context class)
      */
     public static void saveRecordsInFile(ArrayList<Record> records, Context context) {
-        try {
-            Gson gson = new Gson();
-            FileOutputStream fos = context.openFileOutput(RECORD_FILENAME, Context.MODE_PRIVATE);
-
-            for (Record record : records) {
-                fos.write((gson.toJson(record) + "\n").getBytes());
-            }
-            fos.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (Record record: records) {
+            saveRecordInFile(record, context);
         }
     }
 
-    public static ArrayList<Record> loadRecordsFromFile(Context context) {
+    public static void saveRecordInFile(Record record, Context context) {
+        Gson gson = new Gson();
+        saveStringInFile(gson.toJson(record), record.getRecordID(), context);
+    }
+
+    public static ArrayList<Record> loadRecordsFromFile(Problem problem, Context context) {
+        ArrayList<Record> records = new ArrayList<>();
+        for (String record_id: problem.getRecords()) {
+            Record record = loadRecordFromFile(record_id, context);
+            if (record != null) {
+                records.add(record);
+            }
+        }
+        return records;
+    }
+
+    private static Record loadRecordFromFile(String record_id, Context context) {
         try {
-            FileInputStream fis = context.openFileInput(RECORD_FILENAME);
+            Gson gson = new Gson();
+            String record_json = getStringFromFile(record_id, context);
+            return gson.fromJson(record_json, Record.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String getStringFromFile(String filename, Context context) {
+        try {
+            FileInputStream fis = context.openFileInput(filename + FILE_TYPE);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            Gson gson = new Gson();
-            ArrayList<Record> records = new ArrayList<>();
-            String record_json = in.readLine();
-
-            while (record_json!= null) {
-                records.add(gson.fromJson(record_json,Record.class));
-                record_json = in.readLine();
-            }
+            String file_string = in.readLine();
             fis.close();
-            return records;
+
+            return file_string;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
-    public static void saveRecordInFile(Record r, Context context) {
-        try {
-            Gson gson = new Gson();
+    public static void deleteAllFiles() {
+        //TODO: find and delete all .sav files in local directory
+    }
 
-            FileOutputStream fos = context.openFileOutput(RECORD_FILENAME, Context.MODE_APPEND);
-            fos.write((gson.toJson(r) + "\n").getBytes());
+    private static void saveStringInFile(String string_to_save ,String filename, Context context) {
+        try {
+            FileOutputStream fos = context.openFileOutput(filename + FILE_TYPE, Context.MODE_PRIVATE);
+            fos.write((string_to_save).getBytes());
             fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void replaceRecordInFile(Record replace_record, Context context){
-        try {
-            FileInputStream fis = context.openFileInput(RECORD_FILENAME);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
-
-            Gson gson = new Gson();
-            ArrayList<Record> records = new ArrayList<>();
-            String record_json = in.readLine();
-
-            while (record_json != null) {
-                records.add(gson.fromJson(record_json,Record.class));
-                record_json = in.readLine();
-            }
-            fis.close();
-
-            for (Record record : records) {
-                if (record.getRecordID().equals(replace_record.getRecordID())) {
-                    records.remove(record);
-                    records.add(replace_record);
-                    break;
-                }
-            }
-
-            saveRecordsInFile(records, context);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

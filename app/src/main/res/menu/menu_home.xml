@@ -17,10 +17,7 @@
         android:orderInCategory="50"
         android:title="@string/action_edit"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_test"
-        android:title="Test" />
-    <item
+  <item
         android:id="@+id/action_QRcode"
         android:icon="@android:drawable/ic_menu_view"
         android:orderInCategory="60"

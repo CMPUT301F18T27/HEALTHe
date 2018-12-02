@@ -17,33 +17,19 @@ public class RecordElasticSearchController extends ElasticSearchController{
      * Add record to elastic search database using record id as the id in elastic search
      * @param r (Record Class)
      */
-    public static Record addRecord(Record r) {
+    public static void addRecord(Record r) {
         verifyClient();
-        boolean re_save = false;
 
         Gson gson = new Gson();
         String record_json = gson.toJson(r);
 
-        Index index;
-        if (r.getRecordID().equals("")) {
-            index = new Index.Builder(record_json).index(test_index).type(record_type).build();
-            re_save = true;
-        }
-        else {
-            index = new Index.Builder(record_json).index(test_index).type(record_type).id(r.getRecordID()).build();
-        }
+        Index index = new Index.Builder(record_json).index(test_index).type(record_type).id(r.getRecordID()).build();
 
         try {
-            DocumentResult result = client.execute(index);
-            r.setRecordID(result.getId());
-            if (re_save) {
-                addRecord(r);
-            }
-            return r;
+            client.execute(index);
         }
         catch (Exception e) {
             Log.i("Error", e.toString());
-            return null;
         }
     }
 

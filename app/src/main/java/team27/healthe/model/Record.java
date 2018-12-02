@@ -3,6 +3,8 @@ package team27.healthe.model;
 import android.content.Context;
 import android.media.Image;
 
+import org.elasticsearch.common.UUID;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -42,7 +44,7 @@ public class Record {
         bodyLocation = bodyLoc;
         geoLocation = geoLoc;
         photos = images;
-        record_id = ""; // TODO: fix with auto id
+        record_id = UUID.randomUUID().toString();
     }
 
     //Temp constructor for testing, ignore it
@@ -56,9 +58,9 @@ public class Record {
         description = "This is a record";
         commentList = comments;
         bodyLocation = null;
-        geoLocation = null;
+        geoLocation = new GeoLocation();
         photos = new ArrayList();
-        record_id = "";
+        record_id = UUID.randomUUID().toString();
     }
 
     public Record(String ttl, Date date, String desc) {
@@ -67,9 +69,9 @@ public class Record {
         description = desc;
         commentList = new ArrayList<>();
         bodyLocation = null;
-        geoLocation = null;
+        geoLocation = new GeoLocation();
         photos = new ArrayList();
-        record_id = "";
+        record_id = UUID.randomUUID().toString();
     }
 
     public String getTitle() {

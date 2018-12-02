@@ -1,19 +1,22 @@
 package team27.healthe.model;
 
+import org.elasticsearch.common.UUID;
+
 public class Photo {
     private String id;
     private BodyLocation body_location;
 
     public Photo () {
-        id = null;
+        id = UUID.randomUUID().toString();
         body_location = null;
     }
 
     public Photo(String id) {
         this.id = id;
+        body_location = null;
     }
 
-    public Photo(String id, BodyLocation body_location) {
+    public Photo(BodyLocation body_location) {
         this.id = id;
         this.body_location = body_location;
     }
