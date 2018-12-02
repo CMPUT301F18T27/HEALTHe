@@ -22,16 +22,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.User;
@@ -83,7 +81,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
     // Get user and problem from intent
     private void getExtras(Intent intent) {
         Gson gson = new Gson();
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
         String problem_json = intent.getStringExtra(PROBLEM_MESSAGE);

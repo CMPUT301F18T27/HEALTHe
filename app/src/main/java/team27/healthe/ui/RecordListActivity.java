@@ -34,12 +34,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import team27.healthe.R;
-import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;

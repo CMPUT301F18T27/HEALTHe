@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import team27.healthe.R;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
@@ -79,7 +79,7 @@ public class SlideshowActivity extends AppCompatActivity {
     }
 
     private void getItems(Intent intent) {
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);

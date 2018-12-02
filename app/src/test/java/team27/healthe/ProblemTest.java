@@ -1,18 +1,12 @@
 package team27.healthe;
 
-import android.util.ArraySet;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 

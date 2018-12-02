@@ -29,13 +29,11 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import io.searchbox.core.Get;
 import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.BodyLocation;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.ImageController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
@@ -46,7 +44,6 @@ import team27.healthe.model.User;
  */
 public class SelectBodyLocationActivity extends AppCompatActivity {
     BodyLocation bl;
-    ElasticSearchController esc;
     ImageController ic;
     String file_name;
     String current_user;
@@ -55,7 +52,6 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        esc = new ElasticSearchController();
         ic = new ImageController(getApplicationContext(), "body_locations");
         file_name = intent.getStringExtra("file_name");
         float x_location = 0;

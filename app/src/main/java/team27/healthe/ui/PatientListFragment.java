@@ -28,11 +28,11 @@ import com.notbytes.barcode_reader.BarcodeReaderActivity;
 import java.util.ArrayList;
 
 import team27.healthe.R;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
-import team27.healthe.model.PatientListAdapter;
+import team27.healthe.controllers.PatientListAdapter;
 import team27.healthe.model.User;
 
 public class PatientListFragment extends Fragment {
@@ -64,7 +64,7 @@ public class PatientListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         if (getArguments() != null) {
             this.current_user = (CareProvider) es_controller.jsonToUser(getArguments().getString(ARG_USER));
@@ -202,7 +202,7 @@ public class PatientListFragment extends Fragment {
 
         @Override
         protected User doInBackground(String... user_ids) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (String user_id: user_ids) {
                 User user = es_controller.getUser(user_id);
@@ -249,7 +249,7 @@ public class PatientListFragment extends Fragment {
 
         @Override
         protected Void doInBackground(User... users) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
             for(User user:users) {
                 es_controller.addUser(user);
             }
@@ -264,7 +264,7 @@ public class PatientListFragment extends Fragment {
 
         @Override
         protected ArrayList<Patient> doInBackground(ArrayList<String>... user_ids_list) {
-            ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (ArrayList<String> user_ids: user_ids_list) {
                 ArrayList<Patient> patients = new ArrayList();

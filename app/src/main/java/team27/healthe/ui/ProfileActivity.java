@@ -5,9 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import team27.healthe.R;
-import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.Patient;
-import team27.healthe.model.User;
 
 public class ProfileActivity extends AppCompatActivity {
     private String user_id;

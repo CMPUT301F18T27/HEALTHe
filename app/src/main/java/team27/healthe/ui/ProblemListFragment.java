@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +21,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.vision.text.Line;
 import com.google.gson.Gson;
 
 import java.text.ParseException;
@@ -35,17 +32,15 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import team27.healthe.R;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
-import team27.healthe.model.ProblemsAdapter;
+import team27.healthe.controllers.ProblemsAdapter;
 import team27.healthe.model.User;
 
 public class ProblemListFragment extends Fragment {
@@ -79,7 +74,7 @@ public class ProblemListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         if (getArguments() != null) {
             this.current_user = (Patient)es_controller.jsonToUser(getArguments().getString(ARG_USER));

@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
@@ -93,7 +92,7 @@ public class LocalFileController {
             FileInputStream fis = context.openFileInput(PATIENTS_FILENAME);
             BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            team27.healthe.model.ElasticSearchController es_controller = new team27.healthe.model.ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
             ArrayList<Patient> patients = new ArrayList<>();
             String user_json = in.readLine();
 
@@ -123,7 +122,7 @@ public class LocalFileController {
             String user_json = in.readLine();
 
             if (user_json != null) {
-                team27.healthe.model.ElasticSearchController es_controller = new ElasticSearchController();
+                UserElasticSearchController es_controller = new UserElasticSearchController();
                 fis.close();
                 return es_controller.jsonToUser(user_json);
             }

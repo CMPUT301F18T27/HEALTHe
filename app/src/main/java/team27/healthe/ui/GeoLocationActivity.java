@@ -3,11 +3,8 @@ package team27.healthe.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -26,8 +23,8 @@ import com.google.gson.Gson;
 
 import team27.healthe.R;
 import team27.healthe.controllers.RecordElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
-import team27.healthe.model.ElasticSearchController;
 import team27.healthe.model.GeoLocation;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
@@ -123,7 +120,7 @@ public class GeoLocationActivity extends AppCompatActivity implements OnMapReady
     }
 
     private void getItems(Intent intent) {
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
 
         String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);

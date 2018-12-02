@@ -1,8 +1,6 @@
 package team27.healthe.ui;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,7 +11,7 @@ import android.widget.Button;
 import com.google.gson.Gson;
 
 import team27.healthe.R;
-import team27.healthe.model.ElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.User;
 
 public class TempFragment extends Fragment {
@@ -41,7 +39,7 @@ public class TempFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ElasticSearchController es_controller = new ElasticSearchController();
+        UserElasticSearchController es_controller = new UserElasticSearchController();
 
         if (getArguments() != null) {
             this.user = es_controller.jsonToUser(getArguments().getString(ARG_USER));

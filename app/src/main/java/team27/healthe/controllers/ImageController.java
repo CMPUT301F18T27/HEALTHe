@@ -1,22 +1,15 @@
 package team27.healthe.controllers;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
-import android.support.v4.content.FileProvider;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import team27.healthe.controllers.UserElasticSearchController;
-import team27.healthe.model.ElasticSearchController;
-import team27.healthe.model.ImageAdapter;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -59,7 +52,7 @@ public class ImageController {
 
         @Override
         protected User doInBackground(String... user_ids) {
-            team27.healthe.model.ElasticSearchController es_controller = new ElasticSearchController();
+            UserElasticSearchController es_controller = new UserElasticSearchController();
 
             for (String user_id: user_ids) {
                 User user = es_controller.getUser(user_id);
