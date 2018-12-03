@@ -48,6 +48,7 @@ import team27.healthe.controllers.ImageController;
 import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -85,6 +86,9 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
         String file_name = this.getFilesDir() + File.separator + record.getBodyLocation().getBodyLocationId() + ".jpg";
         image_file = new File(file_name);
+        if (!image_file.exists()) {
+
+        }
 
         setUI();
 
@@ -122,6 +126,8 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
 
             if (record.getBodyLocation() != null) {
+                TextView body_title = (TextView) findViewById(R.id.locationTitle);
+                body_title.setText(record.getBodyLocation().getLocationName());
                 drawPoint();
             }
 
@@ -130,6 +136,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
             Button set_point = findViewById(R.id.buttonSetPoint);
             set_point.setVisibility(set_point.INVISIBLE);
+            new GetPhoto().execute(record.getBodyLocation().getBodyLocationId());
         }
     }
 
@@ -250,6 +257,28 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             if (record != null) {
                 OfflineController offline_controller = new OfflineController();
                 offline_controller.addRecord(record, getApplicationContext());
+            }
+        }
+    }
+
+    private class GetPhoto extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... photo_ids) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (String photo_id : photo_ids) {
+                return photo_controller.getPhoto(photo_id, getApplicationContext());
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+            if (success) {
+                setUI();
             }
         }
     }

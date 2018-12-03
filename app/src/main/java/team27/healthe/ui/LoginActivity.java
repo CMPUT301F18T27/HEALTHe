@@ -30,6 +30,7 @@ import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.controllers.LocalFileController;
+import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Photo;
@@ -239,7 +240,7 @@ public class LoginActivity extends AppCompatActivity {
                 localFileController.saveRecordInFile(record, getApplicationContext());
 
                 for (Photo photo : record.getPhotos()) {
-                    new GetPhoto().execute(photo);
+                    new GetPhoto().execute(photo.getId());
                 }
             }
         }
@@ -247,14 +248,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
     // Async class for retrieving photos from elastic search
-    private class GetPhoto extends AsyncTask<Photo, Void, String> {
+    private class GetPhoto extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(Photo... photos) {
+        protected String doInBackground(String... photo_ids) {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
-            for (Photo photo : photos) {
-                photo_controller.getPhoto(photo.getId());
+            for (String photo_id : photo_ids) {
+                photo_controller.getPhoto(photo_id, getApplicationContext());
             }
             return null;
         }
@@ -287,6 +288,9 @@ public class LoginActivity extends AppCompatActivity {
     private void getAllForPatient(Patient patient) {
         for (String problem_id : patient.getProblemList()) {
             new GetProblem().execute(problem_id);
+        }
+        for (BodyLocationPhoto blp : patient.getBodyLocations()) {
+            new GetPhoto().execute(blp.getBodyLocationPhotoId());
         }
     }
 

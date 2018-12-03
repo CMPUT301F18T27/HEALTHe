@@ -165,16 +165,8 @@ public class SlideshowActivity extends AppCompatActivity {
 
     }
 
-    private static File getMediaDirectory() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-        return mediaStorageDir;
+    private File getMediaDirectory() {
+        return this.getFilesDir();
     }
 
     private class GetPhoto extends AsyncTask<Photo, Void, String> {
@@ -184,7 +176,7 @@ public class SlideshowActivity extends AppCompatActivity {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
             for (Photo photo : photos) {
-                boolean success = photo_controller.getPhoto(photo.getId());
+                boolean success = photo_controller.getPhoto(photo.getId(), getApplicationContext());
                 if (success) {
                     return photo.getId();
                 }

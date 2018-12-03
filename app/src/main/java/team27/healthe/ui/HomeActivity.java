@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
 import team27.healthe.controllers.ElasticSearchSearchController;
@@ -119,7 +120,7 @@ public class HomeActivity extends AppCompatActivity {
                         })
                         .setNegativeButton("Body Location", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
+                                new SearchBodyLocation().execute(search_string);
                             }
                         })
                         .setNeutralButton("Geo Location", new DialogInterface.OnClickListener() {
@@ -142,7 +143,9 @@ public class HomeActivity extends AppCompatActivity {
                                     new SearchGeoLocation().execute(inputs);
 
                                 } catch (Exception e) {
-                                    Toast.makeText(getApplicationContext(), "Please input a latitude, longitude and optional search radius(km) separated by spaces", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(),
+                                            "Please input a latitude, longitude and optional search radius(km) separated by spaces",
+                                            Toast.LENGTH_LONG).show();
                                 }
                             }
                         })
@@ -233,6 +236,9 @@ public class HomeActivity extends AppCompatActivity {
             UserElasticSearchController user_controller = new UserElasticSearchController();
             String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
             current_user = user_controller.jsonToUser(user_json);
+            if (current_user instanceof Patient) {
+                problem_list_fragment.updateCurrentUser((Patient) current_user);
+            }
         }
     }
 
@@ -386,6 +392,31 @@ public class HomeActivity extends AppCompatActivity {
             ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
             for(String term:terms) {
                 return es_controller.searchGeneral(term);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(SearchResult search) {
+            super.onPostExecute(search);
+            if (search != null) {
+                if (search.isSucceeded()) {
+                    ArrayList<String> hits = new ArrayList<>();
+                    List<String> temp_hits = search.getSourceAsStringList();
+                    hits.addAll(temp_hits);
+                    startSearchActivity(hits);
+                }
+            }
+        }
+    }
+
+    private class SearchBodyLocation extends AsyncTask<String, Void, SearchResult> {
+
+        @Override
+        protected SearchResult doInBackground(String... terms) {
+            ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
+            for(String term:terms) {
+                return es_controller.searchBodyLocation(term);
             }
             return null;
         }

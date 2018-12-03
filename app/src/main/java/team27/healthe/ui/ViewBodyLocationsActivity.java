@@ -46,6 +46,7 @@ import team27.healthe.controllers.BodyLocationImageAdapter;
 import team27.healthe.controllers.ImageController;
 import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Photo;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
@@ -146,6 +147,8 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         set_fab = intent.getBooleanExtra(SET_FAB_MESSAGE, true);
         get_location = intent.getBooleanExtra(GET_LOCATION_MESSAGE, false);
 
+        getPhotos();
+
     }
 
     private void takePhoto() {
@@ -163,6 +166,16 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         //returnIntent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         returnIntent.putExtra(BODY_LOCATION_MESSAGE, gson.toJson(bl));
         finish();
+    }
+
+    private void getPhotos() {
+        for (BodyLocationPhoto body_photo : current_user.getBodyLocations()) {
+            String file_name = this.getFilesDir() + File.separator + body_photo.getBodyLocationPhotoId() + ".jpg";
+            File file = new File(file_name);
+            if (!file.exists()) {
+                new GetPhoto().execute(body_photo.getBodyLocationPhotoId());
+            }
+        }
     }
 
 
@@ -259,6 +272,9 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
                     current_user.removeBodyLocationPhoto(bl_p);
 
                     LocalFileController file_controller = new LocalFileController();
+                    file_controller.deleteImage(bl_p.getBodyLocationPhotoId(), getApplicationContext());
+                    new DeletePhoto().execute(bl_p.getBodyLocationPhotoId());
+
                     file_controller.saveUserInFile(current_user, getApplicationContext());
                     new UpdateUser().execute(current_user);
 
@@ -318,6 +334,41 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
                 OfflineController controller = new OfflineController();
                 controller.addPhoto(file, getApplicationContext());
             }
+        }
+    }
+
+    private class GetPhoto extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... photo_ids) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (String photo_id : photo_ids) {
+                return photo_controller.getPhoto(photo_id, getApplicationContext());
+
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            super.onPostExecute(success);
+            if (success) {
+                image_adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    private class DeletePhoto extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... photo_ids) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (String photo_id : photo_ids) {
+                photo_controller.deletePhoto(photo_id);
+            }
+            return null;
         }
     }
 }

@@ -119,7 +119,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.ViewBodyLocationsActivity"
-            android:label="@string/title_activity_edit_body_locations"
+            android:label="Body Locations"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <uses-library
@@ -129,7 +129,7 @@
         <activity
             android:name=".ui.SelectBodyLocationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_select_body_location" />
+            android:label="Body Location" />
         <activity
             android:name=".ui.SearchResultsActivity"
             android:label="Search Results" />

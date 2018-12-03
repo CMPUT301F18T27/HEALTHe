@@ -1,5 +1,6 @@
 package team27.healthe.controllers;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -29,7 +30,7 @@ import team27.healthe.model.ElasticSearchPhoto;
  */
 public class PhotoElasticSearchController extends ElasticSearchController{
 
-    public boolean getPhoto(String id) {
+    public boolean getPhoto(String id, Context context) {
         verifyClient();
         Get get = new Get.Builder(test_index, id).type(photo_type).build();
 
@@ -39,7 +40,7 @@ public class PhotoElasticSearchController extends ElasticSearchController{
 
             Gson gson = new Gson();
             ElasticSearchPhoto es_photo = gson.fromJson(result.getSourceAsString(),ElasticSearchPhoto.class);
-            if (decodeFromBase64(es_photo.getBase64String(), id)) {
+            if (decodeFromBase64(es_photo.getBase64String(), id, context)) {
                 return true;
             }
 
@@ -74,7 +75,7 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         verifyClient();
         try{
             DocumentResult result = client.execute(new Delete.Builder(id)
-                    .index(index)
+                    .index(test_index)
                     .type(photo_type)
                     .build());
             return result.isSucceeded();
@@ -97,8 +98,8 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         return encoded_file;
     }
 
-    private boolean decodeFromBase64(String base64_photo, String id) {
-        File storage_directory = getStorageDirectory();
+    private boolean decodeFromBase64(String base64_photo, String id, Context context) {
+        File storage_directory = context.getFilesDir();
         if (storage_directory == null) {
             return  false;
         }
@@ -115,17 +116,5 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         } catch (Exception e) {
             return false;
         }
-    }
-
-    private File getStorageDirectory() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-        return mediaStorageDir;
     }
 }

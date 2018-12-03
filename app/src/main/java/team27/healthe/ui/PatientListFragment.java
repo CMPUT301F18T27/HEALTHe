@@ -32,6 +32,7 @@ import team27.healthe.controllers.PhotoElasticSearchController;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
+import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.CareProvider;
 import team27.healthe.controllers.LocalFileController;
 import team27.healthe.model.Patient;
@@ -245,6 +246,9 @@ public class PatientListFragment extends Fragment {
         for (String problem_id : patient.getProblemList()) {
             new GetProblem().execute(problem_id);
         }
+        for (BodyLocationPhoto blp : patient.getBodyLocations()) {
+            new GetPhoto().execute(blp.getBodyLocationPhotoId());
+        }
     }
 
 
@@ -398,7 +402,7 @@ public class PatientListFragment extends Fragment {
                 localFileController.saveRecordInFile(record, getContext());
 
                 for (Photo photo : record.getPhotos()) {
-                    new GetPhoto().execute(photo);
+                    new GetPhoto().execute(photo.getId());
                 }
             }
         }
@@ -406,14 +410,14 @@ public class PatientListFragment extends Fragment {
 
 
     // Async class for retrieving photos from elastic search
-    private class GetPhoto extends AsyncTask<Photo, Void, String> {
+    private class GetPhoto extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(Photo... photos) {
+        protected String doInBackground(String... photo_ids) {
             PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
 
-            for (Photo photo : photos) {
-                photo_controller.getPhoto(photo.getId());
+            for (String photo_id : photo_ids) {
+                photo_controller.getPhoto(photo_id, getContext());
             }
             return null;
         }

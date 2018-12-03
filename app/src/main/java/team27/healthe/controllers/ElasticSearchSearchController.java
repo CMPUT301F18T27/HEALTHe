@@ -61,7 +61,6 @@ public class ElasticSearchSearchController extends ElasticSearchController {
     }
 
     public SearchResult searchBodyLocation(String terms) {
-        // TODO: Implement this and test
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.multiMatchQuery(terms, "bodyLocation.body_string"));
         searchSourceBuilder.sort(SortBuilders.scoreSort().order(SortOrder.ASC));
@@ -69,7 +68,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 // multiple index or types can be added.
                 .addIndex(test_index)
-                .addType(problem_type)
+                //.addType(problem_type)
                 .addType(record_type)
                 .build();
         try {

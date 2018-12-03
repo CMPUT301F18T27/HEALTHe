@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
     tools:context=".ui.SelectBodyLocationActivity">
 
     <TextView
@@ -20,7 +19,6 @@
         android:id="@+id/view_select_body_location"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:contentDescription="TODO"
         app:srcCompat="@drawable/common_full_open_on_phone" />
 
     <Button
@@ -49,7 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="8dp"
-        android:text="TextView"
         android:textAlignment="textStart"
         android:textSize="24sp"
         android:textStyle="bold" />

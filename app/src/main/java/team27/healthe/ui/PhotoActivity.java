@@ -1,6 +1,7 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -34,12 +35,11 @@ import team27.healthe.model.Photo;
 
 public class PhotoActivity extends AppCompatActivity {
     public static final String PHOTO_ID_MESSAGE = "team27.healthe.ID";
-    private static final Integer PHOTO_REQUEST_CODE = 100;
-    private Uri photo_uri;
+    private static final Integer PHOTO_REQUEST_CODE = 1;
+    //private Uri photo_uri;
     private File photo_file;
     private Photo model_photo = new Photo();
     private boolean has_photo = false;
-    private boolean has_bodylocation = false;
     private boolean saving = false;
 
 
@@ -50,8 +50,8 @@ public class PhotoActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
+        //StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        //StrictMode.setVmPolicy(builder.build());
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, 200);
@@ -70,19 +70,23 @@ public class PhotoActivity extends AppCompatActivity {
         photo_file = getOutputMediaFile();
 
         if (photo_file != null) {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, PHOTO_REQUEST_CODE);
+            }
+        }
+            /*
+
             photo_uri = Uri.fromFile(photo_file);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, photo_uri);
 
             startActivityForResult(intent, PHOTO_REQUEST_CODE);
+
         } else {
             Toast.makeText(this, "Unable to access external storage", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public void onClickBodyLocation(View view) {
-        if(saving){return;} // If saving is in progress do nothing
-        this.has_bodylocation = true; //temp
+        */
     }
 
     public void onClickSave (View view) {
@@ -92,10 +96,7 @@ public class PhotoActivity extends AppCompatActivity {
             Toast.makeText(this, "You must take a photo", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (!has_bodylocation) {
-            Toast.makeText(this, "You must add a body location", Toast.LENGTH_SHORT).show();
-            return;
-        }
+
         saving = true;
         Toast.makeText(this, "Saving...", Toast.LENGTH_SHORT).show();
         new AddPhoto().execute(photo_file);
@@ -105,31 +106,39 @@ public class PhotoActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PHOTO_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                compressImage();
-                ImageView image_view = findViewById(R.id.imagePhoto);
-                image_view.setImageURI(photo_uri);
-                this.has_photo = true;
+
+                //Bundle bundle = data.getExtras();
+                Bitmap image = (Bitmap) data.getExtras().get("data");
+                image = compressImage(image);
+
+                if(image != null) {
+                    ImageView image_view = findViewById(R.id.imagePhoto);
+                    image_view.setImageBitmap(image);
+                    this.has_photo = true;
+                } else {
+                    Toast.makeText(this, "Error compressing image, sorry!", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
 
-    private void compressImage() {
+    private Bitmap compressImage(Bitmap photo_bitmap) {
         try {
-            Bitmap photo_bitmap = BitmapFactory.decodeFile(photo_file.getAbsolutePath());
 
+            /*
             Bitmap rotated_photo = orientatePhoto(photo_bitmap);
             if(rotated_photo != null) {
                 photo_bitmap = rotated_photo;
             }
-
-            Integer scale = photo_bitmap.getHeight()/512;
-            photo_bitmap = Bitmap.createScaledBitmap(photo_bitmap, photo_bitmap.getWidth()/scale, photo_bitmap.getHeight()/scale, true);
+            */
 
             OutputStream output_stream = new FileOutputStream(photo_file);
-            photo_bitmap.compress(Bitmap.CompressFormat.JPEG, 30 , output_stream);
+            photo_bitmap.compress(Bitmap.CompressFormat.JPEG, 80 , output_stream);
             output_stream.close();
+            return photo_bitmap;
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -173,20 +182,8 @@ public class PhotoActivity extends AppCompatActivity {
                 matrix, true);
     }
 
-    private static File getMediaDirectory() {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "HEALTHe" + File.separator + "photos");
-
-        if (!mediaStorageDir.exists()){
-            if (!mediaStorageDir.mkdirs()){
-                return null;
-            }
-        }
-        return mediaStorageDir;
-    }
-
     private File getOutputMediaFile(){
-        File mediaStorageDir = getMediaDirectory();
+        File mediaStorageDir = this.getFilesDir();
         if (mediaStorageDir == null) {
             return null;
         }

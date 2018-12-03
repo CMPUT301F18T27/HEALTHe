@@ -446,6 +446,11 @@ public class ProblemListFragment extends Fragment {
         return false;
     }
 
+    public void updateCurrentUser(Patient user){
+        this.current_user = user;
+        this.viewing_user = user;
+    }
+
     public void getAllGeoLocations() {
         Gson gson = new Gson();
         Intent intent = new Intent(getContext(), AllGeoLocationsActivity.class);

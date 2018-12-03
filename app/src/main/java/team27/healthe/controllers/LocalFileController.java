@@ -30,6 +30,7 @@ import team27.healthe.model.User;
 public class LocalFileController {
     private static final String USER_FILENAME = "user";
     private static final String FILE_TYPE = ".sav";
+    private static final String IMAGE_FILE_TYPE = ".jpg";
 
     /**
      * Empties the contents of the local file
@@ -224,8 +225,8 @@ public class LocalFileController {
         File directory = new File(path);
         File[] files = directory.listFiles();
         for (File file : files) {
-            if (file.isFile() && file.getName().endsWith(FILE_TYPE)) {
-                file.delete();
+            if (file.isFile() && (file.getName().endsWith(FILE_TYPE) || file.getName().endsWith(IMAGE_FILE_TYPE))) {
+                    file.delete();
             }
         }
     }
@@ -256,7 +257,7 @@ public class LocalFileController {
         try {
 
             OutputStream output_stream = new FileOutputStream(photo_file_name);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 30 , output_stream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80 , output_stream);
             output_stream.close();
 
         } catch (IOException e) {
@@ -264,5 +265,13 @@ public class LocalFileController {
         }
 
         return new File(photo_file_name);
+    }
+
+    public void deleteImage(String image_id, Context context) {
+        String photo_file_name = context.getFilesDir().getAbsolutePath() + File.separator + image_id + ".jpg";
+        File image = new File(photo_file_name);
+        if (image.exists()) {
+            image.delete();
+        }
     }
 }
