@@ -13,7 +13,7 @@ import team27.healthe.model.Record;
 
 /**
  * Class for add/edit/delete operations for Record objects from the Elasticsearch server
- * @author [fill in]
+ * @author Tamara
  */
 public class RecordElasticSearchController extends ElasticSearchController{
 
