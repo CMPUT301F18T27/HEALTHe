@@ -23,7 +23,7 @@ public abstract class ElasticSearchController {
     protected static String problem_type = "problem";
     protected static String record_type = "record";
     protected static String photo_type = "photo";
-    protected static String body_location_type = "body_location";
+    protected static String body_location_type = "bodylocationphotos";
 
     public ElasticSearchController() {
         verifyClient();

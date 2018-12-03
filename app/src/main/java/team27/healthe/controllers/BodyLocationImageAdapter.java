@@ -23,13 +23,15 @@ import team27.healthe.R;
  * @author Chris
  */
 public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocationImageAdapter.ImageViewHolder> {
-    private ArrayList<String> image_list;
+//    private ArrayList<String> image_list;
     private Context context;
     private BodyLocationListener bl;
+    private ImageController ic;
 
-    public BodyLocationImageAdapter(Context c, ArrayList<String> image_list, BodyLocationListener bl){
+    public BodyLocationImageAdapter(Context c,  ImageController image_controller, BodyLocationListener bl){
         this.context = c;
-        this.image_list = image_list;
+        ic = image_controller;
+//        this.image_list = image_list;
         this.bl = bl;
     }
 
@@ -42,7 +44,7 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
 
     @Override
     public void onBindViewHolder(@NonNull BodyLocationImageAdapter.ImageViewHolder viewHolder, int i) {
-        String filename = image_list.get(i);
+        String filename = ic.get(i);
         // TODO: Test this removal when elasticsearch server is back
 //        if(filename.startsWith("\\w+_")){
 //            String r = "(^\\w+_)([\\w\\s]+)";
@@ -52,7 +54,7 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
 //                viewHolder.title.setText(m.group(1));
 //            }
 //        }
-
+        System.out.println("Here!");
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Picasso.get().load(filename).into(viewHolder.img);
         viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(filename));
@@ -61,7 +63,7 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
 
     @Override
     public int getItemCount() {
-        return image_list.size();
+        return ic.size();
     }
 
     public class ImageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

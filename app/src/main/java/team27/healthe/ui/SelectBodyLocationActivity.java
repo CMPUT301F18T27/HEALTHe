@@ -30,12 +30,15 @@ import android.widget.Toast;
 import java.io.File;
 
 import team27.healthe.R;
-import team27.healthe.controllers.BodyLocationElasticSearchController;
+import team27.healthe.controllers.BodyLocationPhotoElasticSearchController;
 import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.controllers.ImageController;
+import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 /**
@@ -48,6 +51,8 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
     String file_name;
     String current_user;
     File image_file;
+    String record_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +68,9 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
         if (intent.hasExtra("current_user")){
             current_user = intent.getStringExtra("current_user");
+        }
+        if (intent.hasExtra("record_id")){
+            record_id = intent.getStringExtra("record_id");
         }
 
         setContentView(R.layout.activity_select_body_location);
@@ -98,8 +106,6 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             else{
                 imageView.setImageBitmap(myBitmap);
             }
-
-
         }
 
 
@@ -108,9 +114,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-
                     createBodyLocation(getApplicationContext(), event.getRawX(), event.getRawY());
-
                     System.out.println("X " + String.valueOf(event.getRawX()) + "");
                     System.out.println("y " + String.valueOf(event.getRawY()) + "");
                 }
@@ -136,195 +140,143 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         return 0;
     }
 
-    private class BodyLocationTask extends AsyncTask<BodyLocation, Void, Void> {
-
-        @Override
-        protected Void doInBackground(BodyLocation... body_locations) {
-            BodyLocationElasticSearchController bles_controller =
-                    new BodyLocationElasticSearchController();
-            for (BodyLocation bl : body_locations) {
-                bles_controller.addBodyLocation(bl);
-            }
-            return null;
-        }
-        @Override
-        protected void onPostExecute(Void v){
-            super.onPostExecute(null);
-
-            callPhotoTask();
-        }
-    }
-    private void callPhotoTask(){
-        new PhotoTask().execute(image_file);
-    }
-    private class PhotoTask extends AsyncTask<File, Void, Void> {
-
-        @Override
-        protected Void doInBackground(File... files) {
-            PhotoElasticSearchController pes_controller =
-                    new PhotoElasticSearchController();
-            for (File f : files) {
-                pes_controller.addPhoto(f, f.getName());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v){
-            super.onPostExecute(null);
-            startUpdateUser();
-        }
-    }
-    protected void startUpdateUser(){
-        new getUserAsync().execute(current_user);
-    }
-
-    // Async class for getting user from elastic search server
-    private class getUserAsync extends AsyncTask<String, Void, User> {
-
-        @Override
-        protected User doInBackground(String... user_ids) {
-            UserElasticSearchController ues = new UserElasticSearchController();
-
-            for (String user_id: user_ids) {
-                User user = ues.getUser(user_id);
-                return user;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            super.onPostExecute(user);
-            updateUser(user);
-
-        }
-    }
-    private class updateUserAsync extends AsyncTask<User, Void, Void>{
-        @Override
-        protected Void doInBackground(User... users){
-            UserElasticSearchController ues = new UserElasticSearchController();
-            for (User user: users) {
-                ues.addUser(user);
-            }
-            return null;
-        }
-    }
-    protected void updateUser(User user){
-        Patient p = (Patient) user;
-        p.addBodyLocation(bl.getBodyLocationId());
-        new updateUserAsync().execute(p);
-    }
 
     public void createBodyLocation(Context c, float x_set, float y_set){
-
-        System.out.println("DEBUG-----"+bl.getLocationName());
-
         bl.setPoint(x_set, y_set);
+        new createBodyLocationTask().execute(record_id);
+//        new BodyLocationTask().execute();
+    }
 
+    private class createBodyLocationTask extends AsyncTask<String, Void, Record> {
+        @Override
+        protected Record doInBackground(String... record_ids) {
+            RecordElasticSearchController res = new RecordElasticSearchController();
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Label Body Location");
-        dialog.setMessage("");
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        //Add title for email input
-        final TextView bloc_title = new TextView(this);
-        bloc_title.setText("Body Location: ");
-        layout.addView(bloc_title);
-
-        // Add a TextView for email
-        final EditText bloc_text = new EditText(this);
-//        bloc_text.setText(current_user.getEmail());
-        bloc_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
-        bloc_text.setLayoutParams(params);
-        layout.addView(bloc_text); // Notice this is an add method
-
-
-        dialog.setView(layout); // Again this is a set method, not add
-
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "Adding Body Location", Toast.LENGTH_SHORT).show();
-//                BodyLocationElasticSearchController blesc = new BodyLocationElasticSearchController();
-//                PhotoElasticSearchController pesc = new PhotoElasticSearchController();
-                bl.setLocation(bloc_text.getText().toString());
-                bl.setPatientId(current_user);
-                bl.setBodyLocationId(image_file.getName());
-                new BodyLocationTask().execute(bl);
-
-//                blesc.addBodyLocation(bl);
-//                pesc.addPhoto(image_file, image_file.getName());
-                System.out.println("FILENAME: "+file_name+"\nbody location text: "+bl.getLocationName());
-                finish();
-
+            for (String record_id: record_ids) {
+                Record r = res.getRecord(record_id);
+                return r;
             }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                });
-        dialog.show();
+            return null;
+        }
 
-        System.out.println("DEBUG-----"+bl.getLocationName());
+        @Override
+        protected void onPostExecute(Record r) {
+            super.onPostExecute(r);
+            updateRecord(r);
+        }
+//        @Override
+//        protected User doInBackground(String... user_ids) {
+//            UserElasticSearchController ues = new UserElasticSearchController();
+//
+//            for (String user_id: user_ids) {
+//                User user = ues.getUser(user_id);
+//                return user;
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(User user) {
+//            super.onPostExecute(user);
+//            getRecord(user);
+//        }
 
     }
 
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//
-//        // Trigger the initial hide() shortly after the activity has been
-//        // created, to briefly hint to the user that UI controls
-//        // are available.
-//        delayedHide(100);
+//    private void getRecord(User u){
+//        cur_patient = (Patient) u;
+//        new updateRecordTask().execute(record_id);
 //    }
 
-//    private void toggle() {
-//        if (mVisible) {
-//            hide();
-//        } else {
-//            show();
+
+
+    private void updateRecord(Record r){
+        r.setBodyLocation(bl);
+        new updateRecordTask().execute(r);
+    }
+
+    private class updateRecordTask extends AsyncTask<Record, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Record... records) {
+            RecordElasticSearchController res = new RecordElasticSearchController();
+
+            for (Record record: records) {
+                res.addRecord(record);
+//                Record r = res.getRecord(record_id);
+//                return r;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+//            updateRecord();
+            finish();
+        }
+    }
+//    private class BodyLocationPhotoTask extends AsyncTask<BodyLocationPhoto, Void, Void> {
+//
+//        @Override
+//        protected Void doInBackground(BodyLocationPhoto... body_locations_photos) {
+//            BodyLocationPhotoElasticSearchController bles_controller =
+//                    new BodyLocationPhotoElasticSearchController();
+//            for (BodyLocationPhoto bl : body_locations_photos) {
+//                bles_controller.addBodyLocationPhoto(bl);
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onPostExecute(Void v){
+//            super.onPostExecute(null);
+//
+//            callPhotoTask();
 //        }
 //    }
-
-//    private void hide() {
-//        // Hide UI first
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.hide();
+//
+//    private void callPhotoTask(){
+//        new PhotoTask().execute(image_file);
+//    }
+//
+//    private class PhotoTask extends AsyncTask<File, Void, Void> {
+//        @Override
+//        protected Void doInBackground(File... files) {
+//            PhotoElasticSearchController pes_controller =
+//                    new PhotoElasticSearchController();
+//            for (File f : files) {
+//                pes_controller.addPhoto(f, f.getName());
+//            }
+//            return null;
 //        }
-//        mControlsView.setVisibility(View.GONE);
-//        mVisible = false;
 //
-//        // Schedule a runnable to remove the status and navigation bar after a delay
-//        mHideHandler.removeCallbacks(mShowPart2Runnable);
-//        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
+//        @Override
+//        protected void onPostExecute(Void v){
+//            super.onPostExecute(null);
+//            startUpdateUser();
+//        }
+//    }
+//    protected void startUpdateUser(){
+//        new getUserAsync().execute(current_user);
 //    }
 //
-//    @SuppressLint("InlinedApi")
-//    private void show() {
-//        // Show the system bar
-//        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-//        mVisible = true;
-//
-//        // Schedule a runnable to display UI elements after a delay
-//        mHideHandler.removeCallbacks(mHidePart2Runnable);
-//        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
+//    // Async class for getting user from elastic search server
+
+//    private class updateUserAsync extends AsyncTask<User, Void, Void>{
+//        @Override
+//        protected Void doInBackground(User... users){
+//            UserElasticSearchController ues = new UserElasticSearchController();
+//            for (User user: users) {
+//                ues.addUser(user);
+//            }
+//            return null;
+//        }
+//    }
+//    protected void updateUser(User user){
+//        Patient p = (Patient) user;
+//        p.addBodyLocation(bl);//.getBodyLocationId()
+//        new updateUserAsync().execute(p);
 //    }
 
-//    /**
-//     * Schedules a call to hide() in delay milliseconds, canceling any
-//     * previously scheduled calls.
-//     */
-//    private void delayedHide(int delayMillis) {
-//        mHideHandler.removeCallbacks(mHideRunnable);
-//        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-//    }
+
 }

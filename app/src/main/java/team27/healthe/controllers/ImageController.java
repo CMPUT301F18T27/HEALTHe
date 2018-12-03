@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.Patient;
 import team27.healthe.model.User;
 
@@ -40,6 +41,13 @@ public class ImageController {
 
     }
 
+    public int size(){
+        return image_list.size();
+    }
+
+    public String get(int index){
+        return image_list.get(index);
+    }
     /**
      * helper function for returning the absolute path of a file (using the path to the associated
      * file (folder)
@@ -84,8 +92,8 @@ public class ImageController {
                     System.out.println("image files: "+filename);
                 }
             }
-
         }
+        ia.notifyDataSetChanged();
     }
 
     /**
@@ -134,6 +142,11 @@ public class ImageController {
         } else {
             return null;
         }
+    }
+
+    public void deleteImage(BodyLocationPhoto blp){
+        //TODO: check for records and ask for delete
+        System.out.println("Attempting to delete: "+blp.getBodyLocation()+":"+blp.getBodyLocationPhotoId());
     }
 
     /**

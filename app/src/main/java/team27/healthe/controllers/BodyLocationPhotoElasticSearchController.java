@@ -10,37 +10,37 @@ import io.searchbox.core.DocumentResult;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import team27.healthe.model.BodyLocation;
+import team27.healthe.model.BodyLocationPhoto;
 
 /**
  * Class for add/edit/delete operations for BodyLocation objects from the Elasticsearch server
  * @author Chris
  */
-public class BodyLocationElasticSearchController extends ElasticSearchController {
+public class BodyLocationPhotoElasticSearchController extends ElasticSearchController {
 
     /**
      * Add body location to elastic search database using the associated photo's filename
      * as the id in elastic search
      * @param bl (BodyLocation Class)
      */
-    public static BodyLocation addBodyLocation(BodyLocation bl) {
+    public static BodyLocationPhoto addBodyLocationPhoto(BodyLocationPhoto bl) {
         verifyClient();
-
         Gson gson = new Gson();
-        String problem_json = gson.toJson(bl);
+        String bl_json = gson.toJson(bl);
 
         Index index;
-        if (bl.getBodyLocationId().equals("")) {
-            index = new Index.Builder(problem_json).index(test_index).type(body_location_type)
+        if (bl.getBodyLocationPhotoId().equals("")) {
+            index = new Index.Builder(bl_json).index(test_index).type(body_location_type)
                     .build();
         }
         else {
-            index = new Index.Builder(problem_json).index(test_index).type(body_location_type)
-                    .id(bl.getBodyLocationId()).build();
+            index = new Index.Builder(bl_json).index(test_index).type(body_location_type)
+                    .id(bl.getBodyLocationPhotoId()).build();
         }
 
         try {
             DocumentResult result = client.execute(index);
-            bl.setBodyLocationId(result.getId());
+            bl.setBodyLocationPhotoId(result.getId());
             return bl;
         }
         catch (Exception e) {
@@ -54,7 +54,7 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
      * @param bl_id (String)
      * @return BodyLocation (Class)
      */
-    public static BodyLocation getBodyLocation(String bl_id) {
+    public static BodyLocationPhoto getBodyLocationPhoto(String bl_id) {
         verifyClient();
         Get get = new Get.Builder(test_index, bl_id).type(body_location_type).build();
 
@@ -62,7 +62,7 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
             JestResult result = client.execute(get);
 
             Gson gson = new Gson();
-            BodyLocation body_location = gson.fromJson(result.getSourceAsString(),BodyLocation.class);
+            BodyLocationPhoto body_location = gson.fromJson(result.getSourceAsString(),BodyLocationPhoto.class);
             return body_location;
         }
         catch (Exception e) {
@@ -75,7 +75,7 @@ public class BodyLocationElasticSearchController extends ElasticSearchController
      * Removes a specified body location from the given body location id (bl_id)
      * @param bl_id (Integer)
      */
-    public static void removeBodyLocation(String bl_id){
+    public static void removeBodyLocationPhoto(String bl_id){
         verifyClient();
         try{
             client.execute(new Delete.Builder(bl_id)

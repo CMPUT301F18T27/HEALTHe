@@ -1,7 +1,7 @@
 package team27.healthe.model;
 
 
-/** Represents body location image
+/** Represents body location reference
  * @author Chris
  *
  */
@@ -11,12 +11,12 @@ public class BodyLocation {
      */
     float x_location;
     float y_location;
+//    /**
+//     * id of associated patient (body locations are unique to a patient)
+//     */
+//    String patient_id;
     /**
-     * id of associated patient (body locations are unique to a patient)
-     */
-    String patient_id;
-    /**
-     * identifier for this object (used as id in elasticsearch as well as filename)
+     * filename for the referenced BodyLocationPhoto
      */
     String body_location_id;
     /**
@@ -57,13 +57,13 @@ public class BodyLocation {
         body_string = body_location;
     }
 
-    public void setPatientId(String id){
-        patient_id = id;
-    }
-
-    public String getPatientId(){
-        return patient_id;
-    }
+//    public void setPatientId(String id){
+//        patient_id = id;
+//    }
+//
+//    public String getPatientId(){
+//        return patient_id;
+//    }
 
     public void setBodyLocationId(String body_location_id){
         this.body_location_id = body_location_id;
