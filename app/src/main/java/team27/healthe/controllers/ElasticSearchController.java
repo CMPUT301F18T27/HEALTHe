@@ -16,7 +16,7 @@ public abstract class ElasticSearchController {
     protected static String backup_node = "http://es2.softwareprocess.ca:8080";
     protected static String node = "http://cmput301.softwareprocess.es:8080";
     protected static String index = "cmput301f18t27";
-    protected static String test_index = "cmput301f18t27test";
+    protected static String test_index = "cmput301f18t27";
     /**
      * Indexes used for storing objects/images
      */
@@ -36,7 +36,7 @@ public abstract class ElasticSearchController {
         public static void verifyClient() {
             // Code from LonelyTwitter
             if (client == null) {
-                DroidClientConfig.Builder builder = new DroidClientConfig.Builder(backup_node);
+                DroidClientConfig.Builder builder = new DroidClientConfig.Builder(node);
                 DroidClientConfig config = builder.build();
 
                 JestClientFactory factory = new JestClientFactory();
