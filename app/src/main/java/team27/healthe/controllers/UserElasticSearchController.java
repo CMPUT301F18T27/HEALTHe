@@ -17,7 +17,7 @@ import team27.healthe.model.User;
 
 /**
  * Class for add/edit/delete operations for User objects from the Elasticsearch server
- * @author [fill in]
+ * @author Cody
  */
 public class UserElasticSearchController extends ElasticSearchController {
     /**
@@ -77,6 +77,11 @@ public class UserElasticSearchController extends ElasticSearchController {
         return null;
     }
 
+    /**
+     * Returns a patient or care provider from a user JSON string
+     * @param user_json (String)
+     * @return gson.fromJson(user_json,Patient.class) and gson.fromJson(user_json,CareProvider.class)
+     */
     public User jsonToUser(String user_json) {
         Gson gson = new Gson();
 
