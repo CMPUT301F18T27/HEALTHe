@@ -127,10 +127,18 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
             Bitmap bitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
             imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+            imageView.setVisibility(imageView.VISIBLE);
 
             if (record.getBodyLocation() != null) {
                 TextView body_title = (TextView) findViewById(R.id.locationTitle);
                 body_title.setText(record.getBodyLocation().getLocationName());
+
+
+                if (current_user instanceof Patient) {
+                    Button set_point = findViewById(R.id.buttonSetPoint);
+                    set_point.setVisibility(set_point.VISIBLE);
+                }
+
                 drawPoint();
             }
 
