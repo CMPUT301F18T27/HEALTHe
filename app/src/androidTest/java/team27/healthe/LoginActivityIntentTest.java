@@ -108,7 +108,7 @@ public class LoginActivityIntentTest {
         }
 
         onView(withId(R.id.loginIdText))
-                .perform(typeText("johnsmith"), closeSoftKeyboard());
+                .perform(typeText("johnsmith"));
         onView(withId(R.id.loginButton))
                 .perform(click());
         onView(withId(R.id.loginButton))
@@ -117,6 +117,14 @@ public class LoginActivityIntentTest {
 
     @Test
     public void TestSignupActivity() {
+        try{
+            openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
+            onView(withText(containsString("Logout"))).perform(click());
+            waitForES();
+        } catch (Exception e){
+
+        }
+
         onView(withId(R.id.textView7))
                 .perform(click());
         intended(hasComponent(SignupActivity.class.getName()));

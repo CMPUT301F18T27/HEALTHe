@@ -6,6 +6,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.google.gson.Gson;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,14 +67,14 @@ public class ProblemInfoActivityIntentTesting {
         if (pres.getProblem(pr.getProblemID()) == null) {
             pres.addProblem(pr);
             p.addProblem(pr.getProblemID());
-            p.addProblem(pr.getProblemID());
             pes.addUser(p);
         }
+        waitForES();
 
         Gson gson = new Gson();
         Intent i = new Intent();
         i.putExtra("team27.healthe.User", gson.toJson(p));
-        i.putExtra("team27.healthe.Problem", gson.toJson(pr));
+        i.putExtra("team27.healthe.PROBLEM", gson.toJson(pr));
         intentsTestRule.launchActivity(i);
     }
 
@@ -82,6 +83,20 @@ public class ProblemInfoActivityIntentTesting {
         onView(withId(R.id.button7))
                 .perform(click());
         intended(hasComponent(RecordListActivity.class.getName()));
+    }
+
+    @After
+    public void after() {
+        UserElasticSearchController pes = new UserElasticSearchController();
+        if (pes.getUser(p.getUserid()) != null) {
+            pes.removeUser(p.getUserid());
+        }
+
+        ProblemElasticSearchController pres = new ProblemElasticSearchController();
+        if (pres.getProblem(pr.getProblemID()) != null) {
+            pres.removeProblem(pr.getProblemID());
+        }
+        waitForES();
     }
 
 

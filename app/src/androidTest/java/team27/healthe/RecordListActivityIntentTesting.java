@@ -6,6 +6,7 @@ import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.google.gson.Gson;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import team27.healthe.ui.LoginActivity;
 import team27.healthe.ui.ProblemInfoActivity;
 import team27.healthe.ui.ProblemListFragment;
 import team27.healthe.ui.QRCodeActivity;
+import team27.healthe.ui.RecordActivity;
 import team27.healthe.ui.RecordListActivity;
 import team27.healthe.ui.SearchResultsActivity;
 import team27.healthe.ui.SignupActivity;
@@ -59,7 +61,7 @@ public class RecordListActivityIntentTesting {
         String email = "johnsmith@example.com";
         String number = "7801234567";
         p = new Patient(user_id, email, number);
-        pr = new Problem("newproblem", new Date(), "description");
+        pr = new Problem("newproblem", new Date(), "description", p.getUserid());
         r = new Record("newrecord", new Date(), "description");
 
         RecordElasticSearchController res = new RecordElasticSearchController();
@@ -84,15 +86,34 @@ public class RecordListActivityIntentTesting {
         waitForES();
         Gson gson = new Gson();
         Intent i = new Intent();
-        i.putExtra("team27.healthe.Patient", gson.toJson(p));
-        i.putExtra("team27.healthe.Problem", gson.toJson(pr));
+        i.putExtra("team27.healthe.User", gson.toJson(p));
+        i.putExtra("team27.healthe.PROBLEM", gson.toJson(pr));
         intentsTestRule.launchActivity(i);
     }
 
     @Test
     public void testRecordsList() {
         onData(anything()).inAdapterView(withId(R.id.record_list)).atPosition(0).perform(click());
-        intended(hasComponent(RecordListActivity.class.getName()));
+        intended(hasComponent(RecordActivity.class.getName()));
+    }
+
+    @After
+    public void after() {
+        RecordElasticSearchController res = new RecordElasticSearchController();
+        ProblemElasticSearchController pres = new ProblemElasticSearchController();
+        UserElasticSearchController pes = new UserElasticSearchController();
+
+        if (pes.getUser(p.getUserid()) != null) {
+            pes.removeUser(p.getUserid());
+        }
+
+        if (pres.getProblem(pr.getProblemID()) != null) {
+            pres.removeProblem(pr.getProblemID());
+        }
+        if (res.getRecord(r.getRecordID()) != null) {
+            res.removeRecord(r.getRecordID());
+        }
+        waitForES();
     }
 
 
