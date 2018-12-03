@@ -5,7 +5,7 @@ import org.elasticsearch.common.UUID;
 
 /** Represents body location image
  * @author Chris
- *
+ * @author Chase
  */
 public class BodyLocation {
     /**
