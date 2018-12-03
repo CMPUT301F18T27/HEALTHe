@@ -63,32 +63,7 @@ public class ImageController {
 
      */
 
-    /*
-    public void refresh(Patient cur_user){
-        if (cur_user == null){
-            System.out.println("ERROR-- NO USER");
-            return;
-        }
-        image_list.clear();
-        if (file.isDirectory()){
-            File[] array_files = file.listFiles();
-            if (array_files != null){
-                for (File f: array_files){
-                    if(cur_user.getBodyLocations().contains(f.getName())){
-                        image_list.add(f.getAbsolutePath());
-                    }
-                    else{
-                        System.out.println("Skipping: "+f.getName());
-                    }
-                }
-                System.out.println("image files:");
-                for(String filename: image_list){
-                    System.out.println("image files: "+filename);
-                }
-            }
 
-        }
-    }
 
     /**
      * asynchronously refreshes the list of images for the associated user
