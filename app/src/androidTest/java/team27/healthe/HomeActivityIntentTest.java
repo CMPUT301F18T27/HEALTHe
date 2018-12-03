@@ -96,7 +96,7 @@ public class HomeActivityIntentTest {
         }
 
         openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
-        onView(withText(containsString("Body Locations"))).perform(click());
+        onView(withText(containsString("BodyLocations"))).perform(click());
         intended(hasComponent(ViewBodyLocationsActivity.class.getName()));
 
         es.removeUser(p.getUserid());

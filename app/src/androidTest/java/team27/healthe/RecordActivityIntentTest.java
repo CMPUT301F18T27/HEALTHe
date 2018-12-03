@@ -1,7 +1,9 @@
 package team27.healthe;
 
+import android.Manifest;
 import android.content.Intent;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+import android.support.test.rule.GrantPermissionRule;
 
 import com.google.gson.Gson;
 
@@ -24,6 +26,7 @@ import team27.healthe.ui.GeoLocationActivity;
 import team27.healthe.ui.LoginActivity;
 import team27.healthe.ui.RecordActivity;
 import team27.healthe.ui.RecordListActivity;
+import team27.healthe.ui.SelectBodyLocationActivity;
 import team27.healthe.ui.SlideshowActivity;
 
 import static android.support.test.espresso.Espresso.onData;
@@ -40,6 +43,8 @@ public class RecordActivityIntentTest {
     private Problem pr;
     private Record r;
 
+    @Rule
+    public GrantPermissionRule finePerm = GrantPermissionRule.grant(Manifest.permission.BODY_SENSORS);
     @Rule
     public IntentsTestRule<RecordActivity> intentsTestRule =
             new IntentsTestRule<>(RecordActivity.class, false, false);
@@ -95,7 +100,7 @@ public class RecordActivityIntentTest {
     @Test
     public void testViewBodyLocations() {
         onView(withId(R.id.button24)).perform(click());
-        intended(hasComponent(CommentActivity.class.getName()));
+        intended(hasComponent(SelectBodyLocationActivity.class.getName()));
     }
 
     @Test
