@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Fragment for displaying profile info
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -39,7 +41,7 @@ public class ProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-
+    // Fragment can accept a User object or user id to display info
     public static ProfileFragment newInstance(String profile_user_id) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
@@ -90,7 +92,7 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
-
+    // Set text views with profile info
     public void updateText(View view){
         TextView userid_textview = (TextView) view.findViewById(R.id.profileIdText);
         TextView email_textview = (TextView) view.findViewById(R.id.profileEmailText);
@@ -114,13 +116,13 @@ public class ProfileFragment extends Fragment {
         image_phone.setVisibility(View.VISIBLE);
     }
 
-
+    // Update the user and textviews, called when profile has been edited from home activity
     public void updateUser(User user) {
         this.user = user;
         updateText(getView());
     }
 
-
+    // Async task for geting user from elastic search
     private class getUserAsync extends AsyncTask<String, Void, User> {
 
         @Override

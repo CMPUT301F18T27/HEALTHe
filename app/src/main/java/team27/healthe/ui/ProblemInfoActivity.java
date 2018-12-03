@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for showing problem info
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -101,6 +103,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         this.problem = gson.fromJson(problem_json, Problem.class);
     }
 
+    // Set text views with problem info
     private void setTextViews() {
         TextView title = (TextView) findViewById(R.id.recordTitle);
         TextView date = (TextView) findViewById(R.id.recordDate);
@@ -111,6 +114,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         description.setText(problem.getDescription());
     }
 
+    // onClick for records button
     public void onSelectRecords(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, RecordListActivity.class);
@@ -119,6 +123,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Show dialog for editing problem info
     private void editProblem() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Problem");
@@ -201,6 +206,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
     }
 
+    // Show date time picker for setting problem date
     private void showDateTimePicker(final TextView date_textview) {
         //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
         final Calendar date;
@@ -226,6 +232,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
 
     }
 
+    // Check if offline controller has tasks
     private void checkTasks() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
@@ -235,6 +242,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         }
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -245,6 +253,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         return false;
     }
 
+    // get problem locally
     private void getProblem() {
         LocalFileController file_controller = new LocalFileController();
         Problem temp_problem = file_controller.loadProblemFromFile(problem.getProblemID(), getApplicationContext());
@@ -253,6 +262,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         }
     }
 
+    // Async task for updating problem in elastic search
     private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
@@ -277,6 +287,7 @@ public class ProblemInfoActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing offline controller tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override

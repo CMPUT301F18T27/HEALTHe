@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity to display all records containing a geo location on a map
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -75,6 +77,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
         }
     }
 
+    // Get all items passed with the intent
     private void getItems(Intent intent) {
         UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
@@ -123,6 +126,7 @@ public class AllGeoLocationsActivity extends AppCompatActivity implements OnMapR
         }
     }
 
+    // Place all markers on map
     private void setMarkers() {
         boolean set_camera = false;
         markers = new ArrayList<>();

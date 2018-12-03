@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for displaying records in a list
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -111,6 +113,7 @@ public class RecordListActivity extends AppCompatActivity {
         getRecords();
     }
 
+    // Call RecordActivity and pass selected record and user
     public void viewRecord(Record record) {
         Gson gson = new Gson();
         Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
@@ -119,6 +122,7 @@ public class RecordListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Show dialog for deleting record
     public void deleteRecord(final Record record) {
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Delete Record")
@@ -146,7 +150,7 @@ public class RecordListActivity extends AppCompatActivity {
         dialog.show();
     }
 
-
+    // Show dialog for adding a record
     public void addRecord() {
 
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
@@ -246,6 +250,7 @@ public class RecordListActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Async class for adding a record to elastic search
     private class AddRecordES extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -271,6 +276,7 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for deleting a record in elastic search
     private class DeleteRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -322,6 +328,7 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for adding a problem to elastic search
     private class UpdateProblem extends AsyncTask<Problem, Void, Problem> {
 
         @Override
@@ -346,6 +353,7 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing offline controller tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override
@@ -366,6 +374,7 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    // Get items passed in intent
     private void getFromIntent() {
         Gson gson = new Gson();
         UserElasticSearchController es_controller = new UserElasticSearchController();
@@ -376,12 +385,14 @@ public class RecordListActivity extends AppCompatActivity {
         this.current_problem = gson.fromJson(problem_json, Problem.class);
     }
 
+    // Get records from elastic search
     private void getRecordsES() {
         for (String record_id : current_problem.getRecords()) {
             new getRecordAsync().execute(record_id);
         }
     }
 
+    // Decide how to get records depending on connectivity
     private void getRecords() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
@@ -396,6 +407,7 @@ public class RecordListActivity extends AppCompatActivity {
         }
     }
 
+    // Get records locally
     private void getLocalRecords() {
         for (Record record : file_controller.loadRecordsFromFile(current_problem,getApplicationContext())) {
             records.add(record);
@@ -403,6 +415,7 @@ public class RecordListActivity extends AppCompatActivity {
         adapter.refresh(records);
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -413,6 +426,7 @@ public class RecordListActivity extends AppCompatActivity {
         return false;
     }
 
+    // Verify problem inputs
     public boolean validProblemInputs(String title, Date date, String desc) {
         if (title.length() > 30) {
             Toast.makeText(this, "Problem title exceeds maximum of 30 characters", Toast.LENGTH_SHORT).show();
@@ -424,6 +438,7 @@ public class RecordListActivity extends AppCompatActivity {
         return true;
     }
 
+    // Show date time picker for selecting date
     private void showDateTimePicker(final TextView date_textview) {
         //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
         final Calendar date;

@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity that shows the profile fragment
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

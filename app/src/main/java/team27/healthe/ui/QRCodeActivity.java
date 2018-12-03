@@ -1,6 +1,7 @@
 package team27.healthe.ui;
 
-import android.content.Intent;
+// Activity to display QR code
+
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
@@ -11,8 +12,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-
-import java.security.spec.ECField;
 
 import team27.healthe.R;
 

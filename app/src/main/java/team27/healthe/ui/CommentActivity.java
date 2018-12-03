@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for adding and viewing record comments
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -91,6 +93,7 @@ public class CommentActivity extends AppCompatActivity {
         checkTasks();
     }
 
+    // Get all items passed from intent
     private void getItems(Intent intent) {
         Gson gson = new Gson();
         String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
@@ -101,6 +104,7 @@ public class CommentActivity extends AppCompatActivity {
         this.current_user = es_controller.jsonToUser(user_json);
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -111,7 +115,7 @@ public class CommentActivity extends AppCompatActivity {
         return false;
     }
 
-
+    // Check if the offline controller has tasks to perform
     private void checkTasks() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
@@ -121,6 +125,7 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
 
+    // Add a comment to the record
     private void addComment() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Add Comment");
@@ -151,6 +156,7 @@ public class CommentActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Delete comment from a record
     private void deleteComment(final Comment comment) {
         if (!comment.getCommenter().equals(current_user.getUserid())) {
             Toast.makeText(this, "You may only delete your own comments", Toast.LENGTH_SHORT).show();
@@ -187,6 +193,7 @@ public class CommentActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    // Save comment to record (In elastic search or add task to offline controller if offline)
     private void saveComment(String comment_text) {
         Comment comment = new Comment(comment_text, current_user.getUserid());
 
@@ -205,6 +212,7 @@ public class CommentActivity extends AppCompatActivity {
         setResult(RESULT_OK,returnIntent);
     }
 
+    // Async class for updating a record
     private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -228,6 +236,7 @@ public class CommentActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for offline controller to perform tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override

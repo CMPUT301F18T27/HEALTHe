@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for listing patients for care provider
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -94,7 +96,7 @@ public class PatientListFragment extends Fragment {
 
         list_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) { // Patient clicked, open problem activity for clicked patient
                 User patient = patients.get(position);
 
                 Gson gson = new Gson();
@@ -107,7 +109,7 @@ public class PatientListFragment extends Fragment {
         });
         list_view.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) { // Patient long clicked, open patient profile info
                 String user_id = (String) list_view.getItemAtPosition(position);
 
                 if (isNetworkConnected()) {
@@ -171,6 +173,7 @@ public class PatientListFragment extends Fragment {
         }
     }
 
+    // Function for adding patient to care provider
     private void addPatient() {
         if (!isNetworkConnected()) {
             Toast.makeText(getContext(), "You must be online to add a patient", Toast.LENGTH_SHORT).show();
@@ -252,7 +255,7 @@ public class PatientListFragment extends Fragment {
     }
 
 
-
+    // Perform tasks to update user locally and in elastic search
     private void updateUser(User user) {
         if(user != null) {
             if (user instanceof Patient) {
@@ -279,6 +282,7 @@ public class PatientListFragment extends Fragment {
         }
     }
 
+    // Async class for updating user
     private class UpdateUser extends AsyncTask<User, Void, Void> {
 
         @Override
@@ -320,6 +324,7 @@ public class PatientListFragment extends Fragment {
         }
     }
 
+    // Get patients locally or from elastic search depending on connectivity
     private void getPatients() {
         if (isNetworkConnected()) {
             new getPatientsAsync().execute(new ArrayList<String>(current_user.getPatients()));
@@ -329,6 +334,7 @@ public class PatientListFragment extends Fragment {
         }
     }
 
+    // Update list view with patients and save patients locally
     private void updatePatients(ArrayList<Patient> patients) {
         this.patients = patients;
 
@@ -343,6 +349,7 @@ public class PatientListFragment extends Fragment {
         fs_controller.savePatientsInFile(this.patients, getContext());
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();

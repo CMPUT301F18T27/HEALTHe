@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for creating user accounts
+
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -53,6 +55,7 @@ public class SignupActivity extends AppCompatActivity {
         }
     }
 
+    // Check user id is valid
     private boolean userIdIsValid(String user_id) {
         if (user_id.length() > 7) {return true;}
         else {return false;}

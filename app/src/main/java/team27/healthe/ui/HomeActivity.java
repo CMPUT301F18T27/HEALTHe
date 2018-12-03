@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Main activity for app, shows profile info, patients for care provider or problems for patient
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -99,7 +101,6 @@ public class HomeActivity extends AppCompatActivity {
         checkTasks();
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -109,23 +110,23 @@ public class HomeActivity extends AppCompatActivity {
         SearchView search_view = (SearchView) search_item.getActionView();
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(final String search_string) {
+            public boolean onQueryTextSubmit(final String search_string) { // When search query submitted
                 AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
                 builder.setTitle("Search")
                         .setMessage("What would you like to search for?")
                         .setPositiveButton("General", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(DialogInterface dialog, int which) { // General search selected
                                 new SearchGeneral().execute(search_string);
                             }
                         })
                         .setNegativeButton("Body Location", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(DialogInterface dialog, int which) { // Body location selected
                                 new SearchBodyLocation().execute(search_string);
                             }
                         })
                         .setNeutralButton("Geo Location", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                            public void onClick(DialogInterface dialogInterface, int i) { // Geo location selected
                                 String[] string_inputs = search_string.split(" ");
                                 Map<String, Double> inputs = new HashMap();
                                 try {
@@ -180,25 +181,25 @@ public class HomeActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
+        if (id == R.id.action_logout) { // Logout selected
             logout();
         }
 
-        else if (id == R.id.action_edit) {
+        else if (id == R.id.action_edit) { // Edit profile selected
             editProfile();
         }
 
-        else if (id == R.id.action_QRcode) {
+        else if (id == R.id.action_QRcode) { // QR Code selected
             Intent intent = new Intent(getApplicationContext(), QRCodeActivity.class);
             intent.putExtra(QRCodeActivity.USERID_MESSAGE, current_user.getUserid());
             startActivity(intent);
         }
 
-        else if (id == R.id.action_map_view) {
+        else if (id == R.id.action_map_view) { // All geo locations for record selected
             problem_list_fragment.getAllGeoLocations();
         }
       
-        else if (id == R.id.action_body_locations) {
+        else if (id == R.id.action_body_locations) { // Edit body locations selected
             editBodyLocations();
         }
 
@@ -232,12 +233,12 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
-        if (request == BODY_REQUEST_CODE && result == RESULT_OK) {
+        if (request == BODY_REQUEST_CODE && result == RESULT_OK) { // Edit body location returned updated user
             UserElasticSearchController user_controller = new UserElasticSearchController();
             String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
             current_user = user_controller.jsonToUser(user_json);
             if (current_user instanceof Patient) {
-                problem_list_fragment.updateCurrentUser((Patient) current_user);
+                problem_list_fragment.updateCurrentUser((Patient) current_user); // Update user in problem list fragment
             }
         }
     }
@@ -253,16 +254,16 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         @Override
-        public Fragment getItem(int position) {
+        public Fragment getItem(int position) { // Get fragment at position
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position == 0) {
+            if (position == 0) { // First tab is profile info
                 return ProfileFragment.newInstance(current_user);
             }
-            else if (position == 1 && current_user instanceof CareProvider) {
+            else if (position == 1 && current_user instanceof CareProvider) { // If care provider return patient list fragment
                 return  PatientListFragment.newInstance(current_user);
             }
-                problem_list_fragment = ProblemListFragment.newInstance(current_user, current_user);
+                problem_list_fragment = ProblemListFragment.newInstance(current_user, current_user); // User is a patient return problem list fragment
                 return problem_list_fragment;
         }
 
@@ -273,6 +274,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Get user from LoginActivity intent
     private void getUserFromIntent() {
         Intent intent = getIntent();
         UserElasticSearchController es_controller = new UserElasticSearchController();
@@ -281,17 +283,20 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    // Set tab names based on user type
     private void updateTabName(TabLayout tab_layout){
         if (this.current_user instanceof Patient) { tab_layout.getTabAt(1).setText("Problems");}
         else {tab_layout.getTabAt(1).setText("Patients");}
     }
 
+    // Delete local files on logout
     private void logout() {
         LocalFileController file_controller = new LocalFileController();
         file_controller.deleteAllFiles(this);
         finish();
     }
 
+    // Dialog for editing profile
     private void editProfile() {
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Edit Profile");
@@ -327,7 +332,7 @@ public class HomeActivity extends AppCompatActivity {
 
         dialog.setView(layout); // Again this is a set method, not add
 
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() { // Confirm edit
             public void onClick(DialogInterface dialog, int which) {
                 Toast.makeText(getApplicationContext(), "Updating profile...", Toast.LENGTH_SHORT).show();
 
@@ -353,7 +358,8 @@ public class HomeActivity extends AppCompatActivity {
         dialog.show();
 
     }
-  
+
+    // Call edit body location activity
     private void editBodyLocations(){
         Gson gson = new Gson();
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
@@ -361,6 +367,7 @@ public class HomeActivity extends AppCompatActivity {
         startActivityForResult(intent, BODY_REQUEST_CODE);
     }
 
+    // Async class for updating user in elastic search
     private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
@@ -385,6 +392,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing a general search
     private class SearchGeneral extends AsyncTask<String, Void, SearchResult> {
 
         @Override
@@ -410,6 +418,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing body location search
     private class SearchBodyLocation extends AsyncTask<String, Void, SearchResult> {
 
         @Override
@@ -435,6 +444,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing geo-location search
     private class SearchGeoLocation extends AsyncTask<Map<String, Double>, Void, SearchResult> {
 
         @Override
@@ -460,6 +470,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for offline controller performing tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override
@@ -474,6 +485,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // Call search results activity and pass results
     private void startSearchActivity(ArrayList<String> hits) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, SearchResultsActivity.class);
@@ -482,6 +494,7 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Check if there is network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -492,11 +505,13 @@ public class HomeActivity extends AppCompatActivity {
         return false;
     }
 
+    // Load user from local file
     private void loadLocalUser() {
         LocalFileController controller = new LocalFileController();
         this.current_user = controller.loadUserFromFile(this);
     }
 
+    // Check if offline controller has tasks to complete
     private void checkTasks() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();

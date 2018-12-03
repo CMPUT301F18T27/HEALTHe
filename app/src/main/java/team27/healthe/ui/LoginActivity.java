@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for handling login
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -89,12 +91,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // onClick login button
     public void onLoginClick(View view) {
         String user_id = ((TextView) findViewById(R.id.loginIdText)).getText().toString();
         login(user_id);
     }
 
-    // onClick for the login button
+    // check for connectivity to login
     public void login(String user_id){
         if (isNetworkConnected()) {
             Toast.makeText(this, "Logging in...", Toast.LENGTH_SHORT).show();
@@ -132,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
@@ -261,6 +265,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // Load user form file if the user is already logged in
     private void loadFromFile() {
         LocalFileController file_controller = new LocalFileController();
         User user = file_controller.loadUserFromFile(this);
@@ -269,6 +274,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // onClick for scan QR code
     public void scanQrCode(View view) {
         // https://github.com/avaneeshkumarmaurya/Barcode-Reader
         Intent launchIntent = BarcodeReaderActivity.getLaunchIntent(this, true, false);

@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for showing problem list fragment
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -54,6 +56,7 @@ public class ProblemActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     private void getUser(Intent intent) {
         UserElasticSearchController es_controller = new UserElasticSearchController();
