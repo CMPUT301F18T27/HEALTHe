@@ -20,7 +20,7 @@ import team27.healthe.model.User;
 /**
  * Handles the saving of information when the user is offline and updates the database when the user goes back online
  * Using JSON
- * @author Cody
+ * @author Chase
  */
 public class OfflineController {
     private static final String FILENAME = "offline.sav";

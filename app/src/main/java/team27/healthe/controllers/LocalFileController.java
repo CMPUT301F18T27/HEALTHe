@@ -25,7 +25,7 @@ import team27.healthe.model.User;
 /**
  * Local File access for handling operations involving storing/retrieving from local file
  * using JSON
- * @author Chase
+ * @author Chase/Cody
  */
 public class LocalFileController {
     private static final String USER_FILENAME = "user";

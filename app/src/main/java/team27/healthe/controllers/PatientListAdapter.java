@@ -13,7 +13,7 @@ import team27.healthe.R;
 
 /**
  * adapter for filling in list view with patient information (and allow selection)
- * @author Chase
+ * @author Chase/Cody
  */
 public class PatientListAdapter extends ArrayAdapter<String> {
     private final Activity context;
@@ -27,6 +27,7 @@ public class PatientListAdapter extends ArrayAdapter<String> {
     }
 
     /**
+     * Gets the view of the patient list
      * Called for each row/item in the ListView
      * @param position (patient at current position)
      * @param view (list row)

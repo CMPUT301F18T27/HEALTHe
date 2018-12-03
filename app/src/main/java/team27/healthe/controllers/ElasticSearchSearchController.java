@@ -15,6 +15,7 @@ import io.searchbox.core.SearchResult;
 
 /**
  * This is for performing searches with the elastic search
+ * @author Chase
  */
 public class ElasticSearchSearchController extends ElasticSearchController {
     /**

@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import team27.healthe.R;
 import team27.healthe.model.Record;
 
+/**
+ * Adapter for filling in the list view with records
+ * @author Cody/Chase
+ */
 public class RecordListAdapter extends ArrayAdapter<Record> {
     private final Activity context;
     private ArrayList<Record> records;
@@ -23,7 +27,14 @@ public class RecordListAdapter extends ArrayAdapter<Record> {
         this.records = records;
     }
 
-    // Called for each row/item in the ListView
+    /**
+     * Gets the view of the record list
+     * Called for each row/item in the list view
+     * @param position (int)
+     * @param view (View)
+     * @param parent (ViewGroup)
+     * @return list_row
+     */
     public View getView (int position, View view, ViewGroup parent) {
         Record record = getItem(position); // get record at current position
 
@@ -41,7 +52,10 @@ public class RecordListAdapter extends ArrayAdapter<Record> {
         return list_row; // return the view(row)
     }
 
-    // Recreates the ListView when changes have been made to the list of records
+    /**
+     * Refreshed the view after changes are made
+     * @param records (Array list of records)
+     */
     public void refresh(ArrayList<Record> records) {
         this.records = records;
         notifyDataSetChanged();
