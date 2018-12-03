@@ -13,7 +13,7 @@ import team27.healthe.R;
 
 /**
  * adapter for filling in list view with patient information (and allow selection)
- * @author [fill in]
+ * @author Chase
  */
 public class PatientListAdapter extends ArrayAdapter<String> {
     private final Activity context;
@@ -50,7 +50,7 @@ public class PatientListAdapter extends ArrayAdapter<String> {
 
     /**
      * Recreates the ListView when changes have been made to the list of patients
-     * @param patients (ArrayList<String> - patient ids)
+     * @param new_patients (ArrayList<String> - patient ids)
      */
     public void refresh(ArrayList<String> new_patients) {
         this.patients.clear();

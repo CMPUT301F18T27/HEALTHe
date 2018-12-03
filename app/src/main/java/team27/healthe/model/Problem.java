@@ -97,21 +97,6 @@ public class Problem implements Comparable<Problem> {
         this.pdate = pdate;
     }
 
-    /**
-     * Converts a string date to Date object
-     * and sets the date to that converted object
-     * @param strdate (String)
-     */
-    public void setPdateAsDateObj(String strdate) {
-        try {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-            Date date = formatter.parse(strdate);
-            this.pdate = date;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
     public String getDescription() {
         return description;
     }

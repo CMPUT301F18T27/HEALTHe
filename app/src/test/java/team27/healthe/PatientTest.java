@@ -8,6 +8,7 @@ import java.util.Date;
 
 import static org.junit.Assert.*;
 
+import team27.healthe.model.BodyLocationPhoto;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 
@@ -58,30 +59,6 @@ public class PatientTest {
     }
 
     @Test
-    public void testAddBodyLocations() {
-        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
-        ArrayList<String> bodyLoc = new ArrayList<>();
-
-        // TESTING SETTERS AND GETTERS FOR BODY LOCATION
-        assertEquals(bodyLoc, patient.getBodyLocations());
-        bodyLoc.add("13456");
-        patient.addBodyLocation("13456");
-        assertEquals(bodyLoc, patient.getBodyLocations());
-    }
-
-    @Test
-    public  void testGetBodyLocationCount() {
-        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
-        ArrayList<String> bodyLoc = new ArrayList<>();
-
-        // TESTING SETTERS AND GETTERS FOR BODY LOCATION
-        assertEquals(0, patient.getBodyLocationCount());
-        bodyLoc.add("13456");
-        patient.addBodyLocation("13456");
-        assertEquals(1, patient.getBodyLocationCount());
-    }
-
-    @Test
     public void removeProblemTest() {
         Patient patient = new Patient("apple", "apple@google.com", "1515151515");
         Problem p1 = new Problem("im am green", new Date(), "should I be red?");
@@ -97,5 +74,46 @@ public class PatientTest {
 
         patient.removeProblem(p2.getProblemID());
         assertTrue(patient.getProblemList().isEmpty());
+    }
+
+    @Test
+    public void testAddBodyLocations() {
+        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
+        ArrayList<BodyLocationPhoto> bodyLoc = new ArrayList<>();
+
+        // TESTING SETTERS AND GETTERS FOR BODY LOCATION
+        assertEquals(bodyLoc, patient.getBodyLocations());
+        BodyLocationPhoto newblp = new BodyLocationPhoto();
+        bodyLoc.add(newblp);
+        patient.addBodyLocation(newblp);
+        assertEquals(bodyLoc, patient.getBodyLocations());
+    }
+
+    @Test
+    public  void testGetBodyLocationCount() {
+        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
+
+        // TESTING SETTERS AND GETTERS FOR BODY LOCATION
+        assertEquals(0, patient.getBodyLocationCount());
+        patient.addBodyLocation(new BodyLocationPhoto());
+        assertEquals(1, patient.getBodyLocationCount());
+    }
+
+    @Test
+    public void testRemoveBodyLocation() {
+        Patient patient = new Patient("apple", "apple@google.com", "1515151515");
+        BodyLocationPhoto p1 = new BodyLocationPhoto();
+        BodyLocationPhoto p2 = new BodyLocationPhoto();
+        patient.addBodyLocation(p1);
+        patient.addBodyLocation(p2);
+
+        ArrayList<BodyLocationPhoto> actual = new ArrayList<>();
+        actual.add(p2);
+
+        patient.removeBodyLocationPhoto(p1);
+        assertEquals(actual, patient.getBodyLocations());
+
+        patient.removeBodyLocationPhoto(p2);
+        assertTrue(patient.getBodyLocations().isEmpty());
     }
 }

@@ -13,7 +13,7 @@ import team27.healthe.model.Problem;
 
 /**
  * Class for add/edit/delete operations for Problem objects from the Elasticsearch server
- * @author [fill in]
+ * @author Tamara
  */
 public class ProblemElasticSearchController extends ElasticSearchController {
 
