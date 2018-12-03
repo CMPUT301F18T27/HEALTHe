@@ -37,9 +37,9 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
 
-        GeoDistanceFilterBuilder filter = FilterBuilders.geoDistanceFilter("geoLocation.geo_point").point(lat, lon)
+        GeoDistanceFilterBuilder filter = FilterBuilders.geoDistanceFilter("geoLocation.location").point(lat, lon)
                 .distance(distance, DistanceUnit.KILOMETERS);
-        searchSourceBuilder.filter(filter);//.sort(SortBuilders.geoDistanceSort("geoLocation.geo_point").point(lat, lon).order(SortOrder.ASC));
+        searchSourceBuilder.filter(filter).sort(SortBuilders.geoDistanceSort("geoLocation.location").point(lat, lon).order(SortOrder.ASC));
 
 
         Search search = new Search.Builder(searchSourceBuilder.toString())
@@ -48,6 +48,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
                 //.addType(problem_type)
                 .addType(record_type)
                 .build();
+
 
         try {
             SearchResult result = client.execute(search);
@@ -60,6 +61,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
     }
 
     public SearchResult searchBodyLocation(String terms) {
+        // TODO: Implement this and test
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.multiMatchQuery(terms, "bodyLocation.body_string"));
         searchSourceBuilder.sort(SortBuilders.scoreSort().order(SortOrder.ASC));
