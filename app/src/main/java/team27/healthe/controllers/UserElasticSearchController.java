@@ -42,7 +42,7 @@ public class UserElasticSearchController extends ElasticSearchController {
         }
     }
 
-    
+
 
     /**
      * Get the user associated with a user_id
