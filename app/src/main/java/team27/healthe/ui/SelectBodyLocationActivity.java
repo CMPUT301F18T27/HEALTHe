@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 //import com.squareup.picasso.Picasso;
 
+import com.google.gson.Gson;
+
 import java.io.File;
 
 import team27.healthe.R;
@@ -96,6 +98,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
                 Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
                 p.setStrokeWidth(2);
                 p.setColor(Color.RED);
+                System.out.println("x scale "+x_scaled+" y scale: "+y_scaled);
                 c.drawBitmap(myBitmap, 0, 0, null);
                 c.drawLine(x_scaled-5, y_scaled, x_scaled+5, y_scaled, p);
                 c.drawLine(x_scaled, y_scaled-5, x_scaled, y_scaled+5, p);
@@ -195,10 +198,10 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         new updateRecordTask().execute(r);
     }
 
-    private class updateRecordTask extends AsyncTask<Record, Void, Void> {
+    private class updateRecordTask extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(Record... records) {
+        protected Record doInBackground(Record... records) {
             RecordElasticSearchController res = new RecordElasticSearchController();
 
             for (Record record: records) {
@@ -210,9 +213,13 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
+        protected void onPostExecute(Record r) {
+            super.onPostExecute(r);
 //            updateRecord();
+            Gson gson = new Gson();
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(r));
+            setResult(RESULT_OK,returnIntent);
             finish();
         }
     }

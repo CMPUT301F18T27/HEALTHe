@@ -54,7 +54,8 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
 //                viewHolder.title.setText(m.group(1));
 //            }
 //        }
-        System.out.println("Here!");
+        System.out.println("Here!\n filename: "+filename);
+
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Picasso.get().load(filename).into(viewHolder.img);
         viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(filename));

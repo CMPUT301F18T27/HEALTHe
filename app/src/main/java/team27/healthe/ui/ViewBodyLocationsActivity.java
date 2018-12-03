@@ -44,13 +44,12 @@ import team27.healthe.model.Patient;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
+
 public class ViewBodyLocationsActivity extends AppCompatActivity implements BodyLocationListener {
     ImageController ic;
     BodyLocationImageAdapter image_adapter;
 //    ArrayList<String> image_list;
     private static final int MY_CAMERA_REQUEST_CODE = 100;
-    private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
-    private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
     String current_user;
     BodyLocationPhotoElasticSearchController blesc;
     BodyLocationPhoto blp;
@@ -58,9 +57,15 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
     boolean auto_photo;
     String record_id;
     Record record;
+    boolean from_record;
+    String new_file;
     @Override
     public void recyclerViewClicked(View v, int i){
         File tmp = new File(ic.get(i));
+        D("i "+i+"\nic.get() "+ic.get(i)+"\ntmp name: "+tmp.getName());
+        if (new_body_location){
+            new_file = ic.get(i);
+        }
         editLocation(tmp.getName());
     }
 
@@ -73,7 +78,9 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         if(auto_photo){
             takePhoto(new_body_location);
         }
-
+        if(new_body_location == false && record != null && from_record == true){
+           new GetBodyLocationPhotoTask().execute(record.getBodyLocation().getBodyLocationId());
+        }
         ic = new ImageController(getApplicationContext(), "body_locations");
         ic.refreshImageList(current_user);
 //        image_list = ic.getImageList();
@@ -129,14 +136,33 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
             Bitmap image = (Bitmap) bundle.get("data");
             String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             String file_name = ic.saveImage(image, ts);
+
             File temp = new File(file_name);
+            System.out.println(file_name);
+            blp = new BodyLocationPhoto();
+            blp.setPatientId(current_user);
+            blp.setBodyLocationPhotoId(temp.getName());
             callUpdateUserTask();
             System.out.println("NEW BODY LOCATION FILENAME"+file_name);
             Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
             select_location.putExtra("file_name",file_name);
             select_location.putExtra("current_user", current_user);
             select_location.putExtra("record_id", record_id);
-            startActivity(select_location);
+            startActivityForResult(select_location, RETURN_TO_RECORD);
+        }
+        if (request == RELOAD_RECORD){
+            System.out.println("RELOADING RECORD after updating point");
+            new reloadRecordTask().execute();
+        }
+        if (request == RETURN_TO_RECORD && result == RESULT_OK){
+            System.out.println("Point was selected, returning to record");
+            Gson gson = new Gson();
+            String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
+            this.record = gson.fromJson(record_json, Record.class);
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(RecordActivity.RECORD_MESSAGE,gson.toJson(record));
+            setResult(RESULT_OK,returnIntent);
+            finish();
         }
     }
 
@@ -178,11 +204,29 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         if (intent.hasExtra("record_id")){
             record_id = intent.getStringExtra("record_id");
         }
-        if (intent.hasExtra("record")){
+        if (intent.hasExtra(RecordActivity.RECORD_MESSAGE)){
             Gson gson = new Gson();
             record = gson.fromJson(intent.getStringExtra("record"), Record.class);
         }
+        if (intent.hasExtra("from_record")){
+            from_record = intent.getBooleanExtra("from_record",false);
+        }
+    }
 
+    private class reloadRecordTask extends AsyncTask<Void, Void, Record> {
+
+        @Override
+        protected Record doInBackground(Void... v) {
+            RecordElasticSearchController res_controller =
+                    new RecordElasticSearchController();
+            Record r = res_controller.getRecord(record.getRecordID());
+            return r;
+        }
+        @Override
+        protected void onPostExecute(Record r){
+            super.onPostExecute(r);
+            record = r;
+        }
     }
 
     private void checkPermissions(){
@@ -243,12 +287,14 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         @Override
         protected void onPostExecute(Patient p){
             super.onPostExecute(p);
-            ic.refresh(p);
+            ic.refreshImageList(current_user);
         }
     }
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_IMAGE_CAPTURE_NEW_BODYLOCATION = 1;
+    static final int REQUEST_IMAGE_CAPTURE_NEW_BODYLOCATION = 2;
+    static final int RELOAD_RECORD = 3;
+    static final int RETURN_TO_RECORD = 4;
 
     private void takePhoto(boolean new_bl) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -263,23 +309,51 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
     }
 
     private void launchSelectLocation(BodyLocationPhoto blp){
-        Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
+        Intent select_location = new Intent(this, SelectBodyLocationActivity.class);
         BodyLocation bl = record.getBodyLocation();
-        if (bl != null){
-            select_location.putExtra("x_loc", bl.getX());
-            select_location.putExtra("y_loc", bl.getY());
-            System.out.println("NEW BODY LOCATION FILENAME"+ic.getAbsolutePath(bl.getBodyLocationId()));
+
+        if (new_body_location == false){
+            System.out.println("straight to select location screen");
+            System.out.println(bl.getBodyLocationId());
             select_location.putExtra("file_name",ic.getAbsolutePath(bl.getBodyLocationId()));
+            select_location.putExtra("current_user", current_user);
+            select_location.putExtra("record_id", record_id);
+            startActivityForResult(select_location, RETURN_TO_RECORD);
+        }
+        else if (blp != null){
+            if (bl != null){
+
+                if (bl.getBodyLocationId() != null && bl.getBodyLocationId().equals(blp.getBodyLocationPhotoId())){
+                    System.out.println("not null ===> equal");
+                    select_location.putExtra("x_loc", bl.getX());
+                    select_location.putExtra("y_loc", bl.getY());
+                }
+                else if (bl.getBodyLocationId() != null){
+                    System.out.println("bl id"+bl.getBodyLocationId());
+                    System.out.println("blp id"+blp.getBodyLocationPhotoId());
+                }
+                else{
+                    System.out.println("bl id is null or not equal");
+                }
+            }
+            System.out.println("Launch select filename:"+ic.getAbsolutePath(blp.getBodyLocationPhotoId()));
+            select_location.putExtra("file_name",ic.getAbsolutePath(blp.getBodyLocationPhotoId()));
         }
         else {
+//            select_location.putExtra("file_name",ic.getAbsolutePath(blp.getBodyLocationPhotoId()));
             System.out.println("ERROR--body location was null from elasticsearch");
+            System.out.println("new body location for record?");
+            select_location.putExtra("file_name", new_file);
+            select_location.putExtra("current_user", current_user);
+            select_location.putExtra("record_id", record_id);
+            startActivityForResult(select_location, RETURN_TO_RECORD);
 //            bl = new BodyLocation();
-            select_location.putExtra("file_name", ic.getAbsolutePath(blp.getBodyLocationPhotoId()));
+//            select_location.putExtra("file_name", ic.getAbsolutePath(blp.getBodyLocationPhotoId()));
         }
-        select_location.putExtra("current_user", current_user);
-        select_location.putExtra("record_id", record_id);
-//        select_location.putExtra("file_name", bl.)
-        startActivity(select_location);
+//        select_location.putExtra("current_user", current_user);
+//        select_location.putExtra("record_id", record_id);
+////        select_location.putExtra("file_name", bl.)
+//        startActivityForResult(select_location, RELOAD_RECORD);
     }
 
     private void editLocation(String file_name){
@@ -367,18 +441,30 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
             for (String bl_id : body_location_ids) {
                 System.out.println("Attempting to get body location for id: "+bl_id);
                 bl = bles_controller.getBodyLocationPhoto(bl_id);
+                try{
+                    System.out.println("bl "+bl.getBodyLocationPhotoId());
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
             return bl;
         }
         @Override
         protected void onPostExecute(BodyLocationPhoto blp){
             super.onPostExecute(blp);
-            if(new_body_location == false){
+            if(from_record == false){
                 requestTitle(blp);
             }
+//            if(new_body_location == false){
+//                launchSelectLocation(blp);
+//            }
             else{
                 launchSelectLocation(blp);
             }
         }
+    }
+    public void D(String m){
+        System.out.println("DEBUG:---: "+m);
     }
 }

@@ -323,11 +323,18 @@ public class RecordActivity extends AppCompatActivity {
         Gson gson = new Gson();
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
         intent.putExtra("current_user", current_user.getUserid());
-        intent.putExtra("new_body_location", true);
+        if (record.getBodyLocation() == null){
+            intent.putExtra("new_body_location", true);
+        }
+        else{
+            intent.putExtra("new_body_location", false);
+        }
+        intent.putExtra("from_record", true);
         intent.putExtra("record_id", record.getRecordID());
 //        intent.putExtra("body_location", gson.toJson(record.getBodyLocation()));
 //        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
-        intent.putExtra("record", gson.toJson(record));
+//        intent.putExtra("record", gson.toJson(record));
+        intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivityForResult(intent, BODYLOCATION_REQUEST_CODE);
 
     }

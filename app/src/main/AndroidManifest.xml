@@ -130,7 +130,8 @@
             android:label="@string/title_activity_select_body_location" />
         <activity
             android:name=".ui.SearchResultsActivity"
-            android:label="Search Results"/>
+            android:label="Search Results" />
+        <activity android:name=".ui.SelectBodyLocationPhoto"></activity>
     </application>
 
 </manifest>
