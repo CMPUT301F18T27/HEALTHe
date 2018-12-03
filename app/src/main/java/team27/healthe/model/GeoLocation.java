@@ -7,6 +7,7 @@ import org.elasticsearch.common.geo.GeoPoint;
 /**
  * Represents a geolocation
  * @author Chase
+ * @author Cody
  */
 public class GeoLocation {
     private GeoPoint location;

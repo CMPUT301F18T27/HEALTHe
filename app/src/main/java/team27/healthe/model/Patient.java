@@ -5,7 +5,7 @@ import java.util.Collection;
 
 /**
  * Represents a patient
- * @author [fill in]
+ * @author Cody
  * @author Chris
  */
 public class Patient extends User {

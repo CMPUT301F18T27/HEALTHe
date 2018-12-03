@@ -47,18 +47,10 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
     public void onBindViewHolder(@NonNull BodyLocationImageAdapter.ImageViewHolder viewHolder, int i) {
         String file_name = image_list.get(i).getBodyLocationPhotoId();
         String photo_file_name = context.getFilesDir().getAbsolutePath() + File.separator + file_name + ".jpg";
-        // TODO: Test this removal when elasticsearch server is back
-//        if(filename.startsWith("\\w+_")){
-//            String r = "(^\\w+_)([\\w\\s]+)";
-//            Pattern pattern = Pattern.compile(r);
-//            Matcher m = pattern.matcher(filename);
-//            if(m.find()){
-//                viewHolder.title.setText(m.group(1));
-//            }
-//        }
+
 
         viewHolder.img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        //Picasso.get().load(filename).into(viewHolder.img);
+
         viewHolder.img.setImageBitmap(BitmapFactory.decodeFile(photo_file_name));
 
     }
@@ -76,12 +68,7 @@ public class BodyLocationImageAdapter extends RecyclerView.Adapter <BodyLocation
             title = (TextView) itemView.findViewById(R.id.title);
             img = (ImageView) itemView.findViewById(R.id.img);
             itemView.setOnClickListener(this);
-//            img.setOnClickListener(new View.OnClickListener(){
-//                @Override
-//                public void onClick(View v){
-//                    bl.recyclerViewClicked(v, this.get);
-//                }
-//            });
+
         }
         @Override
         public void onClick(View v){

@@ -5,7 +5,7 @@ import java.util.Collection;
 
 /** Represents the CareProvider (User-subclass)
  * @author Chris
- * @author [fill in]
+ * @author Tamara
  */
 public class CareProvider extends User {
     /**

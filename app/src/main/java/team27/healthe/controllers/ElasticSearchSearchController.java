@@ -15,6 +15,7 @@ import io.searchbox.core.SearchResult;
 
 /**
  * This is for performing searches with the elastic search
+ * @author Chase
  */
 public class ElasticSearchSearchController extends ElasticSearchController {
     /**
@@ -60,7 +61,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 // multiple index or types can be added.
                 .addIndex(test_index)
-                //.addType(problem_type)
+
                 .addType(record_type)
                 .build();
 
@@ -88,7 +89,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 // multiple index or types can be added.
                 .addIndex(test_index)
-                //.addType(problem_type)
+
                 .addType(record_type)
                 .build();
         try {

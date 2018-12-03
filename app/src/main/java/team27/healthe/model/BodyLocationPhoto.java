@@ -1,5 +1,10 @@
 package team27.healthe.model;
 
+/**
+ * Gets information for body location photo
+ * @author Chris
+ * @author Chase
+ */
 public class BodyLocationPhoto {
     /**
      * id of associated patient (body locations are unique to a patient)

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 /**
  * adapter for filling in list view with problem information (and allow selection)
- * @author Cody
+ * @author Cody/Chase
  */
 public class ProblemsAdapter extends ArrayAdapter<Problem> {
     private Context context;
