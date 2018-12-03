@@ -7,11 +7,51 @@
     android:background="#0099cc"
     tools:context=".ui.SelectBodyLocationActivity">
 
+    <TextView
+        android:id="@+id/textNoBodyLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:text="No body location"
+        android:textAlignment="center"
+        android:textSize="24sp" />
+
     <ImageView
         android:id="@+id/view_select_body_location"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="TODO"
         app:srcCompat="@drawable/common_full_open_on_phone" />
+
+    <Button
+        android:id="@+id/buttonSetBodyLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginLeft="24dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="onClickSetBodyLocation"
+        android:text="Pick Photo" />
+
+    <Button
+        android:id="@+id/buttonSetPoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="24dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="onCLickSetPoint"
+        android:text="Set Point" />
+
+    <TextView
+        android:id="@+id/locationTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        android:textAlignment="textStart"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 </FrameLayout>

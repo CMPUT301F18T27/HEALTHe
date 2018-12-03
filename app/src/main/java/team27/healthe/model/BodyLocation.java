@@ -1,6 +1,8 @@
 package team27.healthe.model;
 
 
+import org.elasticsearch.common.UUID;
+
 /** Represents body location image
  * @author Chris
  *
@@ -29,12 +31,14 @@ public class BodyLocation {
         x_location = x;
         y_location = y;
         body_string = "";
+        body_location_id = null;
     }
 
     public BodyLocation(){
         x_location = 0;
         y_location = 0;
         body_string = "";
+        body_location_id = null;
     }
 
     public void setPoint(float x, float y){

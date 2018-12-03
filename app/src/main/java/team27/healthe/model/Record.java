@@ -50,7 +50,7 @@ public class Record {
         rdate = new Date();
         description = "This is a record";
         commentList = comments;
-        bodyLocation = null;
+        bodyLocation = new BodyLocation();
         geoLocation = null;
         photos = new ArrayList();
         record_id = UUID.randomUUID().toString();
@@ -61,7 +61,7 @@ public class Record {
         rdate = date;
         description = desc;
         commentList = new ArrayList<>();
-        bodyLocation = null;
+        bodyLocation = new BodyLocation();
         geoLocation = null;
         photos = new ArrayList();
         record_id = UUID.randomUUID().toString();

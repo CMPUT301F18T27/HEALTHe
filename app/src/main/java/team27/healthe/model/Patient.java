@@ -10,7 +10,7 @@ import java.util.Collection;
  */
 public class Patient extends User {
     private ArrayList<String> problems;
-    private ArrayList<String> body_locations;
+    private ArrayList<BodyLocationPhoto> body_locations;
     private String user_type = "patient";
 
     public Patient(String userID, String email, String phone){
@@ -59,11 +59,14 @@ public class Patient extends User {
      */
     public int getBodyLocationCount(){return body_locations.size();}
 
-    public void addBodyLocation(String body_location_id){
-        body_locations.add(body_location_id);
-    }
-    public ArrayList<String> getBodyLocations(){
+    public void addBodyLocation(BodyLocationPhoto body_location_photo){ body_locations.add(body_location_photo); }
+
+    public ArrayList<BodyLocationPhoto> getBodyLocations(){
         return body_locations;
+    }
+
+    public void removeBodyLocationPhoto(BodyLocationPhoto blp) {
+        body_locations.remove(blp);
     }
 
 

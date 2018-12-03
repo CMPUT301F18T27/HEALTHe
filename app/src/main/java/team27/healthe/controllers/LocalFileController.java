@@ -1,6 +1,8 @@
 package team27.healthe.controllers;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.Environment;
 
 import com.google.gson.Gson;
 
@@ -8,9 +10,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
+import team27.healthe.R;
 import team27.healthe.model.CareProvider;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
@@ -233,5 +238,31 @@ public class LocalFileController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static File getBodyLocationFile(Context c){
+        File file = new File(c.getFilesDir().getAbsolutePath());
+        if (!file.exists()){
+            if(!file.mkdirs()) {
+                return null;
+            }
+        }
+        return file;
+
+    }
+
+    public File saveImage(Bitmap bitmap, String file_name, Context context) {
+        String photo_file_name = context.getFilesDir().getAbsolutePath() + File.separator + file_name + ".jpg";
+        try {
+
+            OutputStream output_stream = new FileOutputStream(photo_file_name);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 30 , output_stream);
+            output_stream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new File(photo_file_name);
     }
 }

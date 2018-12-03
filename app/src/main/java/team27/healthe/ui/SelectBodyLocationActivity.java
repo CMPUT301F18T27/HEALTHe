@@ -1,5 +1,6 @@
 package team27.healthe.ui;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,6 +20,7 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,15 +29,26 @@ import android.widget.Toast;
 
 //import com.squareup.picasso.Picasso;
 
+import com.google.gson.Gson;
+
+import org.elasticsearch.common.UUID;
+
 import java.io.File;
 
+import io.searchbox.core.DocumentResult;
 import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.controllers.ImageController;
+import team27.healthe.model.BodyLocationPhoto;
+import team27.healthe.model.CareProvider;
 import team27.healthe.model.Patient;
+import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
 /**
@@ -43,76 +56,55 @@ import team27.healthe.model.User;
  * status bar and navigation/system bar) with user interaction.
  */
 public class SelectBodyLocationActivity extends AppCompatActivity {
-    BodyLocation bl;
-    ImageController ic;
-    String file_name;
-    String current_user;
-    File image_file;
+    private static final int REQUEST_BODY_LOCATION_CODE = 27;
+    private User current_user;
+    private Record record;
+    private File image_file;
+    private ImageView imageView;
+    private boolean setPoint = false;
+
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        ic = new ImageController(getApplicationContext(), "body_locations");
-        file_name = intent.getStringExtra("file_name");
-        float x_location = 0;
-        float y_location = 0;
-        current_user = "";
-        if (intent.hasExtra("x_loc") && intent.hasExtra("y_loc")){
-            x_location = intent.getFloatExtra("x_loc", 0);
-            y_location = intent.getFloatExtra("y_loc", 0);
-        }
-        if (intent.hasExtra("current_user")){
-            current_user = intent.getStringExtra("current_user");
-        }
-
         setContentView(R.layout.activity_select_body_location);
 
-        ImageView imageView = (ImageView) findViewById(R.id.view_select_body_location);
+        getFromIntent();
 
-        System.out.println("loading: "+file_name);
+        if (current_user instanceof CareProvider) {
+            Button set_point = findViewById(R.id.buttonSetPoint);
+            Button set_body_button = findViewById(R.id.buttonSetBodyLocation);
 
-        //test values
-//        x_location = 50;
-//        y_location = 50;
-        image_file = new File(file_name);
-
-        if(image_file.exists()){
-
-            Bitmap myBitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
-
-            if(x_location != 0 && y_location != 0) {
-                float x_scaled = posScale(x_location, myBitmap.getWidth(), "x");
-                float y_scaled = posScale(y_location, myBitmap.getHeight(), "y");
-                Bitmap temp_bmp = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(),Bitmap.Config.RGB_565);
-                Canvas c = new Canvas(temp_bmp);
-                Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
-                p.setStrokeWidth(2);
-                p.setColor(Color.RED);
-                c.drawBitmap(myBitmap, 0, 0, null);
-                c.drawLine(x_scaled-5, y_scaled, x_scaled+5, y_scaled, p);
-                c.drawLine(x_scaled, y_scaled-5, x_scaled, y_scaled+5, p);
-
-                imageView.setImageDrawable(new BitmapDrawable(getResources(), temp_bmp));
-                System.out.println("CANVAS SHOULD BE DRAWN!");
-            }
-            else{
-                imageView.setImageBitmap(myBitmap);
-            }
-
-
+            set_body_button.setVisibility(set_body_button.INVISIBLE);
+            set_point.setVisibility(set_point.INVISIBLE);
         }
 
+        imageView = (ImageView) findViewById(R.id.view_select_body_location);
 
-        bl = new BodyLocation();
+
+        String file_name = this.getFilesDir() + File.separator + record.getBodyLocation().getBodyLocationId() + ".jpg";
+        image_file = new File(file_name);
+
+        setUI();
+
+
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (setPoint) {
+                        LocalFileController file_controller = new LocalFileController();
 
-                    createBodyLocation(getApplicationContext(), event.getRawX(), event.getRawY());
+                        record.getBodyLocation().setPoint(event.getRawX(), event.getRawY());
 
-                    System.out.println("X " + String.valueOf(event.getRawX()) + "");
-                    System.out.println("y " + String.valueOf(event.getRawY()) + "");
+                        file_controller.saveRecordInFile(record, getApplicationContext());
+                        new UpdateRecord().execute(record);
+                        updateReturnIntent();
+
+                        drawPoint();
+                        setPoint = false;
+                    }
                 }
                 return true;
             }
@@ -120,6 +112,67 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
 
     }
+
+    private void setUI() {
+        if (image_file.exists()) {
+            TextView no_body_location = (TextView) findViewById(R.id.textNoBodyLocation);
+            no_body_location.setVisibility(no_body_location.INVISIBLE);
+
+            Bitmap bitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
+            imageView.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+
+            if (record.getBodyLocation() != null) {
+                drawPoint();
+            }
+
+        } else {
+            imageView.setVisibility(imageView.INVISIBLE);
+
+            Button set_point = findViewById(R.id.buttonSetPoint);
+            set_point.setVisibility(set_point.INVISIBLE);
+        }
+    }
+
+    private void getFromIntent() {
+        Intent intent = getIntent();
+        UserElasticSearchController controller = new UserElasticSearchController();
+        Gson gson = new Gson();
+
+        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        String record_json = intent.getStringExtra(RecordActivity.RECORD_MESSAGE);
+
+        current_user = controller.jsonToUser(user_json);
+        record = gson.fromJson(record_json, Record.class);
+
+
+    }
+
+    private void drawPoint() {
+        Bitmap myBitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
+        float x_location = record.getBodyLocation().getX();
+        float y_location = record.getBodyLocation().getY();
+
+        if(x_location != 0 && y_location != 0) {
+            float x_scaled = posScale(x_location, myBitmap.getWidth(), "x");
+            float y_scaled = posScale(y_location, myBitmap.getHeight(), "y");
+            Bitmap temp_bmp = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(),Bitmap.Config.RGB_565);
+            Canvas c = new Canvas(temp_bmp);
+            Paint p = new Paint(Paint.FILTER_BITMAP_FLAG);
+            p.setStrokeWidth(2);
+            p.setColor(Color.RED);
+            c.drawBitmap(myBitmap, 0, 0, null);
+
+            c.drawLine(x_scaled-5, y_scaled, x_scaled+5, y_scaled, p);
+            c.drawLine(x_scaled, y_scaled-5, x_scaled, y_scaled+5, p);
+
+            imageView.setImageDrawable(new BitmapDrawable(getResources(), temp_bmp));
+            System.out.println("CANVAS SHOULD BE DRAWN!");
+        }
+        else{
+            imageView.setImageBitmap(myBitmap);
+        }
+    }
+
 
     private float posScale(float val, float max, String orientation){
         Display display = getWindowManager().getDefaultDisplay();
@@ -136,195 +189,68 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         return 0;
     }
 
-    private class BodyLocationTask extends AsyncTask<BodyLocation, Void, Void> {
+    public void onClickSetBodyLocation(View view) {
+        Gson gson = new Gson();
+        Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
+        intent.putExtra(ViewBodyLocationsActivity.GET_LOCATION_MESSAGE, true);
+        intent.putExtra(ViewBodyLocationsActivity.SET_FAB_MESSAGE, false);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        startActivityForResult(intent, REQUEST_BODY_LOCATION_CODE);
+    }
+
+    public void onCLickSetPoint(View view) {
+        setPoint = true;
+        Toast.makeText(getApplicationContext(), "Touch photo to set reference point", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onActivityResult(int request, int result, Intent intent){
+        if(request == REQUEST_BODY_LOCATION_CODE && result == RESULT_OK){
+            LocalFileController file_controller = new LocalFileController();
+            Gson gson = new Gson();
+            String body_location_json = intent.getStringExtra(ViewBodyLocationsActivity.BODY_LOCATION_MESSAGE);
+            BodyLocation body_location = gson.fromJson(body_location_json, BodyLocation.class);
+            record.setBodyLocation(body_location);
+
+            file_controller.saveRecordInFile(record, this);
+            new UpdateRecord().execute(record);
+            updateReturnIntent();
+
+            String file_name = this.getFilesDir() + File.separator + record.getBodyLocation().getBodyLocationId() + ".jpg";
+            image_file = new File(file_name);
+
+            setUI();
+        }
+    }
+
+    private void updateReturnIntent() {
+        Gson gson = new Gson();
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK, returnIntent);
+        returnIntent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
+    }
+
+    private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
-        protected Void doInBackground(BodyLocation... body_locations) {
-            BodyLocationElasticSearchController bles_controller =
-                    new BodyLocationElasticSearchController();
-            for (BodyLocation bl : body_locations) {
-                bles_controller.addBodyLocation(bl);
+        protected Record doInBackground(Record... records) {
+            RecordElasticSearchController es_controller = new RecordElasticSearchController();
+            for (Record record: records) {
+                if(!es_controller.addRecord(record)) {
+                    return record;
+                }
+                return null;
             }
             return null;
         }
-        @Override
-        protected void onPostExecute(Void v){
-            super.onPostExecute(null);
-
-            callPhotoTask();
-        }
-    }
-    private void callPhotoTask(){
-        new PhotoTask().execute(image_file);
-    }
-    private class PhotoTask extends AsyncTask<File, Void, Void> {
 
         @Override
-        protected Void doInBackground(File... files) {
-            PhotoElasticSearchController pes_controller =
-                    new PhotoElasticSearchController();
-            for (File f : files) {
-                pes_controller.addPhoto(f, f.getName());
+        protected void onPostExecute(Record record){
+            super.onPostExecute(record);
+            if (record != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addRecord(record, getApplicationContext());
             }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v){
-            super.onPostExecute(null);
-            startUpdateUser();
         }
     }
-    protected void startUpdateUser(){
-        new getUserAsync().execute(current_user);
-    }
-
-    // Async class for getting user from elastic search server
-    private class getUserAsync extends AsyncTask<String, Void, User> {
-
-        @Override
-        protected User doInBackground(String... user_ids) {
-            UserElasticSearchController ues = new UserElasticSearchController();
-
-            for (String user_id: user_ids) {
-                User user = ues.getUser(user_id);
-                return user;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(User user) {
-            super.onPostExecute(user);
-            updateUser(user);
-
-        }
-    }
-    private class updateUserAsync extends AsyncTask<User, Void, Void>{
-        @Override
-        protected Void doInBackground(User... users){
-            UserElasticSearchController ues = new UserElasticSearchController();
-            for (User user: users) {
-                ues.addUser(user);
-            }
-            return null;
-        }
-    }
-    protected void updateUser(User user){
-        Patient p = (Patient) user;
-        p.addBodyLocation(bl.getBodyLocationId());
-        new updateUserAsync().execute(p);
-    }
-
-    public void createBodyLocation(Context c, float x_set, float y_set){
-
-        System.out.println("DEBUG-----"+bl.getLocationName());
-
-        bl.setPoint(x_set, y_set);
-
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle("Label Body Location");
-        dialog.setMessage("");
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        //Add title for email input
-        final TextView bloc_title = new TextView(this);
-        bloc_title.setText("Body Location: ");
-        layout.addView(bloc_title);
-
-        // Add a TextView for email
-        final EditText bloc_text = new EditText(this);
-//        bloc_text.setText(current_user.getEmail());
-        bloc_text.setInputType(InputType.TYPE_CLASS_TEXT);
-        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
-        bloc_text.setLayoutParams(params);
-        layout.addView(bloc_text); // Notice this is an add method
-
-
-        dialog.setView(layout); // Again this is a set method, not add
-
-        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "Adding Body Location", Toast.LENGTH_SHORT).show();
-//                BodyLocationElasticSearchController blesc = new BodyLocationElasticSearchController();
-//                PhotoElasticSearchController pesc = new PhotoElasticSearchController();
-                bl.setLocation(bloc_text.getText().toString());
-                bl.setPatientId(current_user);
-                bl.setBodyLocationId(image_file.getName());
-                new BodyLocationTask().execute(bl);
-
-//                blesc.addBodyLocation(bl);
-//                pesc.addPhoto(image_file, image_file.getName());
-                System.out.println("FILENAME: "+file_name+"\nbody location text: "+bl.getLocationName());
-                finish();
-
-            }
-        })
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // do nothing
-                    }
-                });
-        dialog.show();
-
-        System.out.println("DEBUG-----"+bl.getLocationName());
-
-    }
-
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//
-//        // Trigger the initial hide() shortly after the activity has been
-//        // created, to briefly hint to the user that UI controls
-//        // are available.
-//        delayedHide(100);
-//    }
-
-//    private void toggle() {
-//        if (mVisible) {
-//            hide();
-//        } else {
-//            show();
-//        }
-//    }
-
-//    private void hide() {
-//        // Hide UI first
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.hide();
-//        }
-//        mControlsView.setVisibility(View.GONE);
-//        mVisible = false;
-//
-//        // Schedule a runnable to remove the status and navigation bar after a delay
-//        mHideHandler.removeCallbacks(mShowPart2Runnable);
-//        mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-//    }
-//
-//    @SuppressLint("InlinedApi")
-//    private void show() {
-//        // Show the system bar
-//        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-//        mVisible = true;
-//
-//        // Schedule a runnable to display UI elements after a delay
-//        mHideHandler.removeCallbacks(mHidePart2Runnable);
-//        mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
-//    }
-
-//    /**
-//     * Schedules a call to hide() in delay milliseconds, canceling any
-//     * previously scheduled calls.
-//     */
-//    private void delayedHide(int delayMillis) {
-//        mHideHandler.removeCallbacks(mHideRunnable);
-//        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-//    }
 }

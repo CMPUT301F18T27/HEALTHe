@@ -435,7 +435,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     public void onClickBodyLocation(View view){
         Gson gson = new Gson();
-        Intent intent = new Intent(this, CommentActivity.class);
+        Intent intent = new Intent(this, SelectBodyLocationActivity.class);
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivityForResult(intent, BODYLOCATION_REQUEST_CODE);

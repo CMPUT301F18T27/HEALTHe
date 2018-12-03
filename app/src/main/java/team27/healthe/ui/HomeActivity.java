@@ -65,6 +65,7 @@ public class HomeActivity extends AppCompatActivity {
     private User current_user;
     private boolean doubleBackToExitPressedOnce = false;
     private ProblemListFragment problem_list_fragment;
+    private static final Integer BODY_REQUEST_CODE = 69;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -226,6 +227,15 @@ public class HomeActivity extends AppCompatActivity {
         }, 2000);
     }
 
+    @Override
+    protected void onActivityResult(int request, int result, Intent intent) {
+        if (request == BODY_REQUEST_CODE && result == RESULT_OK) {
+            UserElasticSearchController user_controller = new UserElasticSearchController();
+            String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+            current_user = user_controller.jsonToUser(user_json);
+        }
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -339,9 +349,10 @@ public class HomeActivity extends AppCompatActivity {
     }
   
     private void editBodyLocations(){
+        Gson gson = new Gson();
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
-        intent.putExtra("current_user", current_user.getUserid());
-        startActivity(intent);
+        intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        startActivityForResult(intent, BODY_REQUEST_CODE);
     }
 
     private class UpdateUser extends AsyncTask<User, Void, User> {

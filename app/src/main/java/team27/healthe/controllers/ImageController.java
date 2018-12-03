@@ -19,7 +19,7 @@ import team27.healthe.model.User;
  */
 public class ImageController {
     File file;
-    ArrayList<String> image_list;
+    ArrayList<File> image_list;
     UserElasticSearchController uesc;
     BodyLocationImageAdapter ia;
 
@@ -51,7 +51,7 @@ public class ImageController {
         return tmp.getAbsolutePath();
     }
 
-    public ArrayList<String> getImageList(){
+    public ArrayList<File> getImageList(){
         return image_list;
     }
 
@@ -60,8 +60,10 @@ public class ImageController {
      * server
      *
      * collects images from the associated user
-     * @param cur_user (Patient class
+
      */
+
+    /*
     public void refresh(Patient cur_user){
         if (cur_user == null){
             System.out.println("ERROR-- NO USER");
@@ -182,7 +184,7 @@ public class ImageController {
         @Override
         protected void onPostExecute(User user) {
             super.onPostExecute(user);
-            refresh((Patient)user);
+            //refresh((Patient)user);
             ia.notifyDataSetChanged();
         }
     }

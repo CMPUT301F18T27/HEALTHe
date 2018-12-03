@@ -1,6 +1,8 @@
 package team27.healthe.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -14,8 +16,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import org.elasticsearch.common.UUID;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -25,36 +36,58 @@ import java.util.Date;
 import team27.healthe.R;
 import team27.healthe.controllers.BodyLocationElasticSearchController;
 import team27.healthe.controllers.BodyLocationListener;
+import team27.healthe.controllers.BodyLocationPhotoElasticSearchController;
+import team27.healthe.controllers.LocalFileController;
+import team27.healthe.controllers.OfflineController;
+import team27.healthe.controllers.PhotoElasticSearchController;
+import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.BodyLocation;
 import team27.healthe.controllers.BodyLocationImageAdapter;
 import team27.healthe.controllers.ImageController;
+import team27.healthe.model.BodyLocationPhoto;
+import team27.healthe.model.Patient;
+import team27.healthe.model.Record;
+import team27.healthe.model.User;
 
 public class ViewBodyLocationsActivity extends AppCompatActivity implements BodyLocationListener {
-    ImageController ic;
     BodyLocationImageAdapter image_adapter;
-    ArrayList<String> image_list;
+    public static final String GET_LOCATION_MESSAGE = "team27.healthe.GET_LOCATION";
+    public static final String SET_FAB_MESSAGE = "team27.healthe.SET_FAB";
+    public static final String BODY_LOCATION_MESSAGE = "team27.healthe.BODY_LOCATION";
+
     private static final int MY_CAMERA_REQUEST_CODE = 100;
     private static final int MY_WRITE_EXTERNAL_REQUEST_CODE = 101;
     private static final int MY_READ_EXTERNAL_REQUEST_CODE = 102;
-    String current_user;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private Patient current_user;
+
+    private boolean set_fab;
+    private boolean get_location;
+
     BodyLocationElasticSearchController blesc;
     @Override
     public void recyclerViewClicked(View v, int i){
-        editLocation(image_list.get(i));
+        if (get_location) {
+            BodyLocationPhoto blp = current_user.getBodyLocations().get(i);
+
+            BodyLocation body_locatoin = new BodyLocation();
+            body_locatoin.setBodyLocationId(blp.getBodyLocationPhotoId());
+            body_locatoin.setLocation(blp.getBodyLocation());
+            launchEditLocation(body_locatoin);
+        } else {
+            requestTitle(current_user.getBodyLocations().get(i), true);
+        }
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getFromIntent();
+
 
         blesc = new BodyLocationElasticSearchController();
-        Intent intent = getIntent();
-
-        current_user = "";
-        if (intent.hasExtra("current_user")){
-            current_user = intent.getStringExtra("current_user");
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(Manifest.permission.CAMERA)
@@ -67,16 +100,6 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
                         MY_CAMERA_REQUEST_CODE);
             }
         }
-        if (intent.hasExtra("auto_photo")){
-            if(intent.getBooleanExtra("auto_photo", false)){
-                takePhoto();
-            }
-        }
-
-
-        ic = new ImageController(getApplicationContext(), "body_locations");
-        ic.refreshImageList(current_user);
-        image_list = ic.getImageList();
 
         setContentView(R.layout.activity_edit_body_locations);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -87,13 +110,17 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
 
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(),2);
         recyclerView.setLayoutManager(layoutManager);
-        image_adapter = new BodyLocationImageAdapter(getApplicationContext(), image_list, this);
-        ic.setImageAdapter(image_adapter);
+
+        image_adapter = new BodyLocationImageAdapter(getApplicationContext(), current_user.getBodyLocations(), this);
         recyclerView.setAdapter(image_adapter);
+        image_adapter.notifyDataSetChanged();
 
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if (!set_fab) {
+            fab.hide();
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,8 +136,17 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
 //        });
     }
 
+    private void getFromIntent() {
+        Intent intent = getIntent();
+        UserElasticSearchController controller = new UserElasticSearchController();
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
+        String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
+        current_user = (Patient) controller.jsonToUser(user_json);
+
+        set_fab = intent.getBooleanExtra(SET_FAB_MESSAGE, true);
+        get_location = intent.getBooleanExtra(GET_LOCATION_MESSAGE, false);
+
+    }
 
     private void takePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -119,83 +155,168 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         }
     }
 
-    private class GetBodyLocationTask extends AsyncTask<String, Void, BodyLocation> {
-
-        @Override
-        protected BodyLocation doInBackground(String... body_location_ids) {
-            BodyLocationElasticSearchController bles_controller =
-                    new BodyLocationElasticSearchController();
-            BodyLocation bl = null;
-            for (String bl_id : body_location_ids) {
-                System.out.println("Attempting to get body location for id: "+bl_id);
-                File temp = new File(bl_id);
-                bl = bles_controller.getBodyLocation(temp.getName());
-            }
-            return bl;
-        }
-        @Override
-        protected void onPostExecute(BodyLocation bl){
-            super.onPostExecute(null);
-
-            launchEditLocation(bl);
-        }
-    }
 
     private void launchEditLocation(BodyLocation bl){
-        Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
-
-        if (bl != null){
-            select_location.putExtra("x_loc", bl.getX());
-            select_location.putExtra("y_loc", bl.getY());
-            select_location.putExtra("file_name",ic.getAbsolutePath(bl.getBodyLocationId()));
-        }
-        else {
-            System.out.println("ERROR--body location was null from elasticsearch");
-        }
-
-
-        select_location.putExtra("current_user", current_user);
-        startActivity(select_location);
+        Gson gson = new Gson();
+        Intent returnIntent = new Intent();
+        setResult(RESULT_OK, returnIntent);
+        //returnIntent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+        returnIntent.putExtra(BODY_LOCATION_MESSAGE, gson.toJson(bl));
+        finish();
     }
 
-    private void editLocation(String file_name){
-        new GetBodyLocationTask().execute(file_name);
-    }
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent){
         if(request == REQUEST_IMAGE_CAPTURE && result == RESULT_OK){
+            LocalFileController file_controller = new LocalFileController();
+
             Bundle bundle = intent.getExtras();
             Bitmap image = (Bitmap) bundle.get("data");
-            String ts = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            String file_name = ic.saveImage(image, ts);
-            Intent select_location = new Intent(this,SelectBodyLocationActivity.class);
-            select_location.putExtra("file_name",file_name);
-            select_location.putExtra("current_user", current_user);
-            startActivity(select_location);
-            ic.refreshImageList(current_user);
 
-            image_adapter.notifyDataSetChanged();
+            String file_name = UUID.randomUUID().toString();
+            File image_file = file_controller.saveImage(image, file_name, this);
+            new AddPhoto().execute(image_file);
 
+            BodyLocationPhoto body_location_photo = new BodyLocationPhoto();
+            body_location_photo.setBodyLocationPhotoId(file_name);
+
+            requestTitle(body_location_photo, false);
         }
     }
 
+
     @Override
-
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == MY_CAMERA_REQUEST_CODE) {
-
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-
                 Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-
             } else {
-
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
 
+            }
+        }
+    }
+
+
+
+    private void requestTitle(final BodyLocationPhoto bl_p, final boolean allow_delete){
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Label Body Location");
+        dialog.setMessage("");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        //Add title for body location input
+        final TextView bloc_title = new TextView(this);
+        bloc_title.setText("Body Location: ");
+        layout.addView(bloc_title);
+
+        // Add a TextView for body location
+        final EditText bloc_text = new EditText(this);
+        bloc_text.setInputType(InputType.TYPE_CLASS_TEXT);
+        ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ((LinearLayout.LayoutParams) params).setMargins(0,0,0,64);
+        bloc_text.setLayoutParams(params);
+        bloc_text.setText(bl_p.getBodyLocation());
+        layout.addView(bloc_text); // Notice this is an add method
+
+
+        dialog.setView(layout); // Again this is a set method, not add
+
+        dialog.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                if (allow_delete) {
+                    current_user.removeBodyLocationPhoto(bl_p);
+                }
+
+                Toast.makeText(getApplicationContext(), "Adding Body Location", Toast.LENGTH_SHORT).show();
+                bl_p.setBodyLocation(bloc_text.getText().toString());
+                current_user.addBodyLocation(bl_p);
+
+                LocalFileController file_controller = new LocalFileController();
+                file_controller.saveUserInFile(current_user, getApplicationContext());
+                new UpdateUser().execute(current_user);
+
+                image_adapter.notifyDataSetChanged();
+
+                if (!get_location) {
+                    Gson gson = new Gson();
+                    Intent returnIntent = new Intent();
+                    setResult(RESULT_OK, returnIntent);
+                    returnIntent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
+                }
+
+            }
+        });
+
+        if (allow_delete) {
+            dialog.setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    current_user.removeBodyLocationPhoto(bl_p);
+
+                    LocalFileController file_controller = new LocalFileController();
+                    file_controller.saveUserInFile(current_user, getApplicationContext());
+                    new UpdateUser().execute(current_user);
+
+                    image_adapter.notifyDataSetChanged();
+                }
+            });
+        }
+        dialog.show();
+    }
+
+
+
+    private class UpdateUser extends AsyncTask<User, Void, User> {
+
+        @Override
+        protected User doInBackground(User... users) {
+            UserElasticSearchController es_controller = new UserElasticSearchController();
+            for (User user : users) {
+                if(!es_controller.addUser(user)) {
+                    return user;
+                }
+                return null;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(User user) {
+            super.onPostExecute(user);
+            if(user != null) {
+                OfflineController offline_controller = new OfflineController();
+                offline_controller.addUser(user, getApplicationContext());
+            }
+        }
+    }
+
+    private class AddPhoto extends AsyncTask<File, Void, File> {
+
+        @Override
+        protected File doInBackground(File... files) {
+            PhotoElasticSearchController photo_controller = new PhotoElasticSearchController();
+
+            for (File file : files) {
+                String file_name = file.getName();
+                boolean succeeded = photo_controller.addPhoto(file, file_name.substring(0, file_name.length() - 4));
+                if (!succeeded) {
+                    return file;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(File file) {
+            super.onPostExecute(file);
+            if (file != null) {
+                OfflineController controller = new OfflineController();
+                controller.addPhoto(file, getApplicationContext());
             }
         }
     }

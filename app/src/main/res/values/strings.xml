@@ -29,7 +29,7 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="action_settings">Logout</string>
     <string name="action_edit">Edit Profile</string>
-    <string name="string_action_body_locations">Body Locations</string>
+    <string name="string_action_body_locations">BodyLocations</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="home_phone">Phone number:</string>
     <string name="profile_loading">Loading...</string>
