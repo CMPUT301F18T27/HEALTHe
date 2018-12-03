@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for showing and setting record geo-location
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;

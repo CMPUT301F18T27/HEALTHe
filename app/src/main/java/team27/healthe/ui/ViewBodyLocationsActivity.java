@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for adding and deleting body location photos
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -137,6 +139,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
 //        });
     }
 
+    // Get items passed in intent
     private void getFromIntent() {
         Intent intent = getIntent();
         UserElasticSearchController controller = new UserElasticSearchController();
@@ -151,6 +154,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
 
     }
 
+    // Function for calling photo capture activity
     private void takePhoto() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -158,7 +162,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         }
     }
 
-
+    // Set return intent
     private void launchEditLocation(BodyLocation bl){
         Gson gson = new Gson();
         Intent returnIntent = new Intent();
@@ -168,6 +172,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         finish();
     }
 
+    // Check if photo files exist, if not load them from elastic search
     private void getPhotos() {
         for (BodyLocationPhoto body_photo : current_user.getBodyLocations()) {
             String file_name = this.getFilesDir() + File.separator + body_photo.getBodyLocationPhotoId() + ".jpg";
@@ -214,7 +219,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
     }
 
 
-
+    // Show dialog for setting body location title
     private void requestTitle(final BodyLocationPhoto bl_p, final boolean allow_delete){
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Label Body Location");
@@ -286,7 +291,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
     }
 
 
-
+    // Async class for updating user in elastic search
     private class UpdateUser extends AsyncTask<User, Void, User> {
 
         @Override
@@ -311,6 +316,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         }
     }
 
+    // Async class for adding photo to elastic search
     private class AddPhoto extends AsyncTask<File, Void, File> {
 
         @Override
@@ -337,6 +343,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         }
     }
 
+    // Async class for getting photo from elastic search
     private class GetPhoto extends AsyncTask<String, Void, Boolean> {
 
         @Override
@@ -359,6 +366,7 @@ public class ViewBodyLocationsActivity extends AppCompatActivity implements Body
         }
     }
 
+    // Async class for deleting photo from elastic search
     private class DeletePhoto extends AsyncTask<String, Void, Void> {
 
         @Override

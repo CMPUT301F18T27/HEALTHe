@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for showing body location point and selecting body location point on body location photo
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -95,7 +97,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public boolean onTouch(View v, MotionEvent event) { // On touch listener for body location photo
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     if (setPoint) {
                         LocalFileController file_controller = new LocalFileController();
@@ -117,6 +119,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
     }
 
+    // Change visibility of UI elements
     private void setUI() {
         if (image_file.exists()) {
             TextView no_body_location = (TextView) findViewById(R.id.textNoBodyLocation);
@@ -140,6 +143,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
     }
 
+    // Get items from intent
     private void getFromIntent() {
         Intent intent = getIntent();
         UserElasticSearchController controller = new UserElasticSearchController();
@@ -154,6 +158,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
 
     }
 
+    // Draw the body location point on the photo
     private void drawPoint() {
         Bitmap myBitmap = BitmapFactory.decodeFile(image_file.getAbsolutePath());
         float x_location = record.getBodyLocation().getX();
@@ -180,7 +185,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
     }
 
-
+    // Account for image position on screen when selecting body location point location
     private float posScale(float val, float max, String orientation){
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -196,6 +201,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         return 0;
     }
 
+    // onClick of set body location button
     public void onClickSetBodyLocation(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, ViewBodyLocationsActivity.class);
@@ -205,6 +211,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_BODY_LOCATION_CODE);
     }
 
+    // onClick for set point button
     public void onCLickSetPoint(View view) {
         setPoint = true;
         Toast.makeText(getApplicationContext(), "Touch photo to set reference point", Toast.LENGTH_SHORT).show();
@@ -230,6 +237,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
     }
 
+    // Set the return intent values
     private void updateReturnIntent() {
         Gson gson = new Gson();
         Intent returnIntent = new Intent();
@@ -237,6 +245,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         returnIntent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
     }
 
+    // Async class for updating records in elastic search
     private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -261,6 +270,7 @@ public class SelectBodyLocationActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for getting a photo from elastic search
     private class GetPhoto extends AsyncTask<String, Void, Boolean> {
 
         @Override

@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for displaying record info
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -126,7 +128,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) { // Record has been passed back from comments, geo location, photo or body location activity
         if (requestCode == GEO_REQUEST_CODE || requestCode == COMMENT_REQUEST_CODE || requestCode == PHOTO_REQUEST_CODE || requestCode == BODYLOCATION_REQUEST_CODE) {
             if(resultCode == RESULT_OK){
                 Gson gson = new Gson();
@@ -136,6 +138,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // If permission granted for body sensors update buttons
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == 121) {
@@ -146,6 +149,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    // Set get heart rate sensor button as visible if phone has a heart rate sensor
     private void setButtons() {
         Button heart_button = findViewById(R.id.buttonHeartRate);
         this.sensor_manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -156,6 +160,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // Get items passed in intent
     private void getItems(Intent intent) {
         UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
@@ -167,6 +172,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         this.record = gson.fromJson(record_json, Record.class);
     }
 
+    // Set text views with record info
     private void setTextViews() {
         TextView title = (TextView) findViewById(R.id.recordTitle);
         TextView date = (TextView) findViewById(R.id.recordDate);
@@ -184,6 +190,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // Show dialog for editing record info
     private void editRecord() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -266,6 +273,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+    // Show date time picker for selecting dat
     private void showDateTimePicker(final TextView date_textview) {
         //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
         final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
@@ -292,6 +300,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+    // Get record from local files
     private void getLocalRecord() {
         LocalFileController file_controller = new LocalFileController();
         Record temp_record = file_controller.loadRecordFromFile(record.getRecordID(), getApplicationContext());
@@ -301,6 +310,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // Decide how to get record
     private void getRecord() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
@@ -315,6 +325,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // If network connected
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -325,6 +336,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         return false;
     }
 
+    // On heart rate sensor value read
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         TextView heart_rate_text = findViewById(R.id.textHeartRate);
@@ -340,6 +352,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+    // If accuracy changed on heart rate sensor vibrate phone
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -377,7 +390,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
-
+    // Async class for updating record in elastic search server
     private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -402,6 +415,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // Async class for performing offline controller tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override
@@ -416,6 +430,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         }
     }
 
+    // onCLick for comment button
     public void onClickComments(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, CommentActivity.class);
@@ -424,6 +439,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         startActivityForResult(intent, COMMENT_REQUEST_CODE);
     }
 
+    // onClick for photo button
     public void onClickPhotos(View view){
         Gson gson = new Gson();
         Intent intent = new Intent(this, SlideshowActivity.class);
@@ -433,6 +449,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+    // onClick for body location button
     public void onClickBodyLocation(View view){
         Gson gson = new Gson();
         Intent intent = new Intent(this, SelectBodyLocationActivity.class);
@@ -442,6 +459,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
 
     }
 
+    // onClick for geo location button
     public void onClickGeoLocation(View view) {
         Gson gson = new Gson();
         Intent intent = new Intent(this, GeoLocationActivity.class);
@@ -450,6 +468,7 @@ public class RecordActivity extends AppCompatActivity implements SensorEventList
         startActivityForResult(intent, GEO_REQUEST_CODE);
     }
 
+    // onClick for heart rate button
     public void onClickHeartButton(View view) {
         if (heart_sensor != null) {
             Toast.makeText(getApplicationContext(), "Place and hold your finger on the heart rate sensor, it may take a while to get a reading.", Toast.LENGTH_LONG).show();

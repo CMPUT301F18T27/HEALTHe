@@ -17,6 +17,10 @@ import team27.healthe.R;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
 
+/**
+ * Gets a list of records and problems as a search result
+ * @author Chase
+ */
 public class SearchResultsAdapter extends ArrayAdapter<String> {
 
     private final Activity context;
@@ -29,7 +33,14 @@ public class SearchResultsAdapter extends ArrayAdapter<String> {
         this.results = search_results;
     }
 
-    // Called for each row/item in the ListView
+    /**
+     * Returns the view of the search results
+     * Called for each row/item in the ListView
+     * @param position (int)
+     * @param view (View)
+     * @param parent (ViewGroup)
+     * @return
+     */
     public View getView (int position, View view, ViewGroup parent) {
         String hit = getItem(position); // get hit item at current location
 
@@ -57,7 +68,10 @@ public class SearchResultsAdapter extends ArrayAdapter<String> {
         return list_row; // return the view(row)
     }
 
-    // Recreates the ListView when changes have been made to the list of emotions
+    /**
+     * Refreshes the view when a change is made
+     * @param search_results (array list of search results)
+     */
     public void refresh(ArrayList<String> search_results) {
         this.results = search_results;
         notifyDataSetChanged();

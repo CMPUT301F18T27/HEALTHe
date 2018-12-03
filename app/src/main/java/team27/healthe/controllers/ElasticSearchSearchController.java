@@ -11,9 +11,18 @@ import org.elasticsearch.search.sort.SortOrder;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 
-// For performing searches with elastic search
-public class ElasticSearchSearchController extends ElasticSearchController {
 
+
+/**
+ * This is for performing searches with the elastic search
+ * @author Chase
+ */
+public class ElasticSearchSearchController extends ElasticSearchController {
+    /**
+     * This is the function used to search terms for a general search
+     * @param terms (These are the search terms that were entered by the user)
+     * @return (client.execute(search))  returns the search items
+     */
     public SearchResult searchGeneral(String terms) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.multiMatchQuery(terms, "title", "description"));
@@ -33,6 +42,13 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         }
     }
 
+    /**
+     * This is the function that searches for Geo-Location related searches
+     * @param lat (you must put in a lat)
+     * @param lon (you must put in a lon)
+     * @param distance (enter a distance of a radius you want to search in)
+     * @return (result)
+     */
     public SearchResult searchGeoLocation(Double lat, Double lon, Double distance) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.matchAllQuery());
@@ -45,7 +61,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 // multiple index or types can be added.
                 .addIndex(test_index)
-                //.addType(problem_type)
+
                 .addType(record_type)
                 .build();
 
@@ -60,6 +76,11 @@ public class ElasticSearchSearchController extends ElasticSearchController {
 
     }
 
+    /**
+     * Function used to search body locations
+     * @param terms (these are the search terms that were entered)
+     * @return (client.execute(search)) returns the search items
+     */
     public SearchResult searchBodyLocation(String terms) {
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
         searchSourceBuilder.query(QueryBuilders.multiMatchQuery(terms, "bodyLocation.body_string"));
@@ -68,7 +89,7 @@ public class ElasticSearchSearchController extends ElasticSearchController {
         Search search = new Search.Builder(searchSourceBuilder.toString())
                 // multiple index or types can be added.
                 .addIndex(test_index)
-                //.addType(problem_type)
+
                 .addType(record_type)
                 .build();
         try {

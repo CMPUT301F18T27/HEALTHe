@@ -15,18 +15,30 @@ import java.util.ArrayList;
 
 /**
  * adapter for filling in list view with problem information (and allow selection)
- * @author [fill in]
+ * @author Cody/Chase
  */
 public class ProblemsAdapter extends ArrayAdapter<Problem> {
     private Context context;
     private ArrayList<Problem> recordedProblems;
 
+    /**
+     * Gets the context and list of problems to do with the context
+     * @param context (Context class)
+     * @param recordedProblems (Array list of problems)
+     */
     public ProblemsAdapter (Context context, ArrayList<Problem> recordedProblems) {
         super(context, 0, recordedProblems);
         this.context = context;
         this.recordedProblems = recordedProblems;
     }
 
+    /**
+     * Gets the view of the problems
+     * @param position (int)
+     * @param convertView (View)
+     * @param parent (ViewGroup)
+     * @return listItem
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View listItem = convertView;
@@ -48,6 +60,10 @@ public class ProblemsAdapter extends ArrayAdapter<Problem> {
         return listItem;
     }
 
+    /**
+     * Refreshes the view when an item is changed
+     * @param problems (ArrayList of problems)
+     */
     public void refresh(ArrayList<Problem> problems) {
         this.recordedProblems = problems;
         notifyDataSetChanged();

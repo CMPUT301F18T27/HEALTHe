@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for displaying search results
+
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,6 +50,7 @@ public class SearchResultsActivity extends AppCompatActivity {
 
     }
 
+    // Get items from intent
     private void getFromIntent() {
         Intent intent = getIntent();
         UserElasticSearchController es_controller = new UserElasticSearchController();
@@ -57,6 +60,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         this.current_user = es_controller.jsonToUser(user_json);
     }
 
+    // View selected search result and call proper activity
     private void viewSearchRsult(String json_string) {
         Gson gson = new Gson();
         Map hit_map = gson.fromJson(json_string, Map.class);

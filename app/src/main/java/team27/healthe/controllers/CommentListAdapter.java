@@ -13,7 +13,8 @@ import team27.healthe.R;
 import team27.healthe.model.Comment;
 
 /**
- * @author [fill in]
+ * Comment adapter for holding comments in a ListView
+ * @author Cody
  */
 public class CommentListAdapter extends ArrayAdapter<Comment> {
     private final Activity context;
@@ -26,7 +27,13 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
         this.comments = comments;
     }
 
-    // Called for each row/item in the ListView
+    /**
+     * gets the list view and called for each row and item in the listview
+     * @param position (int)
+     * @param view (the view)
+     * @param parent
+     * @return (list_row) returns the view of the row
+     */
     public View getView (int position, View view, ViewGroup parent) {
         Comment comment = getItem(position); // get patient at current position
 
@@ -44,7 +51,10 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
         return list_row; // return the view(row)
     }
 
-    // Recreates the ListView when changes have been made to the list of emotions
+    /**
+     * recreates the listview when changes are made
+     * @param comments (list of comments)
+     */
     public void refresh(ArrayList<Comment> comments) {
         this.comments = comments;
         notifyDataSetChanged();

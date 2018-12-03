@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Fragment for displaying problems in a list
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -137,6 +139,7 @@ public class ProblemListFragment extends Fragment {
         getProblems();
     }
 
+    // Show dialog for adding a problem
     public void addProblem() {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
         AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
@@ -237,6 +240,7 @@ public class ProblemListFragment extends Fragment {
 
     }
 
+    // Show date time picker for setting date
     private void showDateTimePicker(final TextView date_textview) {
         //Taken from: https://stackoverflow.com/questions/2055509/datetime-picker-in-android-application
         final Calendar date;

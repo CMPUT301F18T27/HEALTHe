@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for taking a record photo
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -89,6 +91,7 @@ public class PhotoActivity extends AppCompatActivity {
         */
     }
 
+    // onCLick for save button
     public void onClickSave (View view) {
         if(saving){return;} // If saving is in progress do nothing
 
@@ -122,6 +125,7 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
+    // Compress bitmap and save to file
     private Bitmap compressImage(Bitmap photo_bitmap) {
         try {
 
@@ -142,6 +146,7 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
+    // Re-orientated photo when photo was saved to file sideways
     private Bitmap orientatePhoto(Bitmap photo) {
         // Taken from: https://stackoverflow.com/questions/14066038/why-does-an-image-captured-using-camera-intent-gets-rotated-on-some-devices-on-a
         try {
@@ -175,6 +180,7 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
+    // Perform rotation for orientatePhoto
     public static Bitmap rotateImage(Bitmap source, float angle) {
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
@@ -182,6 +188,7 @@ public class PhotoActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+    // Get directory for saving image
     private File getOutputMediaFile(){
         File mediaStorageDir = this.getFilesDir();
         if (mediaStorageDir == null) {
@@ -193,6 +200,7 @@ public class PhotoActivity extends AppCompatActivity {
         return filename;
     }
 
+    // Async class for adding photo to elastic search
     private class AddPhoto extends AsyncTask<File, Void, Boolean> {
 
         @Override

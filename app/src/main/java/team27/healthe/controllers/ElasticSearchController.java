@@ -6,7 +6,7 @@ import com.searchly.jestdroid.JestDroidClient;
 
 /**
  * Generic controller for handling interactions between the elasticsearch server
- * @author [fill in]
+ * @author Chase
  */
 public abstract class ElasticSearchController {
     protected static JestDroidClient client;

@@ -26,10 +26,15 @@ import team27.healthe.model.ElasticSearchPhoto;
 
 /**
  * Class for add/edit/delete operations for Photo objects from the Elasticsearch server
- * @author [fill in]
+ * @author Cody
  */
 public class PhotoElasticSearchController extends ElasticSearchController{
-
+    /**
+     * Gets the photo from elastic search
+     * @param id (String)
+     * @param context (Context class)
+     * @return true or false
+     */
     public boolean getPhoto(String id, Context context) {
         verifyClient();
         Get get = new Get.Builder(test_index, id).type(photo_type).build();
@@ -51,6 +56,13 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         return false;
     }
 
+    /**
+     * Adds photo to elastic search
+     * Using JSON
+     * @param photo (File)
+     * @param id (String)
+     * @return result.isSucceeded()
+     */
     public boolean addPhoto(File photo, String id) {
         verifyClient();
 
@@ -71,6 +83,11 @@ public class PhotoElasticSearchController extends ElasticSearchController{
 
     }
 
+    /**
+     * Deletes a photo from elasticsearch
+     * @param id (String)
+     * @return result.isSucceeded()
+     */
     public boolean deletePhoto(String id) {
         verifyClient();
         try{
@@ -85,6 +102,11 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         }
     }
 
+    /**
+     * Encodes photo files to base 64
+     * @param file (File)
+     * @return encoded_file
+     */
     private static String encodeFileToBase64(File file){
         String encoded_file = null;
         try {
@@ -98,6 +120,13 @@ public class PhotoElasticSearchController extends ElasticSearchController{
         return encoded_file;
     }
 
+    /**
+     * Decodes photo files from base 64
+     * @param base64_photo (String)
+     * @param id (String)
+     * @param context (Context class)
+     * @return true or false
+     */
     private boolean decodeFromBase64(String base64_photo, String id, Context context) {
         File storage_directory = context.getFilesDir();
         if (storage_directory == null) {

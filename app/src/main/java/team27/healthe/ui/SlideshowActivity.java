@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+// Activity for showing a slideshow of record photos
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -86,6 +88,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Get items from intent
     private void getItems(Intent intent) {
         UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
@@ -98,6 +101,7 @@ public class SlideshowActivity extends AppCompatActivity {
 
     }
 
+    // Get photo files from local directory
     private void getFiles() {
         image_files = new ArrayList<>();
         File media_directory = getMediaDirectory();
@@ -114,6 +118,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Check for network connectivity
     private boolean isNetworkConnected() {
         ConnectivityManager conn_mgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo network_info = conn_mgr.getActiveNetworkInfo();
@@ -124,7 +129,7 @@ public class SlideshowActivity extends AppCompatActivity {
         return false;
     }
 
-
+    // Check if offline controller has tasks
     private void checkTasks() {
         if (isNetworkConnected()) {
             OfflineController controller = new OfflineController();
@@ -134,6 +139,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Set the image view
     private void setImage() {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         TextView no_photos_text = (TextView) findViewById(R.id.noPhotosTextView);
@@ -165,10 +171,12 @@ public class SlideshowActivity extends AppCompatActivity {
 
     }
 
+    // get local file directory
     private File getMediaDirectory() {
         return this.getFilesDir();
     }
 
+    // Async class for getting photo from elastic search
     private class GetPhoto extends AsyncTask<Photo, Void, String> {
 
         @Override
@@ -197,6 +205,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for updating records in elastic search
     private class UpdateRecord extends AsyncTask<Record, Void, Record> {
 
         @Override
@@ -220,6 +229,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Async class for performing offline controller tasks
     private class PerformTasks extends AsyncTask<Boolean, Void, Void> {
 
         @Override
@@ -234,6 +244,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Set next and prev button visibilities
     private void updateButtons() {
         Button next_button = (Button) findViewById(R.id.buttonNext);
         if (image_index < image_files.size() - 1) {
@@ -244,6 +255,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // Set return intent
     private void setIntent() {
         Gson gson = new Gson();
         Intent returnIntent = new Intent();
@@ -251,7 +263,7 @@ public class SlideshowActivity extends AppCompatActivity {
         returnIntent.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(record));
     }
 
-
+    // onClick previous button
     public void onClickPrev(View view) {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         Button next_button = (Button) findViewById(R.id.buttonNext);
@@ -265,6 +277,7 @@ public class SlideshowActivity extends AppCompatActivity {
         }
     }
 
+    // onClick next button
     public void onClickNext(View view) {
         ImageView image_view = (ImageView) findViewById(R.id.slideshowImage);
         Button next_button = (Button) findViewById(R.id.buttonNext);
@@ -279,6 +292,7 @@ public class SlideshowActivity extends AppCompatActivity {
 
     }
 
+    // onClick for add photo button
     public void onClickAddPhoto(View view) {
         if (record.getPhotos().size() <= 10) {
             Gson gson = new Gson();

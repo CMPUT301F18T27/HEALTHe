@@ -25,7 +25,7 @@ import team27.healthe.model.User;
 /**
  * Local File access for handling operations involving storing/retrieving from local file
  * using JSON
- * @author Chase
+ * @author Chase/Cody
  */
 public class LocalFileController {
     private static final String USER_FILENAME = "user";
@@ -176,11 +176,22 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Saves record in the file
+     * @param record (Record class)
+     * @param context (Context class)
+     */
     public static void saveRecordInFile(Record record, Context context) {
         Gson gson = new Gson();
         saveStringInFile(gson.toJson(record), record.getRecordID(), context);
     }
 
+    /**
+     * This loads a list of records from the file
+     * @param problem (Problem class)
+     * @param context (Context class)
+     * @return records (class)
+     */
     public static ArrayList<Record> loadRecordsFromFile(Problem problem, Context context) {
         ArrayList<Record> records = new ArrayList<>();
         for (String record_id: problem.getRecords()) {
@@ -192,6 +203,12 @@ public class LocalFileController {
         return records;
     }
 
+    /**
+     * This loads a single record from a file
+     * @param record_id (String)
+     * @param context (Context class)
+     * @return gson.fromJson(record_json, Record.class)
+     */
     public static Record loadRecordFromFile(String record_id, Context context) {
         try {
             Gson gson = new Gson();
@@ -204,6 +221,12 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Loads string to a file
+     * @param filename (String)
+     * @param context (Context class)
+     * @return file_string
+     */
     private static String getStringFromFile(String filename, Context context) {
         try {
             FileInputStream fis = context.openFileInput(filename + FILE_TYPE);
@@ -220,6 +243,10 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Deletes all files in a local directory
+     * @param context (Context class)
+     */
     public void deleteAllFiles(Context context) {
         String path = context.getFilesDir().getAbsolutePath(); // Path to local files directory
         File directory = new File(path);
@@ -231,6 +258,12 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Saves string to a file
+     * @param string_to_save (String)
+     * @param filename (String)
+     * @param context (Context class)
+     */
     private static void saveStringInFile(String string_to_save ,String filename, Context context) {
         try {
             FileOutputStream fos = context.openFileOutput(filename + FILE_TYPE, Context.MODE_PRIVATE);
@@ -241,6 +274,11 @@ public class LocalFileController {
         }
     }
 
+    /**
+     * Gets the body location file
+     * @param c (Context class)
+     * @return (file)
+     */
     public static File getBodyLocationFile(Context c){
         File file = new File(c.getFilesDir().getAbsolutePath());
         if (!file.exists()){
@@ -252,6 +290,13 @@ public class LocalFileController {
 
     }
 
+    /**
+     * Saves and compresses an image
+     * @param bitmap (bitmap)
+     * @param file_name (String)
+     * @param context (Context class)
+     * @return File(photo_file_name)
+     */
     public File saveImage(Bitmap bitmap, String file_name, Context context) {
         String photo_file_name = context.getFilesDir().getAbsolutePath() + File.separator + file_name + ".jpg";
         try {
@@ -267,6 +312,11 @@ public class LocalFileController {
         return new File(photo_file_name);
     }
 
+    /**
+     * Deletes an image
+     * @param image_id (String)
+     * @param context (Context)
+     */
     public void deleteImage(String image_id, Context context) {
         String photo_file_name = context.getFilesDir().getAbsolutePath() + File.separator + image_id + ".jpg";
         File image = new File(photo_file_name);

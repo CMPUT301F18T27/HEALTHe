@@ -1,5 +1,7 @@
 package team27.healthe.ui;
 
+//Unused fragment
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
