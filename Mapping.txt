@@ -1,12 +1,28 @@
 This is the elastic search record mapping needed for geo search to work
 
 
-put - http://es2.softwareprocess.ca:8080/cmput301f18t27test/record/_mapping
-put - http://cmput301.softwareprocess.es:8080/cmput301f18t27test/record/_mapping
+put - http://cmput301.softwareprocess.es:8080/cmput301f18t27/record/_mapping
+
 
 {
   "record": {
     "properties": {
+      "bodyLocation": {
+        "properties": {
+          "body_location_id": {
+            "type": "string"
+          },
+          "body_string": {
+            "type": "string"
+          },
+          "x_location": {
+            "type": "double"
+          },
+          "y_location": {
+            "type": "double"
+          }
+        }
+      },
       "description": {
         "type": "string"
       },
@@ -27,6 +43,13 @@ put - http://cmput301.softwareprocess.es:8080/cmput301f18t27test/record/_mapping
       },
       "heart_rate": {
         "type": "string"
+      },
+      "photos": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
       },
       "rdate": {
         "type": "string"
