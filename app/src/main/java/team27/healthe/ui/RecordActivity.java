@@ -1,22 +1,32 @@
 package team27.healthe.ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
@@ -25,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -36,10 +47,11 @@ import team27.healthe.controllers.OfflineController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
 import team27.healthe.model.CareProvider;
+import team27.healthe.model.Patient;
 import team27.healthe.model.Record;
 import team27.healthe.model.User;
 
-public class RecordActivity extends AppCompatActivity {
+public class RecordActivity extends AppCompatActivity implements SensorEventListener {
     public static final String RECORD_MESSAGE = "team27.healthe.RECORD";
     private static final Integer GEO_REQUEST_CODE = 4;
     private static final Integer COMMENT_REQUEST_CODE = 5;
@@ -47,6 +59,8 @@ public class RecordActivity extends AppCompatActivity {
     private static final Integer BODYLOCATION_REQUEST_CODE = 7;
     private User current_user;
     private Record record;
+    private SensorManager sensor_manager;
+    private Sensor heart_sensor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +73,31 @@ public class RecordActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        if (current_user instanceof Patient) {
+            if (checkSelfPermission(Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 121);
+            } else {
+                setButtons();
+            }
+        }
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         getRecord();
+    }
+
+    @Override
+    public void onPause() {
+        try {
+            sensor_manager.unregisterListener(this);
+        } catch (Exception e) {
+            // There was no listener to unregister
+        }
+        super.onPause();
     }
 
     @Override
@@ -103,6 +136,26 @@ public class RecordActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 121) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                setButtons();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void setButtons() {
+        Button heart_button = findViewById(R.id.buttonHeartRate);
+        this.sensor_manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        heart_sensor = sensor_manager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        if (heart_sensor != null) {
+            heart_button.setVisibility(heart_button.VISIBLE);
+        }
+    }
+
     private void getItems(Intent intent) {
         UserElasticSearchController es_controller = new UserElasticSearchController();
         Gson gson = new Gson();
@@ -118,10 +171,17 @@ public class RecordActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.recordTitle);
         TextView date = (TextView) findViewById(R.id.recordDate);
         TextView description = (TextView) findViewById(R.id.recordDescription);
+        TextView heart_rate_title = (TextView) findViewById(R.id.textHeartTitle);
+        TextView heart_rate = (TextView) findViewById(R.id.textHeartRate);
 
         title.setText(record.getTitle());
         date.setText(record.getRdate().toString());
         description.setText(record.getDescription());
+        if (record.getHeartRate() != null) {
+            heart_rate.setText(record.getHeartRate());
+            heart_rate.setVisibility(heart_rate.VISIBLE);
+            heart_rate_title.setVisibility(heart_rate_title.VISIBLE);
+        }
     }
 
     private void editRecord() {
@@ -265,6 +325,32 @@ public class RecordActivity extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        TextView heart_rate_text = findViewById(R.id.textHeartRate);
+
+        if (sensorEvent.values[0] != 0) { // If heart rate registered
+            Toast.makeText(getApplicationContext(), "Heart rate registered", Toast.LENGTH_SHORT).show();
+            heart_rate_text.setText(Math.round(sensorEvent.values[0]) + " bpm");
+            sensor_manager.unregisterListener(this, heart_sensor);
+            record.setHeartRate(Math.round(sensorEvent.values[0]) + " bpm");
+            new UpdateRecord().execute(record);
+            setTextViews();
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            vibrator.vibrate(100);
+        }
+    }
+
     // Async class for getting records from elastic search server
     private class getRecordAsync extends AsyncTask<String, Void, Record> {
 
@@ -362,6 +448,13 @@ public class RecordActivity extends AppCompatActivity {
         intent.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(current_user));
         intent.putExtra(RECORD_MESSAGE, gson.toJson(record));
         startActivityForResult(intent, GEO_REQUEST_CODE);
+    }
+
+    public void onClickHeartButton(View view) {
+        if (heart_sensor != null) {
+            Toast.makeText(getApplicationContext(), "Place and hold your finger on the heart rate sensor, it may take a while to get a reading.", Toast.LENGTH_LONG).show();
+            sensor_manager.registerListener(this, heart_sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        }
     }
 
 }

@@ -21,6 +21,7 @@ public class Record {
     private GeoLocation geoLocation;
     private ArrayList<Photo> photos;
     private String record_id;
+    private String heart_rate;
 
     public Record(String ttl, Date date, String desc, ArrayList<Comment> comments,
                   BodyLocation bodyLoc, GeoLocation geoLoc, ArrayList<Photo> images) {
@@ -135,5 +136,9 @@ public class Record {
     public void setRecordID(String rid){
         record_id = rid;
     }
+
+    public void setHeartRate(String rate) {this.heart_rate = rate;}
+
+    public String getHeartRate() {return this.heart_rate;}
 
 }
