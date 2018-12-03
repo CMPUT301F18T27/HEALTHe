@@ -32,7 +32,9 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.searchbox.core.SearchResult;
 import team27.healthe.R;
@@ -105,13 +107,13 @@ public class HomeActivity extends AppCompatActivity {
         SearchView search_view = (SearchView) search_item.getActionView();
         search_view.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public boolean onQueryTextSubmit(final String s) {
+            public boolean onQueryTextSubmit(final String search_string) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
                 builder.setTitle("Search")
                         .setMessage("What would you like to search for?")
                         .setPositiveButton("General", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                new SearchGeneral().execute(s);
+                                new SearchGeneral().execute(search_string);
                             }
                         })
                         .setNegativeButton("Body Location", new DialogInterface.OnClickListener() {
@@ -122,7 +124,25 @@ public class HomeActivity extends AppCompatActivity {
                         .setNeutralButton("Geo Location", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                new SearchGeoLocation().execute(s);
+                                String[] string_inputs = search_string.split(" ");
+                                Map<String, Double> inputs = new HashMap();
+                                try {
+                                    Double lat = Double.parseDouble(string_inputs[0]);
+                                    Double lon = Double.parseDouble(string_inputs[1]);
+                                    inputs.put("lat", lat);
+                                    inputs.put("lon", lon);
+                                    inputs.put("distance", 100.0);
+
+                                    if (string_inputs.length >= 3) {
+                                        Double distance = Double.parseDouble(string_inputs[2]);
+                                        inputs.put("distance", distance);
+                                    }
+
+                                    new SearchGeoLocation().execute(inputs);
+
+                                } catch (Exception e) {
+                                    Toast.makeText(getApplicationContext(), "Please input a latitude, longitude and optional search radius(km) separated by spaces", Toast.LENGTH_LONG).show();
+                                }
                             }
                         })
                         .show();
@@ -373,13 +393,13 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private class SearchGeoLocation extends AsyncTask<String, Void, SearchResult> {
+    private class SearchGeoLocation extends AsyncTask<Map<String, Double>, Void, SearchResult> {
 
         @Override
-        protected SearchResult doInBackground(String... terms) {
+        protected SearchResult doInBackground(Map<String, Double>... input_maps) {
             ElasticSearchSearchController es_controller = new ElasticSearchSearchController();
-            for(String term:terms) {
-                return es_controller.searchGeoLocation(53.5, -113.5, 100.0);
+            for(Map<String, Double> inputs : input_maps) {
+                return es_controller.searchGeoLocation(inputs.get("lat"), inputs.get("lon"), inputs.get("distance"));
             }
             return null;
         }
