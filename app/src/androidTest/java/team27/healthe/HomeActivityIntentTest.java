@@ -55,6 +55,9 @@ public class HomeActivityIntentTest {
         waitForES();
 
         try{
+            openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
+            onView(withText(containsString("Logout"))).perform(click());
+            waitForES();
             onView(withId(R.id.loginIdText))
                     .perform(typeText("johnsmith"));
             onView(withId(R.id.loginButton))
@@ -85,6 +88,9 @@ public class HomeActivityIntentTest {
         waitForES();
 
         try{
+            openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getTargetContext());
+            onView(withText(containsString("Logout"))).perform(click());
+            waitForES();
             onView(withId(R.id.loginIdText))
                     .perform(typeText("johnsmith"));
             onView(withId(R.id.loginButton))
