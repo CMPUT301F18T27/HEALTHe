@@ -15,14 +15,11 @@ import java.util.Date;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
-import team27.healthe.model.Comment;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
-import team27.healthe.ui.CommentActivity;
-import team27.healthe.ui.LoginActivity;
-import team27.healthe.ui.ProfileActivity;
 import team27.healthe.ui.RecordActivity;
+import team27.healthe.ui.RecordListActivity;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -31,15 +28,15 @@ import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCom
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.CoreMatchers.anything;
 
-public class CommentActivityIntentTesting {
+public class RecordListActivityIntentTest {
 
     private Patient p;
     private Problem pr;
     private Record r;
 
     @Rule
-    public IntentsTestRule<CommentActivity> intentsTestRule =
-            new IntentsTestRule<>(CommentActivity.class, false, false);
+    public IntentsTestRule<RecordListActivity> intentsTestRule =
+            new IntentsTestRule<>(RecordListActivity.class, false, false);
 
     @Before
     public void setup() {
@@ -49,7 +46,6 @@ public class CommentActivityIntentTesting {
         p = new Patient(user_id, email, number);
         pr = new Problem("newproblem", new Date(), "description", p.getUserid());
         r = new Record("newrecord", new Date(), "description");
-        r.addCommment(new Comment("newcomment", p.getUserid()));
 
         RecordElasticSearchController res = new RecordElasticSearchController();
         ProblemElasticSearchController pres = new ProblemElasticSearchController();
@@ -73,19 +69,25 @@ public class CommentActivityIntentTesting {
         waitForES();
         Gson gson = new Gson();
         Intent i = new Intent();
-        i.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(p));
-        i.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(r));
+        i.putExtra("team27.healthe.User", gson.toJson(p));
+        i.putExtra("team27.healthe.PROBLEM", gson.toJson(pr));
         intentsTestRule.launchActivity(i);
     }
 
     @Test
-    public void TestGettingProfile() {
+    public void testRecordsList() {
 
-        onData(anything()).inAdapterView(withId(R.id.commentListView)).atPosition(0).perform(click());
-        intended(hasComponent(ProfileActivity.class.getName()));
-
-
+        onData(anything()).inAdapterView(withId(R.id.record_list)).atPosition(0).perform(click());
+        intended(hasComponent(RecordActivity.class.getName()));
     }
+
+//    @Test
+//    public void testAddRecordBodyLocationPhoto() {
+//        // Attempting to add a record without a body location photo
+//        onView(withId(R.id.add_record_fab)).perform(click());
+//        intended(hasComponent(ViewBodyLocationsActivity.class.getName()));
+//        onView(isRoot()).perform(ViewActions.pressBack());
+//    }
 
     @After
     public void after() {
@@ -105,6 +107,7 @@ public class CommentActivityIntentTesting {
         }
         waitForES();
     }
+
 
     private void waitForES() {
         try {

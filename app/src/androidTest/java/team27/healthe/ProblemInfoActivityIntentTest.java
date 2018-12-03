@@ -40,7 +40,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.containsString;
 
-public class ProblemInfoActivityIntentTesting {
+public class ProblemInfoActivityIntentTest {
 
     private Patient p;
     private Problem pr;

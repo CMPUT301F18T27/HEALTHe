@@ -1,8 +1,6 @@
 package team27.healthe;
 
 import android.content.Intent;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.google.gson.Gson;
@@ -17,45 +15,34 @@ import java.util.Date;
 import team27.healthe.controllers.ProblemElasticSearchController;
 import team27.healthe.controllers.RecordElasticSearchController;
 import team27.healthe.controllers.UserElasticSearchController;
-import team27.healthe.model.CareProvider;
+import team27.healthe.model.GeoLocation;
 import team27.healthe.model.Patient;
 import team27.healthe.model.Problem;
 import team27.healthe.model.Record;
-import team27.healthe.ui.HomeActivity;
+import team27.healthe.ui.CommentActivity;
+import team27.healthe.ui.GeoLocationActivity;
 import team27.healthe.ui.LoginActivity;
-import team27.healthe.ui.ProblemInfoActivity;
-import team27.healthe.ui.ProblemListFragment;
-import team27.healthe.ui.QRCodeActivity;
 import team27.healthe.ui.RecordActivity;
 import team27.healthe.ui.RecordListActivity;
-import team27.healthe.ui.SearchResultsActivity;
-import team27.healthe.ui.SignupActivity;
-import team27.healthe.ui.ViewBodyLocationsActivity;
+import team27.healthe.ui.SlideshowActivity;
 
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.containsString;
 
-public class RecordListActivityIntentTesting {
+public class RecordActivityIntentTest {
 
     private Patient p;
     private Problem pr;
     private Record r;
 
     @Rule
-    public IntentsTestRule<RecordListActivity> intentsTestRule =
-            new IntentsTestRule<>(RecordListActivity.class, false, false);
+    public IntentsTestRule<RecordActivity> intentsTestRule =
+            new IntentsTestRule<>(RecordActivity.class, false, false);
 
     @Before
     public void setup() {
@@ -88,25 +75,34 @@ public class RecordListActivityIntentTesting {
         waitForES();
         Gson gson = new Gson();
         Intent i = new Intent();
-        i.putExtra("team27.healthe.User", gson.toJson(p));
-        i.putExtra("team27.healthe.PROBLEM", gson.toJson(pr));
+        i.putExtra(LoginActivity.USER_MESSAGE, gson.toJson(p));
+        i.putExtra(RecordActivity.RECORD_MESSAGE, gson.toJson(r));
         intentsTestRule.launchActivity(i);
     }
 
     @Test
-    public void testRecordsList() {
-
-        onData(anything()).inAdapterView(withId(R.id.record_list)).atPosition(0).perform(click());
-        intended(hasComponent(RecordActivity.class.getName()));
+    public void testViewComments() {
+        onView(withId(R.id.button23)).perform(click());
+        intended(hasComponent(CommentActivity.class.getName()));
     }
 
-//    @Test
-//    public void testAddRecordBodyLocationPhoto() {
-//        // Attempting to add a record without a body location photo
-//        onView(withId(R.id.add_record_fab)).perform(click());
-//        intended(hasComponent(ViewBodyLocationsActivity.class.getName()));
-//        onView(isRoot()).perform(ViewActions.pressBack());
-//    }
+    @Test
+    public void testViewPhotos() {
+        onView(withId(R.id.button22)).perform(click());
+        intended(hasComponent(SlideshowActivity.class.getName()));
+    }
+
+    @Test
+    public void testViewBodyLocations() {
+        onView(withId(R.id.button24)).perform(click());
+        intended(hasComponent(CommentActivity.class.getName()));
+    }
+
+    @Test
+    public void testViewGeoLocations() {
+        onView(withId(R.id.button25)).perform(click());
+        intended(hasComponent(GeoLocationActivity.class.getName()));
+    }
 
     @After
     public void after() {
