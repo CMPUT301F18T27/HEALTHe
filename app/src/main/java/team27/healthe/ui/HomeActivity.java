@@ -233,6 +233,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int request, int result, Intent intent) {
+
         if (request == BODY_REQUEST_CODE && result == RESULT_OK) { // Edit body location returned updated user
             UserElasticSearchController user_controller = new UserElasticSearchController();
             String user_json = intent.getStringExtra(LoginActivity.USER_MESSAGE);
@@ -241,6 +242,7 @@ public class HomeActivity extends AppCompatActivity {
                 problem_list_fragment.updateCurrentUser((Patient) current_user); // Update user in problem list fragment
             }
         }
+        super.onActivityResult(request, result, intent);
     }
 
     /**

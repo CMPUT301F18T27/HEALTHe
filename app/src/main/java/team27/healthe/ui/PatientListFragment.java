@@ -56,6 +56,7 @@ public class PatientListFragment extends Fragment {
     private PatientListAdapter adapter;
     private ArrayList<Patient> patients;
     private ArrayList<String> patient_ids;
+    private boolean on_qr_code = false;
 
     public PatientListFragment() {
         // Required empty public constructor
@@ -147,7 +148,12 @@ public class PatientListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getPatients();
+        if (on_qr_code == false){
+            getPatients();
+        }
+        else{
+            on_qr_code = false;
+        }
     }
 
     @Override
@@ -166,6 +172,7 @@ public class PatientListFragment extends Fragment {
                     Toast.makeText(getContext(), "Patient already assigned to you", Toast.LENGTH_SHORT).show();
                 }
                 else {
+                    on_qr_code = true;
                     Toast.makeText(getContext(), "Adding patient...", Toast.LENGTH_SHORT).show();
                     new getUserAsync().execute(barcode.rawValue);
                 }
